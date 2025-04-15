@@ -4,7 +4,8 @@
     "pages/logs/logs",
     "pages/category/category",
     "pages/cart/cart",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/product/product"
   ],
   "window": {
     "backgroundTextStyle": "light",

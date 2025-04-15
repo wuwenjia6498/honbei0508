@@ -1,0 +1,304 @@
+/**product.wxss**/
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft Yahei", Tahoma, Simsun, sans-serif;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f5f5f5;
+  position: relative;
+  padding-bottom: 140rpx; /* 增加底部间距 */
+  padding-left: 20rpx; /* 增加左边距 */
+  padding-right: 20rpx; /* 增加右边距 */
+  box-sizing: border-box;
+}
+
+/* 产品图片区域 */
+.product-image-container {
+  width: 100%;
+  height: 550rpx;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -60rpx;
+  margin-top: 0;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.back-button {
+  position: absolute;
+  top: 80rpx; /* 调整按钮位置 */
+  left: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+
+.back-button image {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 80rpx; /* 调整按钮位置 */
+  right: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  z-index: 20;
+}
+
+.favorite-button, .share-button {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.favorite-button image, .share-button image {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 产品信息区域 */
+.product-info {
+  background-color: #fff;
+  border-radius: 40rpx 40rpx 0 0; /* 顶部圆角 */
+  padding: 50rpx 40rpx; /* 增加内部边距 */
+  position: relative;
+  z-index: 10;
+  margin-top: 0;
+  overflow-y: auto;
+  flex: 1;
+  box-shadow: 0 -10rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.product-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+}
+
+.product-price {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #8D6E63;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  margin-right: 10rpx;
+}
+
+.star {
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+.star.filled {
+  color: #FFCA28;
+}
+
+.reviews {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.product-description {
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* 选项区域 */
+.option-section {
+  margin-bottom: 30rpx;
+}
+
+.option-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.option-item {
+  padding: 16rpx 30rpx;
+  background-color: #F5F5F5;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+}
+
+.option-item.selected {
+  background-color: #8D6E63;
+  color: white;
+}
+
+.option-price {
+  font-size: 24rpx;
+  margin-left: 4rpx;
+}
+
+.option-item.selected .option-price {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 数量选择器 */
+.quantity-control {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-button {
+  width: 70rpx;
+  height: 70rpx;
+  background-color: #F5F5F5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.quantity-button.disabled {
+  opacity: 0.5;
+}
+
+.quantity-value {
+  width: 80rpx;
+  text-align: center;
+  font-size: 32rpx;
+}
+
+/* 特殊要求文本框 */
+.special-request {
+  width: 100%;
+  height: 150rpx;
+  background-color: #F5F5F5;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  font-size: 26rpx;
+  color: #666;
+  box-sizing: border-box;
+}
+
+/* 商品详情 */
+.product-details {
+  margin-top: 40rpx;
+  margin-bottom: 60rpx; /* 增加底部边距，防止内容被底部按钮遮挡 */
+}
+
+.details-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30rpx 20rpx;
+}
+
+.details-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.details-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 6rpx;
+}
+
+.details-value {
+  font-size: 26rpx;
+  color: #333;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 130rpx; /* 增加高度 */
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 30; /* 确保在最上层 */
+  padding: 0 40rpx; /* 增加左右间距 */
+  justify-content: space-between; /* 两边留间距 */
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.add-to-cart, .buy-now {
+  flex: 0.48; /* 让两个按钮不要完全占满，有一点间距 */
+  height: 90rpx; /* 增加高度 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 45rpx; /* 设置为更圆的椭圆形 */
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
+
+.add-to-cart {
+  background-color: #A1887F;
+  color: white;
+}
+
+.buy-now {
+  background-color: #8D6E63;
+  color: white;
+} 

@@ -100,15 +100,9 @@ Page({
   // 跳转到商品详情
   goToProductDetail(e) {
     const productId = e.currentTarget.dataset.id;
-    // 因为还没有实现商品详情页，先用提示代替
-    wx.showToast({
-      title: '商品详情页开发中',
-      icon: 'none'
+    wx.navigateTo({
+      url: `/pages/product/product?id=${productId}`
     });
-    // 后续实现时可以用以下代码
-    // wx.navigateTo({
-    //   url: `/pages/product/product?id=${productId}`
-    // });
   },
   // 添加到购物车
   addToCart(e) {
