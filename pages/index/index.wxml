@@ -1,0 +1,78 @@
+<!--index.wxml-->
+<view class="container">
+  <!-- 顶部标题和图标 -->
+  <view class="header">
+    <view class="title">
+      <text class="store-name">梧桐小姐烘焙</text>
+      <text class="subtitle">与香浓咖啡更配</text>
+    </view>
+    <view class="icons">
+      <image class="icon notification" src="/assets/images/icons/notification-filled.svg" mode="aspectFit"></image>
+      <image class="icon favorite" src="/assets/images/icons/heart-filled.svg" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-icon-container">
+      <image class="search-icon" src="/assets/images/icons/search-filled.svg" mode="aspectFit"></image>
+    </view>
+    <input type="text" placeholder="搜索烘焙美食..." />
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view scroll-y="true" class="content">
+    <!-- 今日新鲜出炉 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">今日新鲜出炉</text>
+        <view class="view-more" bindtap="viewAllFresh">查看全部</view>
+      </view>
+      
+      <scroll-view scroll-x="true" class="product-scroll" enable-flex="true">
+        <view class="product-card fresh-card" wx:for="{{freshProducts}}" wx:key="id" bindtap="goToProductDetail" data-id="{{item.id}}">
+          <view class="badge">今日特供</view>
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="product-info">
+            <text class="product-name">{{item.name}}</text>
+            <view class="price-row">
+              <view class="price-container">
+                <text class="price">¥{{item.price}}</text>
+                <text class="price-unit">{{item.price}} 元</text>
+              </view>
+              <view class="add-to-cart" catchtap="addToCart" data-id="{{item.id}}">+</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 人气推荐 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">人气推荐</text>
+        <view class="view-more" bindtap="viewAllPopular">查看全部</view>
+      </view>
+      
+      <view class="popular-list">
+        <view class="product-card-large" wx:for="{{popularProducts}}" wx:key="id" bindtap="goToProductDetail" data-id="{{item.id}}">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="product-info">
+            <text class="product-name">{{item.name}}</text>
+            <view class="rating">
+              <view class="star-container">
+                <text class="star">★</text>
+                <text class="score">{{item.rating}}</text>
+                <text class="reviews">({{item.reviews}})</text>
+              </view>
+              <view class="price-container">
+                <text class="price">¥{{item.price}}</text>
+              </view>
+            </view>
+            <view class="add-to-cart" catchtap="addToCart" data-id="{{item.id}}">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
