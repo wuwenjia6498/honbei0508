@@ -3,5 +3,6 @@
   "projectname": "00honbei-0415",
   "setting": {
     "compileHotReLoad": true
-  }
+  },
+  "libVersion": "trial"
 }
