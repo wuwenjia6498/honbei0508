@@ -1,3 +1,158 @@
-<view class="container">
-  <text>个人中心页面开发中</text>
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-info-container">
+    <view class="user-avatar-container">
+      <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </view>
+    <view class="user-details">
+      <view class="user-name">{{userInfo.nickName}}</view>
+      <view class="user-phone">
+        <text>{{userInfo.phone}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 会员信息区域 -->
+  <view class="member-info-container">
+    <view class="member-badge">
+      <view class="crown-icon">👑</view>
+      <view class="member-text">{{memberInfo.level}}</view>
+    </view>
+    <view class="member-savings">
+      <text>已累计节省 ¥{{memberInfo.saved}}</text>
+    </view>
+    <view class="member-detail-btn" bindtap="goToMemberDetail">
+      <text>会员详情</text>
+    </view>
+  </view>
+
+  <!-- 我的订单区域 -->
+  <view class="orders-container">
+    <view class="orders-header">
+      <text class="orders-title">我的订单</text>
+      <navigator url="/pages/order-detail/order-detail" class="view-all">查看全部</navigator>
+    </view>
+    
+    <view class="order-status-icons">
+      <view class="status-item" bindtap="goToOrders" data-status="toPay">
+        <view class="status-icon payment-icon">
+          <view class="icon-placeholder">付</view>
+          <view class="badge" wx:if="{{orderStats.toPay > 0}}">{{orderStats.toPay}}</view>
+        </view>
+        <text>待付款</text>
+      </view>
+      <view class="status-item" bindtap="goToOrders" data-status="toBake">
+        <view class="status-icon baking-icon">
+          <view class="icon-placeholder">烘</view>
+          <view class="badge" wx:if="{{orderStats.toBake > 0}}">{{orderStats.toBake}}</view>
+        </view>
+        <text>烘焙中</text>
+      </view>
+      <view class="status-item" bindtap="goToOrders" data-status="toDeliver">
+        <view class="status-icon delivery-icon">
+          <view class="icon-placeholder">送</view>
+          <view class="badge" wx:if="{{orderStats.toDeliver > 0}}">{{orderStats.toDeliver}}</view>
+        </view>
+        <text>配送中</text>
+      </view>
+      <view class="status-item" bindtap="goToOrders" data-status="completed">
+        <view class="status-icon completed-icon">
+          <view class="icon-placeholder">完</view>
+          <view class="badge" wx:if="{{orderStats.completed > 0}}">{{orderStats.completed}}</view>
+        </view>
+        <text>已完成</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近订单区域 -->
+  <view class="recent-orders">
+    <block wx:for="{{recentOrders}}" wx:key="id">
+      <view class="recent-order-item" bindtap="goToOrderDetail" data-id="{{item.id}}">
+        <view class="order-header">
+          <text class="order-number">订单号: {{item.id}}</text>
+          <text class="order-status {{item.status}}">{{item.statusText}}</text>
+        </view>
+        <view class="order-products">
+          <view class="product-images">
+            <block wx:for="{{item.products}}" wx:for-item="product" wx:key="id">
+              <view class="product-image-container">
+                <image src="{{product.image}}" mode="aspectFill"></image>
+                <view class="product-count">{{product.count}}</view>
+              </view>
+            </block>
+          </view>
+          <view class="order-price">
+            <text>共{{item.totalCount}}件商品</text>
+            <text class="price">¥{{item.totalPrice}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 用户服务菜单 -->
+  <view class="user-services">
+    <navigator url="/pages/address/address" class="service-item">
+      <view class="service-icon location-icon">
+        <view class="icon-placeholder">地</view>
+      </view>
+      <text class="service-name">收货地址</text>
+      <view class="service-arrow"></view>
+    </navigator>
+
+    <navigator url="/pages/coupons/coupons" class="service-item">
+      <view class="service-icon coupon-icon">
+        <view class="icon-placeholder">券</view>
+      </view>
+      <text class="service-name">优惠券</text>
+      <text class="coupon-count" wx:if="{{couponCount > 0}}">{{couponCount}}张可用</text>
+      <view class="service-arrow"></view>
+    </navigator>
+
+    <navigator url="/pages/favorites/favorites" class="service-item">
+      <view class="service-icon favorite-icon">
+        <view class="icon-placeholder">藏</view>
+      </view>
+      <text class="service-name">我的收藏</text>
+      <view class="service-arrow"></view>
+    </navigator>
+
+    <navigator url="/pages/customer-service/customer-service" class="service-item">
+      <view class="service-icon service-icon">
+        <view class="icon-placeholder">客</view>
+      </view>
+      <text class="service-name">联系客服</text>
+      <view class="service-arrow"></view>
+    </navigator>
+  </view>
+
+  <!-- 设置菜单 -->
+  <view class="settings-menu">
+    <navigator url="/pages/settings/settings" class="setting-item">
+      <view class="setting-icon">
+        <view class="icon-placeholder">设</view>
+      </view>
+      <text class="setting-name">设置</text>
+      <view class="setting-arrow"></view>
+    </navigator>
+
+    <navigator url="/pages/help/help" class="setting-item">
+      <view class="setting-icon">
+        <view class="icon-placeholder">?</view>
+      </view>
+      <text class="setting-name">帮助与反馈</text>
+      <view class="setting-badge">?</view>
+      <view class="setting-arrow"></view>
+    </navigator>
+
+    <navigator url="/pages/about/about" class="setting-item">
+      <view class="setting-icon">
+        <view class="icon-placeholder">i</view>
+      </view>
+      <text class="setting-name">关于我们</text>
+      <view class="setting-badge">i</view>
+      <view class="setting-arrow"></view>
+    </navigator>
+  </view>
 </view> 

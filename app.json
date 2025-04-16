@@ -5,7 +5,9 @@
     "pages/category/category",
     "pages/cart/cart",
     "pages/profile/profile",
-    "pages/product/product"
+    "pages/product/product",
+    "pages/checkout/checkout",
+    "pages/order-detail/order-detail"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -48,5 +50,11 @@
   "style": "v2",
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index"
+  },
+  "navigationBarTitleText": "我的",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f6f6f6"
 }
