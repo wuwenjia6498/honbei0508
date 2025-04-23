@@ -63,8 +63,7 @@ Page({
         totalCount: 5,
         totalPrice: 98.00
       }
-    ],
-    couponCount: 3
+    ]
   },
 
   /**

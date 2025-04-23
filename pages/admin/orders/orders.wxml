@@ -1,0 +1,222 @@
+<!-- 订单管理页面 -->
+<view class="orders-page">
+  <!-- 列表视图 -->
+  <view class="list-view" wx:if="{{showListView}}">
+    <!-- 顶部标签页 -->
+    <view class="tab-bar">
+      <view 
+        wx:for="{{tabList}}" 
+        wx:key="index" 
+        class="tab-item {{activeTab === index ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-index="{{index}}">
+        {{item}}
+      </view>
+    </view>
+    
+    <!-- 订单列表 -->
+    <view class="order-list">
+      <view wx:if="{{loading}}" class="loading-container">
+        <view class="loading"></view>
+        <text>加载中...</text>
+      </view>
+      
+      <view wx:elif="{{filteredOrders.length === 0}}" class="empty-list">
+        <image src="/images/empty-order.png" mode="aspectFit"></image>
+        <text>暂无订单</text>
+      </view>
+      
+      <block wx:else>
+        <view 
+          wx:for="{{filteredOrders}}" 
+          wx:key="id" 
+          class="order-item"
+          bindtap="viewOrderDetail"
+          data-id="{{item.id}}">
+          <view class="order-header">
+            <text class="order-number">订单号: {{item.id}}</text>
+            <view class="order-status {{item.status}}">{{item.statusText}}</view>
+          </view>
+          
+          <view class="order-content">
+            <view class="product-list">
+              <view 
+                wx:for="{{item.products}}" 
+                wx:for-item="product" 
+                wx:key="id"
+                class="product-item">
+                <image class="product-image" src="{{product.image}}" mode="aspectFill"></image>
+                <view class="product-info">
+                  <view class="product-name">{{product.name}}</view>
+                  <view class="product-spec">{{product.spec}}</view>
+                  <view class="product-price-qty">
+                    <text class="product-price">¥{{product.price}}</text>
+                    <text class="product-qty">x{{product.quantity}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            
+            <view class="order-footer">
+              <view class="order-time">{{item.createTime}}</view>
+              <view class="order-amount">
+                <text>共{{item.products.length}}件商品</text>
+                <text>合计：<text class="price">¥{{item.totalAmount}}</text></text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- 详情视图 -->
+  <view class="detail-view" wx:else>
+    <view class="detail-header">
+      <view class="back-button" bindtap="backToList">
+        <view class="back-icon"></view>
+        <text>返回列表</text>
+      </view>
+      <view class="status-card {{currentOrder.status}}">
+        <view class="status-icon"></view>
+        <text>{{currentOrder.statusText}}</text>
+      </view>
+    </view>
+    
+    <view class="detail-content">
+      <!-- 订单信息 -->
+      <view class="detail-section info-section">
+        <view class="section-title">订单信息</view>
+        <view class="info-item">
+          <text class="info-label">订单编号</text>
+          <view class="info-value with-action">
+            <text>{{currentOrder.orderNumber}}</text>
+            <view class="copy-btn" bindtap="copyText" data-text="{{currentOrder.orderNumber}}">复制</view>
+          </view>
+        </view>
+        <view class="info-item">
+          <text class="info-label">创建时间</text>
+          <text class="info-value">{{currentOrder.createTime}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">支付方式</text>
+          <text class="info-value">{{currentOrder.paymentMethod}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">支付时间</text>
+          <text class="info-value">{{currentOrder.paymentTime}}</text>
+        </view>
+      </view>
+      
+      <!-- 配送进度 -->
+      <view class="detail-section progress-section">
+        <view class="section-title">配送进度</view>
+        <view class="progress-timeline">
+          <view 
+            wx:for="{{currentOrder.progress}}" 
+            wx:key="title"
+            class="progress-item {{item.completed ? 'completed' : ''}}">
+            <view class="progress-dot"></view>
+            <view class="progress-line" wx:if="{{index < currentOrder.progress.length - 1}}"></view>
+            <view class="progress-info">
+              <view class="progress-title">{{item.title}}</view>
+              <view class="progress-desc">{{item.desc}}</view>
+              <view class="progress-time" wx:if="{{item.time}}">{{item.time}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 商品信息 -->
+      <view class="detail-section products-section">
+        <view class="section-title">商品信息</view>
+        <view 
+          wx:for="{{currentOrder.products}}" 
+          wx:key="id"
+          class="detail-product-item">
+          <image class="detail-product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="detail-product-info">
+            <view class="detail-product-name">{{item.name}}</view>
+            <view class="detail-product-spec">规格：{{item.spec}}</view>
+            <view class="detail-product-price-qty">
+              <text class="detail-product-price">¥{{item.price}}</text>
+              <text class="detail-product-qty">x{{item.quantity}}</text>
+            </view>
+            <view class="detail-product-subtotal">小计：¥{{item.price * item.quantity}}</view>
+          </view>
+        </view>
+        
+        <view class="order-summary">
+          <view class="summary-item">
+            <text class="summary-label">商品金额</text>
+            <text class="summary-value">¥{{currentOrder.totalAmount}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">配送费用</text>
+            <text class="summary-value">¥0.00</text>
+          </view>
+          <view class="summary-item total">
+            <text class="summary-label">实付金额</text>
+            <text class="summary-value price">¥{{currentOrder.totalAmount}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 收货信息 -->
+      <view class="detail-section address-section">
+        <view class="section-title">收货信息</view>
+        <view class="address-info">
+          <view class="user-info">
+            <text class="user-name">{{currentOrder.address.name}}</text>
+            <text class="user-phone">{{currentOrder.address.phone}}</text>
+          </view>
+          <view class="address-detail">{{currentOrder.address.detail}}</view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 底部操作按钮 -->
+    <view class="detail-footer">
+      <view class="footer-btn service-btn" bindtap="contactService">联系客服</view>
+      <view class="footer-btn rebuy-btn" bindtap="rebuyOrder">再次购买</view>
+    </view>
+  </view>
+</view>
+
+<!-- 底部Tabbar占位 -->
+<view class="tabbar-placeholder"></view>
+
+<!-- 使用统一的导航栏组件 -->
+<admin-tab-bar activeTab="orders"></admin-tab-bar>
+
+<!-- 模拟数据 -->
+<wxs module="mockData">
+  module.exports = {
+    mockProducts: [
+      { 
+        id: 1, 
+        image: '/assets/images/products/product-croissant.jpg',
+        name: '法式牛角面包',
+        spec: '原味·轻烘焙·易包装',
+        price: 24.00,
+        count: 2
+      },
+      { 
+        id: 2, 
+        image: '/assets/images/products/product-brownie.jpg',
+        name: '抹茶红豆蛋糕',
+        spec: '标准甜度·小件装',
+        price: 28.00,
+        count: 1
+      },
+      { 
+        id: 3, 
+        image: '/assets/images/products/product-tiramisu.jpg',
+        name: '经典提拉米苏',
+        spec: '标准甜度·小件装',
+        price: 38.00,
+        count: 1
+      }
+    ]
+  }
+</wxs> 

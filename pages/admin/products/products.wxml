@@ -1,0 +1,168 @@
+<view class="container">
+  <!-- 顶部标题和添加按钮 -->
+  <view class="header">
+    <text class="title">商品管理</text>
+    <view class="add-btn" bindtap="showAddProductForm">
+      <text>+ 添加商品</text>
+    </view>
+  </view>
+  
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <input type="text" placeholder="搜索商品名称..." bindinput="onSearchInput" value="{{searchKeyword}}" />
+    <image class="search-icon" src="/assets/images/icons/search-filled.svg" mode="aspectFit"></image>
+  </view>
+  
+  <!-- 分类筛选 -->
+  <view class="category-filter">
+    <view class="category-item {{currentCategory === 'all' ? 'active' : ''}}" bindtap="switchCategory" data-category="all">
+      <text>全部</text>
+    </view>
+    <view class="category-item {{currentCategory === '蛋糕' ? 'active' : ''}}" bindtap="switchCategory" data-category="蛋糕">
+      <text>蛋糕</text>
+    </view>
+    <view class="category-item {{currentCategory === '面包' ? 'active' : ''}}" bindtap="switchCategory" data-category="面包">
+      <text>面包</text>
+    </view>
+    <view class="category-item {{currentCategory === '饼干' ? 'active' : ''}}" bindtap="switchCategory" data-category="饼干">
+      <text>饼干</text>
+    </view>
+    <view class="category-item {{currentCategory === '咖啡' ? 'active' : ''}}" bindtap="switchCategory" data-category="咖啡">
+      <text>咖啡</text>
+    </view>
+  </view>
+  
+  <!-- 调试信息 -->
+  <view class="debug-info" style="margin-bottom: 20rpx; color: #666; font-size: 24rpx;">
+    <text>商品总数: {{products.length}} | 筛选后商品数: {{filteredProducts.length}}</text>
+  </view>
+  
+  <!-- 商品列表 -->
+  <view class="product-list">
+    <block wx:if="{{filteredProducts.length > 0}}">
+      <block wx:for="{{filteredProducts}}" wx:key="id">
+        <view class="product-item">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="product-content">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-spec">规格: {{item.spec}} | 库存: {{item.stock}}</view>
+            <view class="product-status {{item.isActive ? 'on-sale' : 'off-sale'}}">{{item.isActive ? '在售' : '下架'}}</view>
+            <view class="product-category">{{item.category}}</view>
+            <view wx:if="{{item.isHot}}" class="product-hot">热门</view>
+          </view>
+          <view class="product-price">¥{{item.price}}</view>
+          <view class="product-edit" bindtap="showEditProductForm" data-id="{{item.id}}">
+            <image class="edit-icon" src="/assets/images/icons/user-edit.svg" mode="aspectFit"></image>
+          </view>
+        </view>
+      </block>
+    </block>
+    <view wx:else class="empty-list">
+      <text>暂无商品数据</text>
+    </view>
+  </view>
+  
+  <!-- 添加商品表单弹窗 -->
+  <view class="form-modal" wx:if="{{showAddForm}}">
+    <view class="modal-mask" bindtap="closeAddProductForm"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text>添加商品</text>
+        <view class="close-btn" bindtap="closeAddProductForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品名称</view>
+        <input class="form-input" type="text" placeholder="请输入商品名称" bindinput="onNewProductInput" data-field="name" value="{{newProduct.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品价格</view>
+        <input class="form-input" type="digit" placeholder="请输入商品价格" bindinput="onNewProductInput" data-field="price" value="{{newProduct.price}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品规格</view>
+        <input class="form-input" type="text" placeholder="请输入商品规格" bindinput="onNewProductInput" data-field="spec" value="{{newProduct.spec}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">库存数量</view>
+        <input class="form-input" type="number" placeholder="请输入库存数量" bindinput="onNewProductInput" data-field="stock" value="{{newProduct.stock}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品分类</view>
+        <picker bindchange="onNewProductPickerChange" value="{{categories.indexOf(newProduct.category)}}" range="{{categories}}">
+          <view class="picker-value">{{newProduct.category}}</view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否上架</view>
+          <switch checked="{{newProduct.isActive}}" bindchange="onNewProductSwitchChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否热门</view>
+          <switch checked="{{newProduct.isHot}}" bindchange="onNewProductHotChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-actions">
+        <view class="cancel-btn" bindtap="closeAddProductForm">取消</view>
+        <view class="submit-btn" bindtap="submitAddProduct">确认</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 编辑商品表单弹窗 -->
+  <view class="form-modal" wx:if="{{showEditForm}}">
+    <view class="modal-mask" bindtap="closeEditProductForm"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text>编辑商品</text>
+        <view class="close-btn" bindtap="closeEditProductForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品名称</view>
+        <input class="form-input" type="text" placeholder="请输入商品名称" bindinput="onEditProductInput" data-field="name" value="{{currentProduct.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品价格</view>
+        <input class="form-input" type="digit" placeholder="请输入商品价格" bindinput="onEditProductInput" data-field="price" value="{{currentProduct.price}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品规格</view>
+        <input class="form-input" type="text" placeholder="请输入商品规格" bindinput="onEditProductInput" data-field="spec" value="{{currentProduct.spec}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">库存数量</view>
+        <input class="form-input" type="number" placeholder="请输入库存数量" bindinput="onEditProductInput" data-field="stock" value="{{currentProduct.stock}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品分类</view>
+        <picker bindchange="onEditProductPickerChange" value="{{categories.indexOf(currentProduct.category)}}" range="{{categories}}">
+          <view class="picker-value">{{currentProduct.category}}</view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否上架</view>
+          <switch checked="{{currentProduct.isActive}}" bindchange="onEditProductSwitchChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否热门</view>
+          <switch checked="{{currentProduct.isHot}}" bindchange="onEditProductHotChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-actions">
+        <view class="cancel-btn" bindtap="closeEditProductForm">取消</view>
+        <view class="submit-btn" bindtap="submitEditProduct">确认</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 使用统一的底部导航栏组件 -->
+  <admin-tab-bar activeTab="products"></admin-tab-bar>
+  
+  <!-- 为底部导航栏留出空间 -->
+  <view style="height: 120rpx;"></view>
+</view> 

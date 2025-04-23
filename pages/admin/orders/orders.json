@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "admin-tab-bar": "/components/admin-tab-bar/admin-tab-bar"
+  },
+  "navigationBarTitleText": "订单管理",
+  "navigationBarBackgroundColor": "#8D6E63",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f6f6f6"
+} 

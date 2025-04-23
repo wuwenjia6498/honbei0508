@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "admin-tab-bar": "/components/admin-tab-bar/admin-tab-bar"
+  },
+  "navigationBarTitleText": "商品管理",
+  "navigationBarBackgroundColor": "#a68a7b",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f8f8f8"
+} 

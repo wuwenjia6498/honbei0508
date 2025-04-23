@@ -1,0 +1,127 @@
+<view class="container">
+  <!-- 顶部标题和提示内容 -->
+  <view class="header">
+    <text class="page-title">分类管理</text>
+    <view class="user-icon">
+      <image src="/assets/images/icons/user.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tip-box">
+    <image class="tip-icon" src="/assets/images/icons/notification.svg" mode="aspectFit"></image>
+    <view class="tip-content">
+      <text class="tip-title">分类管理提示</text>
+      <text class="tip-desc">您可以拖拽分类改变顺序, 点击分类可以编辑详情. 目前共有{{categories.length}}个分类, 最多可添加12个.</text>
+    </view>
+  </view>
+
+  <!-- 分类列表 -->
+  <view class="category-list">
+    <block wx:for="{{categories}}" wx:key="id">
+      <view class="category-item {{dragging && currentIndex === index ? 'dragging' : ''}}" 
+            data-index="{{index}}" 
+            bindtouchstart="dragStart"
+            bindtouchmove="dragging"
+            bindtouchend="dragEnd">
+        <!-- 拖拽图标 -->
+        <view class="drag-handle">
+          <image src="/assets/images/icons/category.png" mode="aspectFit"></image>
+        </view>
+        
+        <!-- 分类图标和名称 -->
+        <view class="category-info" bindtap="showEditCategoryForm" data-id="{{item.id}}">
+          <view class="category-icon" style="background-color: {{getCategoryColor(item.name)}};">
+            <image src="{{getCategoryIcon(item.name)}}" mode="aspectFit"></image>
+          </view>
+          <view class="category-name">
+            <text>{{item.name}}</text>
+            <text class="product-count">{{item.productCount}}件商品</text>
+          </view>
+        </view>
+        
+        <!-- 分类操作按钮 -->
+        <view class="category-actions">
+          <view class="action-btn edit-btn" catchtap="showEditCategoryForm" data-id="{{item.id}}">
+            <image src="/assets/images/icons/user-edit.svg" mode="aspectFit"></image>
+          </view>
+          <view class="action-btn delete-btn" catchtap="deleteCategory" data-id="{{item.id}}">
+            <image src="/assets/images/icons/user-delete.svg" mode="aspectFit"></image>
+          </view>
+          <view class="action-btn more-btn">
+            <text>›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 添加分类按钮 -->
+  <view class="add-category-btn" bindtap="showAddCategoryForm">
+    <text>+</text>
+  </view>
+
+  <!-- 添加分类表单弹窗 -->
+  <view class="form-modal" wx:if="{{showAddForm}}">
+    <view class="modal-mask" bindtap="closeAddCategoryForm"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text>添加分类</text>
+        <view class="close-btn" bindtap="closeAddCategoryForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">分类名称</view>
+        <input class="form-input" type="text" placeholder="请输入分类名称" bindinput="onNewCategoryInput" data-field="name" value="{{newCategory.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">排序</view>
+        <input class="form-input" type="number" placeholder="请输入排序值" bindinput="onNewCategoryInput" data-field="order" value="{{newCategory.order}}" />
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否启用</view>
+          <switch checked="{{newCategory.isActive}}" bindchange="onNewCategorySwitchChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-actions">
+        <view class="cancel-btn" bindtap="closeAddCategoryForm">取消</view>
+        <view class="submit-btn" bindtap="submitAddCategory">确认</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑分类表单弹窗 -->
+  <view class="form-modal" wx:if="{{showEditForm}}">
+    <view class="modal-mask" bindtap="closeEditCategoryForm"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text>编辑分类</text>
+        <view class="close-btn" bindtap="closeEditCategoryForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">分类名称</view>
+        <input class="form-input" type="text" placeholder="请输入分类名称" bindinput="onEditCategoryInput" data-field="name" value="{{currentCategory.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">排序</view>
+        <input class="form-input" type="number" placeholder="请输入排序值" bindinput="onEditCategoryInput" data-field="order" value="{{currentCategory.order}}" />
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">是否启用</view>
+          <switch checked="{{currentCategory.isActive}}" bindchange="onEditCategorySwitchChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-actions">
+        <view class="cancel-btn" bindtap="closeEditCategoryForm">取消</view>
+        <view class="submit-btn" bindtap="submitEditCategory">确认</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部导航栏 -->
+  <admin-tab-bar activeTab="categories"></admin-tab-bar>
+  
+  <!-- 为底部导航栏留出空间 -->
+  <view style="height: 120rpx;"></view>
+</view> 

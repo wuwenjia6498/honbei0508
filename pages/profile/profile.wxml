@@ -1,4 +1,7 @@
 <view class="profile-container">
+  <!-- 顶部空白间隔 -->
+  <view class="top-spacing"></view>
+  
   <!-- 用户信息区域 -->
   <view class="user-info-container">
     <view class="user-avatar-container">
@@ -67,6 +70,9 @@
 
   <!-- 最近订单区域 -->
   <view class="recent-orders">
+    <view class="orders-header">
+      <text class="orders-title">最近订单</text>
+    </view>
     <block wx:for="{{recentOrders}}" wx:key="id">
       <view class="recent-order-item" bindtap="goToOrderDetail" data-id="{{item.id}}">
         <view class="order-header">
@@ -101,15 +107,6 @@
       <view class="service-arrow"></view>
     </navigator>
 
-    <navigator url="/pages/coupons/coupons" class="service-item">
-      <view class="service-icon coupon-icon">
-        <view class="icon-placeholder">券</view>
-      </view>
-      <text class="service-name">优惠券</text>
-      <text class="coupon-count" wx:if="{{couponCount > 0}}">{{couponCount}}张可用</text>
-      <view class="service-arrow"></view>
-    </navigator>
-
     <navigator url="/pages/favorites/favorites" class="service-item">
       <view class="service-icon favorite-icon">
         <view class="icon-placeholder">藏</view>
@@ -117,41 +114,25 @@
       <text class="service-name">我的收藏</text>
       <view class="service-arrow"></view>
     </navigator>
-
-    <navigator url="/pages/customer-service/customer-service" class="service-item">
-      <view class="service-icon service-icon">
-        <view class="icon-placeholder">客</view>
-      </view>
-      <text class="service-name">联系客服</text>
-      <view class="service-arrow"></view>
-    </navigator>
   </view>
 
   <!-- 设置菜单 -->
   <view class="settings-menu">
-    <navigator url="/pages/settings/settings" class="setting-item">
-      <view class="setting-icon">
-        <view class="icon-placeholder">设</view>
-      </view>
-      <text class="setting-name">设置</text>
-      <view class="setting-arrow"></view>
-    </navigator>
-
-    <navigator url="/pages/help/help" class="setting-item">
-      <view class="setting-icon">
-        <view class="icon-placeholder">?</view>
-      </view>
-      <text class="setting-name">帮助与反馈</text>
-      <view class="setting-badge">?</view>
-      <view class="setting-arrow"></view>
-    </navigator>
-
     <navigator url="/pages/about/about" class="setting-item">
       <view class="setting-icon">
         <view class="icon-placeholder">i</view>
       </view>
       <text class="setting-name">关于我们</text>
       <view class="setting-badge">i</view>
+      <view class="setting-arrow"></view>
+    </navigator>
+    
+    <!-- 管理员入口 -->
+    <navigator url="/pages/admin/login/login" class="setting-item admin-entry">
+      <view class="setting-icon admin-icon">
+        <view class="icon-placeholder">管</view>
+      </view>
+      <text class="setting-name">管理员入口</text>
       <view class="setting-arrow"></view>
     </navigator>
   </view>

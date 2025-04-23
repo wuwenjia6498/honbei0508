@@ -1,0 +1,48 @@
+<view class="about-container">
+  <!-- 顶部图片 -->
+  <view class="about-header">
+    <image class="header-image" src="/assets/images/icons/admin-logo.png" mode="aspectFit"></image>
+    <view class="title">梧桐小姐烘焙</view>
+    <view class="subtitle">甜蜜生活的小确幸</view>
+  </view>
+  
+  <!-- 关于我们内容 -->
+  <view class="about-content">
+    <view class="section">
+      <view class="section-title">关于我们</view>
+      <view class="section-content">
+        <text>梧桐小姐烘焙创立于2023年，是一家专注于高品质烘焙的小店。我们坚持使用天然、健康的原材料，为顾客提供美味又健康的烘焙产品。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">我们的理念</view>
+      <view class="section-content">
+        <text>用心烘焙，用爱传递。我们相信，每一款甜点都承载着美好的情感与记忆，我们希望通过精心制作的甜点，为您和您爱的人带来甜蜜与幸福。</text>
+      </view>
+    </view>
+    
+    <view class="section">
+      <view class="section-title">联系我们</view>
+      <view class="section-content contact-info">
+        <view class="contact-item">
+          <text class="label">电话：</text>
+          <text class="value">12345678910</text>
+        </view>
+        <view class="contact-item">
+          <text class="label">邮箱：</text>
+          <text class="value">contact@wutongms.com</text>
+        </view>
+        <view class="contact-item">
+          <text class="label">地址：</text>
+          <text class="value">阳光城市 幸福大道123号</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部版权信息 -->
+  <view class="footer">
+    <text>© 2023-2024 梧桐小姐烘焙 版权所有</text>
+  </view>
+</view> 

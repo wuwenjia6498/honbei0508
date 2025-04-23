@@ -1,0 +1,18 @@
+<!-- 统一样式的管理员底部导航栏 -->
+<view class="admin-tab-bar">
+  <block wx:for="{{tabs}}" wx:key="id">
+    <view 
+      class="tab-item {{activeTab === item.id ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="{{item.id}}"
+      data-url="{{item.url}}"
+    >
+      <image 
+        class="tab-icon" 
+        src="{{activeTab === item.id ? item.selectedIconPath : item.iconPath}}" 
+        mode="aspectFit"
+      ></image>
+      <text class="tab-text">{{item.text}}</text>
+    </view>
+  </block>
+</view> 

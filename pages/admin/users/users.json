@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "用户管理",
+  "navigationBarTextStyle": "black",
+  "navigationBarBackgroundColor": "#ffffff",
+  "backgroundColor": "#f6f6f6",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "admin-tab-bar": "/components/admin-tab-bar/admin-tab-bar"
+  }
+} 

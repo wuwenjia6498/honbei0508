@@ -4,7 +4,7 @@
   <view class="header">
     <view class="title">
       <text class="store-name">梧桐小姐烘焙</text>
-      <text class="subtitle">与香浓咖啡更配</text>
+      <text class="subtitle">跟着茂哥吃早餐</text>
     </view>
     <view class="icons">
       <image class="icon notification" src="/assets/images/icons/notification-filled.svg" mode="aspectFit"></image>

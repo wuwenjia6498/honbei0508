@@ -1,0 +1,269 @@
+page {
+  background-color: #f6f6f6;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-container {
+  position: relative;
+  min-height: 100vh;
+  background-color: #f6f6f6;
+  padding-bottom: 120rpx; /* 为底部导航栏预留空间 */
+}
+
+/* 状态栏 */
+.status-bar {
+  width: 100%;
+  background-color: #a68a7b;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* 顶部标题栏 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 30rpx 20rpx;
+  background-color: #a68a7b;
+  color: white;
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.back-to-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+  background-color: rgba(255,255,255,0.2);
+  padding: 6rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.back-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 8rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 500;
+}
+
+.notification {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.bell-icon {
+  width: 100%;
+  height: 100%;
+}
+
+/* 欢迎信息栏 */
+.welcome-bar {
+  background-color: #a68a7b;
+  color: white;
+  padding: 0 30rpx 30rpx 30rpx;
+  font-size: 28rpx;
+  margin-top: 134rpx; /* 标题栏高度 + 状态栏高度 */
+}
+
+/* 数据统计区域 */
+.data-section {
+  padding: 30rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 20rpx;
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 28rpx;
+  background-color: #a68a7b;
+}
+
+/* 统计卡片网格 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+/* 统计卡片样式 */
+.stat-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.stat-icon-container {
+  position: absolute;
+  top: 30rpx;
+  right: 30rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon {
+  width: 24rpx;
+  height: 24rpx;
+  font-size: 24rpx;
+}
+
+/* 统计卡片颜色 */
+.yellow {
+  background-color: #ffefd6;
+  color: #ffb840;
+}
+
+.blue {
+  background-color: #e8f4ff;
+  color: #4499ff;
+}
+
+.green {
+  background-color: #e8fff0;
+  color: #34c759;
+}
+
+.brown {
+  background-color: #f3ece8;
+  color: #a68a7b;
+}
+
+.currency {
+  font-size: 22rpx;
+}
+
+/* 最近订单区域 */
+.recent-orders-section {
+  padding: 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.view-all {
+  font-size: 26rpx;
+  color: #999;
+  display: flex;
+  align-items: center;
+}
+
+.arrow {
+  margin-left: 6rpx;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.order-item {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+
+.order-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-left, .order-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-number {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.order-customer {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-price {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  text-align: right;
+  margin-bottom: 8rpx;
+}
+
+.order-status {
+  font-size: 24rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 100rpx;
+  text-align: center;
+}
+
+.delivering {
+  background-color: #e8f4ff;
+  color: #4499ff;
+}
+
+.pending {
+  background-color: #f3ece8;
+  color: #a68a7b;
+}
+
+/* 底部导航栏样式已移至组件中 */ 

@@ -1,0 +1,520 @@
+/* pages/admin/users/users.wxss */
+
+page {
+  background-color: #f7f7f7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 100rpx;
+  box-sizing: border-box;
+  background-color: #f7f7f7;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 状态栏 */
+.status-bar {
+  width: 100%;
+  background-color: #ffffff;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+/* 顶部区域 */
+.header {
+  background-color: #fff;
+  padding: 24rpx 30rpx 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 999;
+}
+
+.header-title-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.add-user-btn {
+  display: flex;
+  align-items: center;
+  background-color: #a68a7b;
+  color: white;
+  padding: 15rpx 25rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+}
+
+.icon-add {
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 10rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 30rpx;
+  padding: 12rpx 20rpx;
+  margin-right: 20rpx;
+}
+
+.icon-search {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  height: 36rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 筛选器 */
+.filter-wrapper {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 12rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.icon-filter {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 10rpx;
+  opacity: 0.6;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 70rpx;
+  left: 0;
+  z-index: 100;
+  width: 180rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: none;
+}
+
+.filter-dropdown.show {
+  display: block;
+}
+
+.filter-option {
+  padding: 20rpx;
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option.active {
+  color: #a68a7b;
+  background-color: #f8f3f0;
+}
+
+/* 排序选项 */
+.sort-wrapper {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.sort-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  background-color: #f0f0f0;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.icon-arrow {
+  width: 0;
+  height: 0;
+  margin-left: 10rpx;
+  border-left: 10rpx solid transparent;
+  border-right: 10rpx solid transparent;
+}
+
+.icon-arrow.down {
+  border-top: 10rpx solid #999;
+  border-bottom: none;
+}
+
+.icon-arrow.up {
+  border-bottom: 10rpx solid #999;
+  border-top: none;
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: 70rpx;
+  right: 0;
+  z-index: 100;
+  width: 180rpx;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: none;
+}
+
+.sort-dropdown.show {
+  display: block;
+}
+
+.sort-option {
+  padding: 20rpx;
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.sort-option:last-child {
+  border-bottom: none;
+}
+
+.sort-option.active {
+  color: #a68a7b;
+  background-color: #f8f3f0;
+}
+
+/* 退出按钮 */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 20rpx;
+  background-color: #f0f0f0;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.icon-logout {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 10rpx;
+  opacity: 0.6;
+}
+
+/* 用户列表 */
+.user-list {
+  flex: 1;
+  padding: 20rpx 30rpx;
+  padding-top: 190rpx; /* 调整顶部间距，确保内容不被标题栏遮挡 */
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background-color: white;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.user-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20rpx;
+  background-color: #f0f0f0;
+}
+
+.user-avatar image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8rpx;
+}
+
+.user-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-right: 15rpx;
+}
+
+.user-tag {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  margin-right: 10rpx;
+}
+
+.user-tag.vip {
+  background-color: #fff4e0;
+  color: #e6a23c;
+}
+
+.user-tag.normal {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.user-phone {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.user-spend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 20rpx;
+}
+
+.spend-type {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 5rpx;
+}
+
+.spend-amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.user-actions {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 5rpx;
+}
+
+.action-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background-color: #999;
+  margin: 3rpx 0;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+}
+
+.loading-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f0f0f0;
+  border-top-color: #a68a7b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  opacity: 0.2;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #999;
+}
+
+/* 操作菜单 */
+.action-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: none;
+}
+
+.action-menu.show {
+  display: block;
+}
+
+.action-menu-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.action-menu-content {
+  position: absolute;
+  right: 30rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 240rpx;
+  background-color: white;
+  border-radius: 12rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+}
+
+.action-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.action-menu-item:last-child {
+  border-bottom: none;
+}
+
+.action-menu-item.danger {
+  color: #e74c3c;
+}
+
+.action-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 15rpx;
+}
+
+/* 底部导航栏 */
+.tabbar {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #f0f0f0;
+  z-index: 99;
+}
+
+.tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10rpx 0;
+}
+
+.tabbar-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 4rpx;
+  opacity: 0.6;
+}
+
+.tabbar-text {
+  font-size: 22rpx;
+  color: #7d7e80;
+  line-height: 1.2;
+}
+
+.tabbar-item.active .tabbar-text {
+  color: #333;
+}
+
+.tabbar-item.active .tabbar-icon {
+  opacity: 1;
+} 

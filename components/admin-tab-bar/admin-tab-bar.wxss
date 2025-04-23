@@ -1,0 +1,37 @@
+/* 统一的管理员底部导航栏样式 */
+.admin-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100rpx;
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  position: relative;
+  padding: 10rpx 0;
+}
+
+.tab-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 6rpx;
+}
+
+.tab-text {
+  font-size: 20rpx;
+}
+
+.tab-item.active {
+  color: #a68a7b;
+} 

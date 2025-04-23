@@ -1,0 +1,44 @@
+<view class="login-container">
+  <view class="login-header">
+    <image class="logo" src="/assets/images/icons/admin-logo.png" mode="aspectFit"></image>
+    <view class="title">梧桐小姐烘焙 - 后台管理系统</view>
+  </view>
+  
+  <view class="notice">
+    <text class="notice-text">开发测试模式：点击登录按钮即可直接进入管理后台</text>
+  </view>
+  
+  <view class="login-form">
+    <view class="form-group">
+      <view class="input-label">用户名</view>
+      <input 
+        class="input-field" 
+        type="text" 
+        placeholder="请输入管理员用户名（测试模式无需填写）" 
+        value="{{username}}" 
+        bindinput="onUsernameInput"
+      />
+    </view>
+    
+    <view class="form-group">
+      <view class="input-label">密码</view>
+      <input 
+        class="input-field" 
+        password 
+        placeholder="请输入管理员密码（测试模式无需填写）" 
+        value="{{password}}" 
+        bindinput="onPasswordInput"
+      />
+    </view>
+    
+    <view class="error-message" wx:if="{{errorMessage}}">{{errorMessage}}</view>
+    
+    <button class="login-button {{loading ? 'loading' : ''}}" bindtap="login" disabled="{{loading}}">
+      {{loading ? '登录中...' : '直接登录（测试模式）'}}
+    </button>
+  </view>
+  
+  <view class="login-footer">
+    <text class="note">注意: 此为开发测试模式，无需用户名和密码验证</text>
+  </view>
+</view> 

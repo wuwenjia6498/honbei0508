@@ -1,0 +1,108 @@
+<!-- pages/checkout/checkout.wxml -->
+<view class="page">
+  <!-- 页面头部 -->
+  <view class="header">
+    <view class="back-icon" bindtap="goBack">〈</view>
+    <view class="page-title">订单确认</view>
+  </view>
+
+  <!-- 配送地址 -->
+  <view class="address-section" bindtap="navigateToAddress">
+    <view class="location-icon">📍</view>
+    <view class="section-content">
+      <view class="section-label">配送地址</view>
+      <view class="address-info">
+        <view>
+          <text class="user-name">{{address.name}}</text>
+          <text class="user-phone">{{address.phone}}</text>
+        </view>
+        <view class="address-text">{{address.address}}</view>
+      </view>
+    </view>
+    <view class="arrow-icon">›</view>
+  </view>
+
+  <!-- 配送时间 -->
+  <view class="delivery-section" bindtap="selectDeliveryTime">
+    <view class="time-icon">🕒</view>
+    <view class="section-content">
+      <view class="section-label">配送时间</view>
+      <view class="time-value">{{deliveryTime}}</view>
+    </view>
+    <view class="arrow-icon">›</view>
+  </view>
+
+  <!-- 配送提示 -->
+  <view class="notice-section">
+    <view class="notice-icon">ℹ️</view>
+    <view class="notice-text">{{notification}}</view>
+  </view>
+
+  <!-- 订单商品列表 -->
+  <view class="order-items-section">
+    <view class="section-title">订单商品</view>
+    
+    <view class="order-items">
+      <block wx:for="{{orderItems}}" wx:key="id">
+        <view class="order-item">
+          <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="item-details">
+            <view class="item-name">{{item.name}}</view>
+            <view class="item-spec">{{item.specs}}</view>
+            <view class="item-price-row">
+              <text class="item-price">¥{{item.price}}</text>
+              <text class="item-count">x{{item.count}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 支付方式 -->
+  <view class="payment-section">
+    <view class="section-title">支付方式</view>
+    
+    <view class="payment-options">
+      <block wx:for="{{paymentMethods}}" wx:key="id">
+        <view class="payment-option {{item.selected ? 'selected' : ''}}" bindtap="selectPayment" data-id="{{item.id}}">
+          <image class="payment-icon" src="/assets/images/payment/{{item.id == 'wechat' ? 'wechat-pay' : (item.id == 'cod' ? 'cash' : item.id)}}.png"></image>
+          <view class="payment-name">{{item.name}}</view>
+          <view class="payment-radio">
+            <view class="radio-inner {{item.selected ? 'checked' : ''}}"></view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 订单金额 -->
+  <view class="amount-section">
+    <view class="section-title">订单金额</view>
+    
+    <view class="amount-list">
+      <view class="amount-item">
+        <text class="amount-label">商品金额</text>
+        <text class="amount-value">¥{{orderAmount.goodsTotal}}</text>
+      </view>
+      <view class="amount-item">
+        <text class="amount-label">配送费</text>
+        <text class="amount-value">¥{{orderAmount.delivery}}</text>
+      </view>
+      <view class="amount-item discount">
+        <text class="amount-label">优惠</text>
+        <text class="amount-value">-¥{{orderAmount.discount}}</text>
+      </view>
+    </view>
+    
+    <view class="total-amount">
+      <text class="total-label">实付金额</text>
+      <text class="total-value">¥{{orderAmount.total}}</text>
+    </view>
+  </view>
+
+  <!-- 支付按钮 -->
+  <view class="pay-btn-container">
+    <button class="pay-btn" bindtap="confirmPayment">确认支付 ¥{{orderAmount.total}}</button>
+  </view>
+</view> 

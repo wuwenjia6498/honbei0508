@@ -1,25 +1,32 @@
 {
   "pages": [
+    "pages/admin/dashboard/dashboard",
+    "pages/admin/products/products",
+    "pages/admin/orders/orders",
+    "pages/admin/categories/categories",
+    "pages/admin/users/users",
+    "pages/admin/login/login",
     "pages/index/index",
-    "pages/logs/logs",
+    "pages/product/product",
     "pages/category/category",
     "pages/cart/cart",
     "pages/profile/profile",
-    "pages/product/product",
     "pages/checkout/checkout",
-    "pages/order-detail/order-detail"
+    "pages/order-detail/order-detail",
+    "pages/about/about"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#a68a7b",
     "navigationBarTitleText": "梧桐小姐烘焙",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "white"
   },
   "tabBar": {
     "color": "#999999",
-    "selectedColor": "#8D6E63",
+    "selectedColor": "#a68a7b",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
+    "height": "70",
     "list": [
       {
         "pagePath": "pages/index/index",

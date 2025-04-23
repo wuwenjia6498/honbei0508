@@ -4,3 +4,500 @@
   align-items: center;
   height: 100vh;
 } 
+
+/* 个人中心页面样式 */
+page {
+  background-color: #f6f6f6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+  font-size: 14px;
+  padding-bottom: 150rpx; /* 增加底部内边距，为更高的导航栏留出空间 */
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 顶部空白间隔 */
+.top-spacing {
+  height: 30rpx; /* 顶部留白高度 */
+  width: 100%;
+}
+
+/* 用户信息区域 */
+.user-info-container {
+  background-color: #ff7b7b;
+  padding: 30rpx 40rpx 40rpx;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  margin-top: 0; /* 移除旧有上边距 */
+  border-radius: 0; /* 移除不必要的圆角 */
+}
+
+.user-avatar-container {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.user-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 36rpx;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.user-phone {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+/* 会员信息区域 */
+.member-info-container {
+  background-color: #fff5e6;
+  margin: 0 30rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -30rpx;
+  position: relative;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.member-badge {
+  display: flex;
+  align-items: center;
+}
+
+.crown-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+  color: #ffc107;
+}
+
+.member-text {
+  color: #ff9800;
+  font-weight: bold;
+  font-size: 28rpx;
+}
+
+.member-savings {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.member-detail-btn {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+  padding: 8rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+
+/* 订单区域 */
+.orders-container {
+  background-color: #fff;
+  margin: 30rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.orders-title {
+  font-size: 32rpx; /* 将订单标题字号统一设置为32rpx */
+  font-weight: 700; /* 加粗字体 */
+}
+
+.view-all {
+  color: #999;
+  font-size: 26rpx;
+}
+
+.order-status-icons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20rpx;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.status-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 10rpx;
+  position: relative;
+}
+
+.status-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.badge {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  background-color: #ff5252;
+  color: white;
+  font-size: 20rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 最近订单区域 */
+.recent-orders {
+  padding: 0 30rpx;
+}
+
+.recent-order-item {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.order-number {
+  font-size: 30rpx;
+  color: #666;
+}
+
+.order-status {
+  font-size: 30rpx;
+}
+
+.order-status.delivery {
+  color: #2196f3;
+}
+
+.order-status.completed {
+  color: #4caf50;
+}
+
+.order-products {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.product-images {
+  display: flex;
+}
+
+.product-image-container {
+  position: relative;
+  margin-right: 20rpx;
+}
+
+.product-image-container image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  object-fit: cover;
+}
+
+.product-count {
+  position: absolute;
+  bottom: -10rpx;
+  right: -10rpx;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 20rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.price {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+  margin-top: 10rpx;
+}
+
+/* 用户服务菜单 */
+.user-services {
+  background-color: #fff;
+  margin: 30rpx;
+  border-radius: 16rpx;
+  padding: 0 30rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.service-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+.service-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.service-name {
+  flex: 1;
+  font-size: 30rpx;
+}
+
+.service-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 2rpx solid #ccc;
+  border-right: 2rpx solid #ccc;
+  transform: rotate(45deg);
+}
+
+/* 设置菜单 */
+.settings-menu {
+  background-color: #fff;
+  margin: 30rpx;
+  border-radius: 16rpx;
+  padding: 0 30rpx;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
+.setting-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.setting-name {
+  flex: 1;
+  font-size: 30rpx;
+}
+
+.setting-badge {
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  color: #666;
+  margin-right: 10rpx;
+}
+
+.setting-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 2rpx solid #ccc;
+  border-right: 2rpx solid #ccc;
+  transform: rotate(45deg);
+}
+
+/* 底部导航 */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140rpx; /* 70px = 140rpx */
+  background-color: #fff;
+  display: flex;
+  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+  padding-bottom: env(safe-area-inset-bottom); /* 增加对全面屏手机的支持 */
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.tab-item.active {
+  color: #ff7b7b;
+}
+
+.tab-item image {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 4rpx;
+} 
+
+/* 图标占位符样式 */
+.icon-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff9999, #ff7b7b);
+  color: white;
+  font-size: 24rpx;
+  border-radius: 50%;
+  box-shadow: 0 2rpx 8rpx rgba(255, 123, 123, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+/* 不同图标类型的变体 */
+.payment-icon .icon-placeholder {
+  background: linear-gradient(135deg, #ff9999, #ff6b6b);
+}
+
+.baking-icon .icon-placeholder {
+  background: linear-gradient(135deg, #ffb380, #ff9955);
+}
+
+.delivery-icon .icon-placeholder {
+  background: linear-gradient(135deg, #80c2ff, #5ba8ff);
+}
+
+.completed-icon .icon-placeholder {
+  background: linear-gradient(135deg, #8cd9a0, #66c285);
+}
+
+.location-icon .icon-placeholder {
+  background: linear-gradient(135deg, #ff9999, #ff7b7b);
+}
+
+.favorite-icon .icon-placeholder {
+  background: linear-gradient(135deg, #ff80ab, #ff4081);
+}
+
+/* 底部导航图标 */
+.tab-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #999;
+  border-radius: 50%;
+  margin-bottom: 4rpx;
+  font-size: 24rpx;
+  position: relative;
+}
+
+.tab-item.active .tab-icon {
+  background: #ffebee;
+  color: #ff7b7b;
+  box-shadow: 0 2rpx 6rpx rgba(255, 123, 123, 0.2);
+}
+
+/* 管理员入口样式 */
+.setting-item.admin-entry {
+  border-bottom: none;
+  position: relative;
+}
+
+.setting-item.admin-entry::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.02);
+  z-index: -1;
+  border-radius: 8rpx;
+}
+
+.setting-item.admin-entry:active {
+  background-color: #f5f5f5;
+}
+
+.admin-icon .icon-placeholder {
+  background: linear-gradient(135deg, #8d6e63, #6d4c41);
+  font-weight: bold;
+}
+
+.admin-icon .icon-placeholder::after {
+  background: rgba(255, 255, 255, 0.15);
+} 
