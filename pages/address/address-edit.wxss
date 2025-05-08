@@ -1,0 +1,146 @@
+/* pages/address/address-edit.wxss */
+.container {
+  padding: 30rpx;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+}
+
+.address-form {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 0 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.form-item {
+  padding: 30rpx 0;
+  border-bottom: 1px solid #eee;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  font-weight: 500;
+}
+
+.form-input {
+  height: 80rpx;
+  font-size: 28rpx;
+  width: 100%;
+  color: #333;
+}
+
+.form-textarea {
+  width: 100%;
+  font-size: 28rpx;
+  min-height: 120rpx;
+  color: #333;
+  padding: 20rpx 0;
+}
+
+.picker-view {
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.picker-placeholder {
+  color: #999;
+}
+
+.switch-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-item .form-label {
+  margin-bottom: 0;
+}
+
+.btn-area {
+  margin-top: 60rpx;
+}
+
+.save-btn {
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  margin-bottom: 30rpx;
+}
+
+.save-btn::after {
+  border: none;
+}
+
+.delete-btn {
+  background-color: #fff;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+}
+
+.delete-btn::after {
+  border: none;
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+
+.region-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.picker-value {
+  font-size: 28rpx;
+  color: #333;
+  padding: 10rpx 0;
+  flex: 1;
+}
+
+.picker-value.placeholder {
+  color: #999;
+}
+
+.picker-arrow {
+  color: #999;
+  font-size: 24rpx;
+}
+
+.form-error {
+  font-size: 24rpx;
+  color: #ff4500;
+  margin-top: 10rpx;
+}
+
+.default-address {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 0;
+}
+
+.default-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.section-title {
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+  color: #666;
+} 

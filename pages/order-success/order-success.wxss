@@ -1,0 +1,140 @@
+.container {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
+/* 成功提示区域 */
+.success-area {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.success-icon {
+  margin-bottom: 30rpx;
+}
+
+.success-title {
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.success-desc {
+  font-size: 28rpx;
+  color: #666;
+  text-align: center;
+  padding: 0 20rpx;
+}
+
+/* 订单信息区域 */
+.order-info {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.info-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+  border-bottom: 1rpx solid #eee;
+  padding-bottom: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.item-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.item-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.item-value.price {
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+/* 按钮区域 */
+.buttons {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20rpx;
+}
+
+.btn {
+  margin-bottom: 20rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #07c160;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: #fff;
+  color: #333;
+  border: 1rpx solid #d9d9d9;
+}
+
+.btn-plain {
+  background-color: transparent;
+  color: #666;
+  border: none;
+  margin-top: 10rpx;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f7f7f7;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-image {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 20rpx;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+} 

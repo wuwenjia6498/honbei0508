@@ -5,7 +5,9 @@
     "pages/admin/orders/orders",
     "pages/admin/categories/categories",
     "pages/admin/users/users",
+    "pages/admin/editUser/editUser",
     "pages/admin/login/login",
+    "pages/admin/dataInit/dataInit",
     "pages/index/index",
     "pages/product/product",
     "pages/category/category",
@@ -13,7 +15,13 @@
     "pages/profile/profile",
     "pages/checkout/checkout",
     "pages/order-detail/order-detail",
-    "pages/about/about"
+    "pages/orders/orders",
+    "pages/about/about",
+    "pages/fresh-all/fresh-all",
+    "pages/popular-all/popular-all",
+    "pages/login/login",
+    "pages/address/address-list",
+    "pages/address/address-edit"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -26,7 +34,7 @@
     "selectedColor": "#a68a7b",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
-    "height": "70",
+    "height": 70,
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -59,9 +67,10 @@
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index"
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
+    "admin-tab-bar": "/components/admin-tab-bar/admin-tab-bar"
   },
-  "navigationBarTitleText": "我的",
-  "enablePullDownRefresh": true,
-  "backgroundColor": "#f6f6f6"
+  "requiredPrivateInfos": [
+    "chooseAddress"
+  ]
 }

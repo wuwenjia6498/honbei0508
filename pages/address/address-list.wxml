@@ -1,0 +1,59 @@
+<!-- pages/address/address-list.wxml -->
+
+<view class="address-list-container">
+  <!-- 地址列表 -->
+  <view class="address-list" wx:if="{{!isEmpty}}">
+    <view class="address-item" wx:for="{{addresses}}" wx:key="_id">
+      <!-- 内容区域 -->
+      <view class="address-content" bindtap="{{isSelectionMode ? 'selectAddress' : 'editAddress'}}" data-id="{{item._id}}">
+        <!-- 标记区域（默认地址标记） -->
+        <view class="address-tag" wx:if="{{item.isDefault}}">
+          <text class="default-tag">默认</text>
+        </view>
+        
+        <!-- 地址信息 -->
+        <view class="address-info">
+          <view class="user-info">
+            <text class="name">{{item.name}}</text>
+            <text class="phone">{{item.phone}}</text>
+          </view>
+          <view class="address-text">
+            {{item.region[0]}} {{item.region[1]}} {{item.region[2]}} {{item.detailAddress}}
+          </view>
+        </view>
+      </view>
+      
+      <!-- 操作区域 -->
+      <view class="address-actions" wx:if="{{!isSelectionMode}}">
+        <view class="set-default" bindtap="setDefaultAddress" data-id="{{item._id}}" wx:if="{{!item.isDefault}}">
+          <image src="/images/icon/unselected.png" mode="aspectFit" class="icon-small"></image>
+          <text>设为默认</text>
+        </view>
+        <view class="set-default selected" wx:if="{{item.isDefault}}">
+          <image src="/images/icon/selected.png" mode="aspectFit" class="icon-small"></image>
+          <text>默认地址</text>
+        </view>
+        <view class="edit-btn" bindtap="editAddress" data-id="{{item._id}}">
+          <image src="/images/icon/edit.png" mode="aspectFit" class="icon-small"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <image src="/images/empty/empty-address.png" mode="aspectFit" class="empty-image"></image>
+    <text class="empty-text">您还没有添加收货地址</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 添加地址按钮 -->
+  <view class="add-address-btn" bindtap="addAddress">
+    <text>新增收货地址</text>
+  </view>
+</view> 

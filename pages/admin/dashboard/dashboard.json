@@ -4,5 +4,7 @@
   },
   "navigationBarTitleText": "管理员控制台",
   "navigationStyle": "custom",
-  "backgroundColor": "#f6f6f6"
+  "backgroundColor": "#f6f6f6",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
 } 

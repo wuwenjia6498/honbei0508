@@ -1,0 +1,51 @@
+<!-- pages/payment/payment.wxml -->
+<view class="payment-container">
+  <!-- 顶部订单信息 -->
+  <view class="order-info">
+    <view class="order-title">待支付订单</view>
+    <view class="price-info">
+      <text class="price-label">支付金额</text>
+      <text class="price-value">¥ {{orderAmount}}</text>
+    </view>
+    <view class="order-time">
+      <text class="time-label">支付剩余时间</text>
+      <text class="time-value">{{timeStr}}</text>
+    </view>
+  </view>
+
+  <!-- 支付方式选择 -->
+  <view class="payment-methods">
+    <view class="section-title">选择支付方式</view>
+    <view class="methods-list">
+      <view class="payment-method {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{paymentMethods}}" 
+            wx:key="id" 
+            data-id="{{item.id}}" 
+            bindtap="selectPaymentMethod">
+        <image class="method-icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <text class="method-name">{{item.name}}</text>
+        <view class="selected-icon" wx:if="{{item.selected}}">
+          <image src="/images/icons/selected.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 支付须知 -->
+  <view class="payment-notice">
+    <view class="notice-title">支付须知</view>
+    <view class="notice-content">
+      <view class="notice-item">1. 请在规定时间内完成支付，超时订单将自动取消</view>
+      <view class="notice-item">2. 支付成功后，可在"我的订单"中查看订单详情</view>
+      <view class="notice-item">3. 如有疑问，请联系客服: 400-123-4567</view>
+    </view>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="payment-actions">
+    <button class="btn-cancel" bindtap="cancelPayment">取消支付</button>
+    <button class="btn-pay" bindtap="confirmPayment" loading="{{isLoading}}">
+      确认支付
+    </button>
+  </view>
+</view> 

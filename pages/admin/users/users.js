@@ -86,92 +86,141 @@ Page({
   },
 
   /**
-   * 加载用户列表
+   * 获取状态栏高度
    */
-  loadUserList: function (showLoading = false) {
-    if (this.data.loading || (!showLoading && !this.data.hasMore)) return
+  getStatusBarHeight: function() {
+    const systemInfo = wx.getSystemInfoSync()
+    this.setData({
+      statusBarHeight: systemInfo.statusBarHeight,
+      headerHeight: systemInfo.statusBarHeight + 44
+    })
+  },
 
-    this.setData({ loading: true })
+  // 加载用户数据
+  loadUserData: function() {
+    console.log('开始加载用户数据');
+    // 先重置状态
+    this.setData({
+      isLoading: false,
+      showEmpty: false,
+      page: 1,
+      hasMore: true,
+      userList: [],
+      // 重置搜索状态，让用户在切换页面后不受之前搜索的干扰
+      searchKeyword: '',
+      activeFilter: 'all',
+      sortType: 'time'
+    }, () => {
+      console.log('状态重置完成，开始加载用户列表');
+      this.loadUserList(true);
+      this.getUserCounts();
+    });
+  },
 
-    if (showLoading) {
-      this.setData({ loading: true })
-      wx.showLoading({ title: '加载中' })
-    }
-
-    // 根据当前标签页筛选用户类型
-    const userType = this.data.activeTab === 0 ? '' : 
-                    this.data.activeTab === 1 ? 'normal' :
-                    this.data.activeTab === 2 ? 'premium' : 'disabled'
-
-    // 模拟API请求获取用户列表
-    // 实际项目中应替换为真实的API调用
-    setTimeout(() => {
-      // 模拟数据
-      const mockUsers = this.getMockUsers(this.data.page, this.data.pageSize, userType)
-      
-      const tabCounts = this.getTabCounts()
-      
-      // 更新Tab计数
-      const updatedTabs = this.data.tabs.map((tab, index) => {
-        return {
-          ...tab,
-          count: tabCounts[index]
+  // 获取各类型用户数量
+  getUserCounts: async function() {
+    console.log('开始获取用户数量');
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'userManager',
+        data: {
+          action: 'getUserCounts'
         }
-      })
-      
-      this.setData({
-        userList: this.data.page === 1 ? mockUsers : [...this.data.userList, ...mockUsers],
-        hasMore: mockUsers.length === this.data.pageSize,
-        loading: false,
-        showEmpty: this.data.page === 1 && mockUsers.length === 0,
-        isLoading: false,
-        tabs: updatedTabs
-      })
-      
-      if (showLoading) {
-        wx.hideLoading()
+      });
+      console.log('获取用户数量结果：', res);
+
+      if (res.result && res.result.success) {
+        const updatedTabs = this.data.tabs.map((tab, index) => ({
+          ...tab,
+          count: res.result.data[index] || 0
+        }));
+
+        this.setData({ tabs: updatedTabs });
+        console.log('用户数量更新完成：', updatedTabs);
+      } else {
+        throw new Error(res.result?.message || '获取用户数量失败');
       }
-    }, 800)
+    } catch (error) {
+      console.error('获取用户数量失败：', error);
+      wx.showToast({
+        title: '获取用户数量失败',
+        icon: 'none',
+        duration: 2000
+      });
+    }
   },
 
   /**
-   * 模拟获取用户数据
-   * 实际项目中应删除此方法，使用真实API
+   * 加载用户列表
    */
-  getMockUsers: function(page, pageSize, userType) {
-    // 模拟用户数据生成
-    const total = 35 // 总用户数
-    const startIndex = (page - 1) * pageSize
-    const endIndex = Math.min(startIndex + pageSize, total)
-    const hasMore = endIndex < total
-    
-    const userTypes = ['normal', 'premium']
-    const statusTypes = ['active', 'inactive']
-    
-    let list = []
-    
-    for (let i = startIndex; i < endIndex; i++) {
-      const type = userTypes[Math.floor(Math.random() * userTypes.length)]
-      const status = i % 7 === 0 ? 'inactive' : 'active'
-      
-      // 如果指定了用户类型，且不匹配则跳过
-      if (userType === 'disabled' && status !== 'inactive') continue
-      if (userType && userType !== 'disabled' && userType !== type) continue
-      
-      list.push({
-        id: `user_${i + 1}`,
-        avatar: '/images/default-avatar.png', // 默认头像，实际项目中应替换
-        nickname: `用户${i + 1}`,
-        phone: `1381234${(1000 + i).toString().substring(1)}`,
-        level: type,
-        status: status,
-        registerTime: `2023-${Math.floor(Math.random() * 12) + 1}-${Math.floor(Math.random() * 28) + 1}`,
-        orderCount: Math.floor(Math.random() * 20),
-        totalSpent: Math.floor(Math.random() * 10000) / 100
-      })
+  loadUserList: function(refresh = false) {
+    // 如果已经在加载，则返回
+    if (this.data.isLoading) {
+      return;
     }
     
-    return list
+    // 如果没有更多数据，则返回
+    if (!refresh && !this.data.hasMore) {
+      return;
+    }
+    
+    this.setData({
+      isLoading: true,
+      loading: true
+    });
+    
+    const { page, pageSize, sortType, activeFilter, searchKeyword } = this.data;
+    
+    console.log('发送搜索请求，关键词:', searchKeyword);
+    
+    wx.cloud.callFunction({
+      name: 'userManager',
+      data: {
+        action: 'getUsers',
+        page,
+        limit: pageSize,
+        sort: sortType === 'time' ? 'registerTime' : 'totalSpent',
+        order: 'desc',
+        filter: activeFilter,
+        keyword: searchKeyword
+      }
+    }).then(res => {
+      console.log('搜索结果返回:', res);
+      if (res.result && res.result.success) {
+        const newUsers = (res.result.data || []).map(user => ({
+          ...user,
+          registerTime: this.formatDate(user.registerTime)
+        }));
+        
+        console.log('处理后的用户数据:', newUsers);
+        let userList = refresh ? newUsers : [...this.data.userList, ...newUsers];
+        
+        this.setData({
+          userList,
+          total: res.result.total || 0,
+          hasMore: newUsers.length >= pageSize,
+          page: page + 1,
+          loading: false,
+          isLoading: false,
+          showEmpty: userList.length === 0
+        });
+        
+        console.log('更新后的用户列表:', userList);
+      } else {
+        throw new Error(res.result?.message || '获取用户列表失败');
+      }
+    }).catch(error => {
+      console.error('获取用户列表失败:', error);
+      wx.showToast({
+        title: '获取用户列表失败',
+        icon: 'none',
+        duration: 2000
+      });
+      this.setData({
+        loading: false,
+        isLoading: false
+      });
+    });
   },
 
   /**
@@ -179,7 +228,7 @@ Page({
    */
   viewUserDetail: function (e) {
     const userId = e.currentTarget.dataset.id
-    const user = this.data.userList.find(item => item.id === userId)
+    const user = this.data.userList.find(item => item._id === userId)
     
     if (user) {
       this.setData({
@@ -199,60 +248,108 @@ Page({
     })
   },
 
-  /**
-   * 切换用户状态（启用/禁用）
-   */
-  toggleUserStatus: function (e) {
-    const userId = e.currentTarget.dataset.id
-    const userIndex = this.data.userList.findIndex(item => item.id === userId)
+  // 切换用户状态
+  toggleUserStatus: async function(e) {
+    // 如果是从操作菜单中点击，直接使用actionUser
+    const userId = e.currentTarget.dataset.id || (this.data.actionUser ? this.data.actionUser._id : null);
+    if (!userId) return;
+    
+    const userIndex = this.data.userList.findIndex(item => item._id === userId);
     
     if (userIndex !== -1) {
-      const newStatus = this.data.userList[userIndex].status === 'active' ? 'inactive' : 'active'
+      const newStatus = this.data.userList[userIndex].status === 'active' ? 'inactive' : 'active';
       
-      // 更新本地状态
-      const userList = this.data.userList
-      userList[userIndex].status = newStatus
-      
-      this.setData({ userList })
-      
-      // 实际项目中应调用API更新用户状态
-      wx.showToast({
-        title: newStatus === 'active' ? '已启用该用户' : '已禁用该用户',
-        icon: 'success'
-      })
-      
-      // 如果是在弹窗中修改，同时更新currentUser
-      if (this.data.currentUser && this.data.currentUser.id === userId) {
-        const currentUser = {...this.data.currentUser, status: newStatus}
-        this.setData({ currentUser })
+      try {
+        // 如果是从操作菜单中点击，先保存actionUser的状态，然后隐藏菜单
+        if (!e.currentTarget.dataset.id && this.data.actionUser) {
+          // 先隐藏菜单
+          this.hideActionMenu();
+        }
+        
+        const res = await wx.cloud.callFunction({
+          name: 'userManager',
+          data: {
+            action: 'updateUserStatus',
+            data: {
+              userId,
+              status: newStatus
+            }
+          }
+        });
+
+        if (res.result && res.result.success) {
+          // 更新本地状态
+          const userList = this.data.userList;
+          userList[userIndex].status = newStatus;
+          
+          this.setData({ userList });
+          
+          wx.showToast({
+            title: newStatus === 'active' ? '已启用该用户' : '已禁用该用户',
+            icon: 'success'
+          });
+          
+          // 更新用户数量统计
+          this.getUserCounts();
+        } else {
+          throw new Error(res.result?.message || '更新用户状态失败');
+        }
+      } catch (error) {
+        console.error('更新用户状态失败：', error);
+        wx.showToast({
+          title: '操作失败，请重试',
+          icon: 'none'
+        });
       }
     }
   },
 
-  /**
-   * 升级用户会员等级
-   */
-  upgradeUser: function (e) {
-    const userId = e.currentTarget.dataset.id
-    const userIndex = this.data.userList.findIndex(item => item.id === userId)
+  // 升级用户会员等级
+  upgradeUser: async function(e) {
+    const userId = e.currentTarget.dataset.id;
+    const userIndex = this.data.userList.findIndex(item => item._id === userId);
     
     if (userIndex !== -1 && this.data.userList[userIndex].level === 'normal') {
-      // 更新本地状态
-      const userList = this.data.userList
-      userList[userIndex].level = 'premium'
-      
-      this.setData({ userList })
-      
-      // 实际项目中应调用API更新用户等级
-      wx.showToast({
-        title: '已升级为高级会员',
-        icon: 'success'
-      })
-      
-      // 如果是在弹窗中修改，同时更新currentUser
-      if (this.data.currentUser && this.data.currentUser.id === userId) {
-        const currentUser = {...this.data.currentUser, level: 'premium'}
-        this.setData({ currentUser })
+      try {
+        const res = await wx.cloud.callFunction({
+          name: 'userManager',
+          data: {
+            action: 'upgradeUserLevel',
+            data: {
+              userId
+            }
+          }
+        });
+
+        if (res.result.success) {
+          // 更新本地状态
+          const userList = this.data.userList;
+          userList[userIndex].level = 'premium';
+          
+          this.setData({ userList });
+          
+          wx.showToast({
+            title: '已升级为高级会员',
+            icon: 'success'
+          });
+
+          // 更新用户数量统计
+          this.getUserCounts();
+          
+          // 如果是在弹窗中修改，同时更新currentUser
+          if (this.data.currentUser && this.data.currentUser._id === userId) {
+            const currentUser = {...this.data.currentUser, level: 'premium'};
+            this.setData({ currentUser });
+          }
+        } else {
+          throw new Error(res.result.message);
+        }
+      } catch (error) {
+        console.error('升级用户等级失败：', error);
+        wx.showToast({
+          title: '操作失败，请重试',
+          icon: 'none'
+        });
       }
     }
   },
@@ -261,7 +358,7 @@ Page({
    * 重置用户密码
    */
   resetPassword: function (e) {
-    const userId = e.currentTarget.dataset.id || (this.data.currentUser ? this.data.currentUser.id : null)
+    const userId = e.currentTarget.dataset.id || (this.data.currentUser ? this.data.currentUser._id : null)
     
     if (userId) {
       // 实际项目中应调用API重置密码
@@ -302,116 +399,34 @@ Page({
   /**
    * 页面上拉触底事件的处理函数
    */
-  onReachBottom: function () {
+  onReachBottom: function() {
     if (this.data.hasMore && !this.data.loading) {
       this.setData({
         page: this.data.page + 1
-      })
-      this.loadUserList(false)
+      }, () => {
+        this.loadUserList();
+      });
     }
   },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function () {
+  onPullDownRefresh: function() {
     this.setData({
-      userList: [],
       page: 1,
       hasMore: true
-    })
-    this.loadUserList(true)
-    wx.stopPullDownRefresh()
+    }, () => {
+      this.loadUserData();
+      wx.stopPullDownRefresh();
+    });
   },
 
-  getTabCounts: function() {
-    const mockUsers = this.getMockUsers(1, this.data.pageSize, '')
-    
-    const totalCount = mockUsers.length
-    const normalCount = mockUsers.filter(user => user.level === 'normal').length
-    const premiumCount = mockUsers.filter(user => user.level === 'premium').length
-    const inactiveCount = mockUsers.filter(user => user.status === 'inactive').length
-    
-    return [totalCount, normalCount, premiumCount, inactiveCount]
-  },
-
-  /**
-   * 加载用户数据
-   */
-  loadUserData: function() {
-    this.setData({ loading: true });
-    
-    // 模拟加载数据，实际项目中应该从服务器获取
-    setTimeout(() => {
-      // 模拟数据
-      const mockUsers = [
-        {
-          id: '001',
-          nickname: '李小姐',
-          phone: '13812345678',
-          level: 'premium',
-          status: 'active',
-          registerTime: '2023-01-15',
-          totalSpent: '1,258',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        },
-        {
-          id: '002',
-          nickname: '王先生',
-          phone: '13987654321',
-          level: 'normal',
-          status: 'active',
-          registerTime: '2023-02-22',
-          totalSpent: '786',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        },
-        {
-          id: '003',
-          nickname: '张小姐',
-          phone: '13600123456',
-          level: 'premium',
-          status: 'active',
-          registerTime: '2022-11-05',
-          totalSpent: '2,143',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        },
-        {
-          id: '004',
-          nickname: '赵先生',
-          phone: '13911233444',
-          level: 'normal',
-          status: 'active',
-          registerTime: '2023-03-17',
-          totalSpent: '452',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        },
-        {
-          id: '005',
-          nickname: '陈小姐',
-          phone: '13855667788',
-          level: 'normal',
-          status: 'active',
-          registerTime: '2023-05-02',
-          totalSpent: '86',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        },
-        {
-          id: '006',
-          nickname: '刘先生',
-          phone: '13712345678',
-          level: 'normal',
-          status: 'inactive',
-          registerTime: '2023-05-08',
-          totalSpent: '0',
-          avatar: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'
-        }
-      ];
-      
-      this.setData({
-        userList: mockUsers,
-        loading: false
-      });
-    }, 1000);
+  // 格式化日期
+  formatDate: function(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   },
 
   /**
@@ -421,9 +436,37 @@ Page({
     this.setData({
       searchKeyword: e.detail.value
     });
+  },
+
+  /**
+   * 清除搜索内容
+   */
+  clearSearch: function() {
+    this.setData({
+      searchKeyword: ''
+    });
+    // 重置搜索结果
+    this.loadUserList(true);
+  },
+
+  /**
+   * 执行搜索
+   */
+  searchUsers: function() {
+    // 清除之前的定时器，避免重复搜索
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
     
-    // 实际项目中可根据关键词筛选用户
-    // this.filterUsers();
+    const keyword = this.data.searchKeyword || '';
+    console.log('回车搜索触发，关键词:', keyword);
+    
+    this.setData({
+      page: 1,
+      hasMore: true
+    }, () => {
+      this.loadUserList(true);
+    });
   },
 
   /**
@@ -443,11 +486,12 @@ Page({
     const filter = e.currentTarget.dataset.filter;
     this.setData({
       activeFilter: filter,
+      page: 1,
+      hasMore: true,
       showFilterDropdown: false
+    }, () => {
+      this.loadUserList(true);
     });
-    
-    // 实际项目中可根据筛选条件过滤用户
-    // this.filterUsers();
   },
 
   /**
@@ -467,11 +511,12 @@ Page({
     const sort = e.currentTarget.dataset.sort;
     this.setData({
       sortType: sort,
+      page: 1,
+      hasMore: true,
       showSortDropdown: false
+    }, () => {
+      this.loadUserList(true);
     });
-    
-    // 实际项目中可根据排序条件排序用户
-    // this.sortUsers();
   },
 
   /**
@@ -479,10 +524,12 @@ Page({
    */
   showActionMenu: function(e) {
     // 阻止冒泡，避免触发用户详情
-    e.stopPropagation();
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
     
     const userId = e.currentTarget.dataset.id;
-    const user = this.data.userList.find(item => item.id === userId);
+    const user = this.data.userList.find(item => item._id === userId);
     
     if (user) {
       this.setData({
@@ -518,12 +565,27 @@ Page({
   editUser: function() {
     if (!this.data.actionUser) return;
     
-    wx.showToast({
-      title: '编辑用户: ' + this.data.actionUser.nickname,
-      icon: 'none'
-    });
+    // 保存用户信息副本
+    const nickname = this.data.actionUser.nickname;
+    const userId = this.data.actionUser._id;
     
+    // 先隐藏菜单
     this.hideActionMenu();
+    
+    console.log('编辑用户ID:', userId, '名称:', nickname);
+    
+    // 跳转到编辑页面
+    wx.navigateTo({
+      url: '/pages/admin/editUser/editUser?id=' + userId,
+      fail: function(err) {
+        console.error('页面跳转失败:', err);
+        wx.showToast({
+          title: '页面跳转失败',
+          icon: 'none',
+          duration: 2000
+        });
+      }
+    });
   },
 
   /**
@@ -537,20 +599,55 @@ Page({
       content: '确定要删除用户 ' + this.data.actionUser.nickname + ' 吗？此操作不可恢复！',
       success: (res) => {
         if (res.confirm) {
-          // 实际项目中应调用API删除用户
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
+          // 保存本地副本，防止hideActionMenu清除actionUser
+          const userId = this.data.actionUser._id;
+          
+          // 先隐藏菜单
+          this.hideActionMenu();
+          
+          // 调用云函数删除用户
+          wx.showLoading({
+            title: '删除中...',
+            mask: true
           });
           
-          // 更新本地数据
-          const userList = this.data.userList.filter(user => user.id !== this.data.actionUser.id);
-          this.setData({ userList });
+          wx.cloud.callFunction({
+            name: 'userManager',
+            data: {
+              action: 'deleteUser',
+              data: {
+                userId: userId
+              }
+            }
+          }).then(res => {
+            wx.hideLoading();
+            
+            if (res.result && res.result.success) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              });
+              
+              // 更新本地数据
+              const userList = this.data.userList.filter(user => user._id !== userId);
+              this.setData({ userList });
+              
+              // 更新用户数量统计
+              this.getUserCounts();
+            } else {
+              throw new Error(res.result?.message || '删除用户失败');
+            }
+          }).catch(error => {
+            wx.hideLoading();
+            console.error('删除用户失败：', error);
+            wx.showToast({
+              title: '删除失败，请重试',
+              icon: 'none'
+            });
+          });
         }
       }
     });
-    
-    this.hideActionMenu();
   },
 
   /**
@@ -608,17 +705,29 @@ Page({
     });
   },
 
-  /**
-   * 获取状态栏高度
-   */
-  getStatusBarHeight: function() {
-    const systemInfo = wx.getSystemInfoSync();
-    const statusBarHeight = systemInfo.statusBarHeight;
-    const headerHeight = statusBarHeight + 44;
-    
+  // 切换排序方式
+  changeSort: function(e) {
+    const sortType = e.currentTarget.dataset.type;
     this.setData({
-      statusBarHeight: statusBarHeight,
-      headerHeight: headerHeight
+      sortType,
+      page: 1,
+      hasMore: true,
+      showSortDropdown: false
+    }, () => {
+      this.loadUserList(true);
+    });
+  },
+
+  // 切换筛选方式
+  changeFilter: function(e) {
+    const filter = e.currentTarget.dataset.filter;
+    this.setData({
+      activeFilter: filter,
+      page: 1,
+      hasMore: true,
+      showFilterDropdown: false
+    }, () => {
+      this.loadUserList(true);
     });
   },
 }) 

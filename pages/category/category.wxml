@@ -19,33 +19,19 @@
   <!-- 精选分类 -->
   <view class="featured-categories">
     <view class="section-title">精选分类</view>
-    <view class="category-grid">
-      <view class="category-item">
-        <image src="/assets/images/products/photo-1565299624946-b28f40a0ae38.jpeg" mode="aspectFill"></image>
+    
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-text">加载中...</view>
+    </view>
+    
+    <!-- 分类网格 -->
+    <view class="category-grid" wx:else>
+      <view class="category-item" wx:for="{{categories}}" wx:key="name" bindtap="switchTab" data-tab="{{item.name}}">
+        <image src="{{item.icon}}" mode="aspectFill"></image>
         <view class="category-info">
-          <view class="category-name">面包</view>
-          <view class="category-count">20+ 种类</view>
-        </view>
-      </view>
-      <view class="category-item">
-        <image src="/assets/images/products/product-matcha-cake.jpg" mode="aspectFill"></image>
-        <view class="category-info">
-          <view class="category-name">蛋糕</view>
-          <view class="category-count">15+ 种类</view>
-        </view>
-      </view>
-      <view class="category-item">
-        <image src="/assets/images/products/product-brownie.jpg" mode="aspectFill"></image>
-        <view class="category-info">
-          <view class="category-name">饼干</view>
-          <view class="category-count">12+ 种类</view>
-        </view>
-      </view>
-      <view class="category-item">
-        <image src="/assets/images/products/product-cream-puff.jpg" mode="aspectFill"></image>
-        <view class="category-info">
-          <view class="category-name">甜点</view>
-          <view class="category-count">18+ 种类</view>
+          <view class="category-name">{{item.name}}</view>
+          <view class="category-count">{{item.productCount}}+ 种类</view>
         </view>
       </view>
     </view>
@@ -55,34 +41,60 @@
   <view class="category-tabs">
     <scroll-view scroll-x="true" class="tabs-scroll">
       <view class="tab {{currentTab === 'all' ? 'active' : ''}}" data-tab="all" bindtap="switchTab">全部</view>
-      <view class="tab {{currentTab === 'bread' ? 'active' : ''}}" data-tab="bread" bindtap="switchTab">面包</view>
-      <view class="tab {{currentTab === 'cake' ? 'active' : ''}}" data-tab="cake" bindtap="switchTab">蛋糕</view>
-      <view class="tab {{currentTab === 'cookie' ? 'active' : ''}}" data-tab="cookie" bindtap="switchTab">饼干</view>
-      <view class="tab {{currentTab === 'dessert' ? 'active' : ''}}" data-tab="dessert" bindtap="switchTab">甜点</view>
-      <view class="tab {{currentTab === 'gift' ? 'active' : ''}}" data-tab="gift" bindtap="switchTab">节日礼盒</view>
+      <!-- 动态生成分类标签，key确保唯一性 -->
+      <view class="tab {{currentTab === item.name ? 'active' : ''}}" 
+            wx:for="{{categories}}" 
+            wx:key="name" 
+            data-tab="{{item.name}}" 
+            bindtap="switchTab">{{item.name}}</view>
     </scroll-view>
   </view>
   
   <!-- 商品列表 -->
   <view class="product-list">
-    <view class="product-item" wx:for="{{productList}}" wx:key="id" bindtap="navigateToDetail" data-id="{{item.id}}">
-      <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
-      <view class="product-info">
-        <view class="product-name">{{item.name}}</view>
-        <view class="product-rating">
-          <view class="star-container">
-            <text class="star">★</text>
-            <text class="score">{{item.rating}}</text>
-            <text class="reviews">({{item.reviewCount}})</text>
-          </view>
-        </view>
-        <view class="product-price-row">
-          <view class="price-container">
-            <text class="price">¥{{item.price}}</text>
-          </view>
-          <view class="add-to-cart" catchtap="addToCart" data-id="{{item.id}}">+</view>
-        </view>
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loadingProducts}}">
+      <view class="loading-text">加载商品中...</view>
+    </view>
+    
+    <!-- 空状态提示 -->
+    <view class="empty-container" wx:elif="{{productList.length === 0}}">
+      <view class="empty-text">
+        <block wx:if="{{currentTab === 'all'}}">暂无商品</block>
+        <block wx:else>暂无"{{currentTab}}"分类的商品</block>
+      </view>
+      <view class="empty-tips" wx:if="{{currentTab !== 'all'}}">
+        您可以尝试其他分类或返回"全部"浏览更多商品
       </view>
     </view>
+    
+    <!-- 商品列表内容 -->
+    <block wx:else>
+      <view 
+        class="product-item" 
+        wx:for="{{productList}}" 
+        wx:key="_id" 
+        bindtap="navigateToDetail" 
+        data-id="{{item._id}}"
+      >
+        <image class="product-image" src="{{item.image}}" mode="aspectFill" lazy-load="true"></image>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-rating">
+            <view class="star-container">
+              <text class="star">★</text>
+              <text class="score">{{item.rating || '5.0'}}</text>
+              <text class="reviews">({{item.reviews || '0'}})</text>
+            </view>
+          </view>
+          <view class="product-price-row">
+            <view class="price-container">
+              <text class="price">¥{{item.price}}</text>
+            </view>
+            <view class="add-to-cart" catchtap="addToCart" data-id="{{item._id}}">+</view>
+          </view>
+        </view>
+      </view>
+    </block>
   </view>
 </view>

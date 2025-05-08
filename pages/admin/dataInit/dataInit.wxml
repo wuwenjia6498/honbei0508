@@ -1,0 +1,52 @@
+<!-- pages/admin/dataInit/dataInit.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="title">数据初始化工具</text>
+    <view class="status {{isAdmin ? 'success' : 'error'}}">
+      {{isAdmin ? '管理员权限已确认' : '无管理员权限'}}
+    </view>
+  </view>
+
+  <view class="operation-panel" wx:if="{{isAdmin}}">
+    <view class="section">
+      <view class="section-title">全局操作</view>
+      <view class="button-group">
+        <button class="btn primary" bindtap="initAllData" disabled="{{loading}}">初始化所有数据</button>
+        <button class="btn danger" bindtap="clearAllData" disabled="{{loading}}">清空所有数据</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">单集合操作</view>
+      <view class="button-group">
+        <button class="btn secondary" bindtap="initProducts" disabled="{{loading}}">初始化商品</button>
+        <button class="btn secondary" bindtap="initCategories" disabled="{{loading}}">初始化分类</button>
+        <button class="btn secondary" bindtap="initUsers" disabled="{{loading}}">初始化用户</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="log-panel">
+    <view class="log-header">
+      <text class="log-title">操作日志</text>
+      <text class="log-clear" bindtap="clearLogs">清空日志</text>
+    </view>
+    <scroll-view class="log-content" scroll-y>
+      <block wx:if="{{logs.length > 0}}">
+        <view class="log-item" wx:for="{{logs}}" wx:key="index">{{item}}</view>
+      </block>
+      <view class="log-empty" wx:else>暂无操作日志</view>
+    </scroll-view>
+  </view>
+
+  <view class="footer">
+    <button class="btn back" bindtap="goBack">返回</button>
+  </view>
+
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">处理中...</text>
+    </view>
+  </view>
+</view> 

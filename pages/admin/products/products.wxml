@@ -1,9 +1,52 @@
 <view class="container">
   <!-- 顶部标题和添加按钮 -->
-  <view class="header">
-    <text class="title">商品管理</text>
+  <view class="action-buttons">
     <view class="add-btn" bindtap="showAddProductForm">
       <text>+ 添加商品</text>
+    </view>
+    
+    <!-- 数据库管理按钮 -->
+    <view class="db-actions">
+      <view class="db-btn clean-btn" bindtap="openDatabaseActionModal">
+        <text>数据库管理</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 数据库操作弹窗 -->
+  <view class="form-modal" wx:if="{{showDatabaseModal}}">
+    <view class="modal-mask" bindtap="closeDatabaseActionModal"></view>
+    <view class="modal-content db-modal">
+      <view class="modal-header">
+        <text>数据库管理</text>
+        <view class="close-btn" bindtap="closeDatabaseActionModal">×</view>
+      </view>
+      
+      <view class="form-group">
+        <view class="warning-text">请谨慎操作！以下操作将直接影响数据库。</view>
+      </view>
+      
+      <view class="db-actions-group">
+        <view class="db-action-btn clean-only-btn" bindtap="cleanDatabaseOnly">
+          <text>清空数据库</text>
+          <text class="btn-desc">清空商品和分类数据，不添加测试数据</text>
+        </view>
+        
+        <view class="db-action-btn init-btn" bindtap="initDatabaseWithTestData">
+          <text>初始化测试数据</text>
+          <text class="btn-desc">清空数据后添加默认测试数据</text>
+        </view>
+      </view>
+      
+      <view class="form-group" wx:if="{{dbActionMessage}}">
+        <view class="message-box {{dbActionSuccess ? 'success' : 'error'}}">
+          {{dbActionMessage}}
+        </view>
+      </view>
+      
+      <view class="help-link" bindtap="checkCloudFunctionDeployment">
+        <text>操作失败？点击查看解决方法</text>
+      </view>
     </view>
   </view>
   
@@ -18,18 +61,12 @@
     <view class="category-item {{currentCategory === 'all' ? 'active' : ''}}" bindtap="switchCategory" data-category="all">
       <text>全部</text>
     </view>
-    <view class="category-item {{currentCategory === '蛋糕' ? 'active' : ''}}" bindtap="switchCategory" data-category="蛋糕">
-      <text>蛋糕</text>
-    </view>
-    <view class="category-item {{currentCategory === '面包' ? 'active' : ''}}" bindtap="switchCategory" data-category="面包">
-      <text>面包</text>
-    </view>
-    <view class="category-item {{currentCategory === '饼干' ? 'active' : ''}}" bindtap="switchCategory" data-category="饼干">
-      <text>饼干</text>
-    </view>
-    <view class="category-item {{currentCategory === '咖啡' ? 'active' : ''}}" bindtap="switchCategory" data-category="咖啡">
-      <text>咖啡</text>
-    </view>
+    <!-- 使用动态获取的分类数据 -->
+    <block wx:for="{{categories}}" wx:key="*this">
+      <view class="category-item {{currentCategory === item ? 'active' : ''}}" bindtap="switchCategory" data-category="{{item}}">
+        <text>{{item}}</text>
+      </view>
+    </block>
   </view>
   
   <!-- 调试信息 -->
@@ -46,13 +83,21 @@
           <view class="product-content">
             <view class="product-name">{{item.name}}</view>
             <view class="product-spec">规格: {{item.spec}} | 库存: {{item.stock}}</view>
-            <view class="product-status {{item.isActive ? 'on-sale' : 'off-sale'}}">{{item.isActive ? '在售' : '下架'}}</view>
-            <view class="product-category">{{item.category}}</view>
-            <view wx:if="{{item.isHot}}" class="product-hot">热门</view>
+            <view class="product-tags">
+              <text class="tag {{item.isActive ? 'tag-active' : 'tag-inactive'}}">{{item.isActive ? '在售' : '下架'}}</text>
+              <text class="tag tag-category">{{item.category}}</text>
+              <text wx:if="{{item.isHot}}" class="tag tag-hot">推荐</text>
+              <text wx:if="{{item.isNew}}" class="tag tag-new">新品</text>
+            </view>
           </view>
           <view class="product-price">¥{{item.price}}</view>
-          <view class="product-edit" bindtap="showEditProductForm" data-id="{{item.id}}">
-            <image class="edit-icon" src="/assets/images/icons/user-edit.svg" mode="aspectFit"></image>
+          <view class="product-actions">
+            <view class="action-btn edit-btn" bindtap="showEditProductForm" data-id="{{item.id}}">
+              <image class="action-icon" src="/assets/images/icons/edit.svg" mode="aspectFit"></image>
+            </view>
+            <view class="action-btn delete-btn" bindtap="confirmDeleteProduct" data-id="{{item.id}}" data-name="{{item.name}}">
+              <image class="action-icon" src="/assets/images/icons/trash.svg" mode="aspectFit"></image>
+            </view>
           </view>
         </view>
       </block>
@@ -71,8 +116,44 @@
         <view class="close-btn" bindtap="closeAddProductForm">×</view>
       </view>
       <view class="form-group">
+        <view class="form-label">商品图片</view>
+        <view class="upload-container">
+          <view class="upload-preview" wx:if="{{newProduct.tempImage}}">
+            <image src="{{newProduct.tempImage}}" mode="aspectFill"></image>
+            <view class="upload-delete" bindtap="removeNewProductImage">×</view>
+          </view>
+          <view class="upload-btn" bindtap="chooseNewProductImage" wx:else>
+            <image class="upload-icon" src="/assets/images/icons/upload.svg" mode="aspectFit"></image>
+            <text>上传图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-group">
         <view class="form-label">商品名称</view>
         <input class="form-input" type="text" placeholder="请输入商品名称" bindinput="onNewProductInput" data-field="name" value="{{newProduct.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品分类</view>
+        <picker bindchange="onNewProductPickerChange" value="{{categories.indexOf(newProduct.category)}}" range="{{categories}}">
+          <view class="picker-value">{{newProduct.category}}</view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品描述</view>
+        <textarea class="form-textarea" placeholder="请输入商品描述" bindinput="onNewProductInput" data-field="description" value="{{newProduct.description}}"></textarea>
+      </view>
+      <view class="form-group">
+        <view class="form-label">可选规格选项</view>
+        <view class="options-container">
+          <block wx:for="{{newProduct.options || []}}" wx:key="index">
+            <view class="option-item">
+              <input class="option-input" type="text" placeholder="规格名称" bindinput="onNewOptionNameChange" data-index="{{index}}" value="{{item.name}}" />
+              <input class="option-input" type="digit" placeholder="价格增加" bindinput="onNewOptionPriceChange" data-index="{{index}}" value="{{item.price}}" />
+              <view class="remove-option" bindtap="removeNewOption" data-index="{{index}}">×</view>
+            </view>
+          </block>
+          <view class="add-option-btn" bindtap="addNewOption">+添加规格选项</view>
+        </view>
       </view>
       <view class="form-group">
         <view class="form-label">商品价格</view>
@@ -87,10 +168,24 @@
         <input class="form-input" type="number" placeholder="请输入库存数量" bindinput="onNewProductInput" data-field="stock" value="{{newProduct.stock}}" />
       </view>
       <view class="form-group">
-        <view class="form-label">商品分类</view>
-        <picker bindchange="onNewProductPickerChange" value="{{categories.indexOf(newProduct.category)}}" range="{{categories}}">
-          <view class="picker-value">{{newProduct.category}}</view>
-        </picker>
+        <view class="form-label">原料</view>
+        <input class="form-input" type="text" placeholder="请输入商品原料" bindinput="onNewProductInput" data-field="ingredients" value="{{newProduct.ingredients}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">热量 (大卡/100g)</view>
+        <input class="form-input" type="number" placeholder="请输入热量" bindinput="onNewProductInput" data-field="calories" value="{{newProduct.calories}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">保质期</view>
+        <input class="form-input" type="text" placeholder="请输入保质期" bindinput="onNewProductInput" data-field="shelfLife" value="{{newProduct.shelfLife}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">存放方式</view>
+        <input class="form-input" type="text" placeholder="请输入存放方式" bindinput="onNewProductInput" data-field="storage" value="{{newProduct.storage}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">烘焙时间</view>
+        <input class="form-input" type="text" placeholder="请输入烘焙时间" bindinput="onNewProductInput" data-field="bakingTime" value="{{newProduct.bakingTime}}" />
       </view>
       <view class="form-group">
         <view class="switch-group">
@@ -100,8 +195,14 @@
       </view>
       <view class="form-group">
         <view class="switch-group">
-          <view class="form-label">是否热门</view>
+          <view class="form-label">人气推荐</view>
           <switch checked="{{newProduct.isHot}}" bindchange="onNewProductHotChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">今日新鲜出炉</view>
+          <switch checked="{{newProduct.isNew}}" bindchange="onNewProductNewChange" color="#a68a7b" />
         </view>
       </view>
       <view class="form-actions">
@@ -120,8 +221,44 @@
         <view class="close-btn" bindtap="closeEditProductForm">×</view>
       </view>
       <view class="form-group">
+        <view class="form-label">商品图片</view>
+        <view class="upload-container">
+          <view class="upload-preview" wx:if="{{currentProduct.tempImage || currentProduct.image}}">
+            <image src="{{currentProduct.tempImage || currentProduct.image}}" mode="aspectFill"></image>
+            <view class="upload-delete" bindtap="removeCurrentProductImage">×</view>
+          </view>
+          <view class="upload-btn" bindtap="chooseCurrentProductImage" wx:else>
+            <image class="upload-icon" src="/assets/images/icons/upload.svg" mode="aspectFit"></image>
+            <text>上传图片</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-group">
         <view class="form-label">商品名称</view>
         <input class="form-input" type="text" placeholder="请输入商品名称" bindinput="onEditProductInput" data-field="name" value="{{currentProduct.name}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品分类</view>
+        <picker bindchange="onEditProductPickerChange" value="{{categories.indexOf(currentProduct.category)}}" range="{{categories}}">
+          <view class="picker-value">{{currentProduct.category}}</view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="form-label">商品描述</view>
+        <textarea class="form-textarea" placeholder="请输入商品描述" bindinput="onEditProductInput" data-field="description" value="{{currentProduct.description}}"></textarea>
+      </view>
+      <view class="form-group">
+        <view class="form-label">可选规格选项</view>
+        <view class="options-container">
+          <block wx:for="{{currentProduct.options || []}}" wx:key="index">
+            <view class="option-item">
+              <input class="option-input" type="text" placeholder="规格名称" bindinput="onOptionNameChange" data-index="{{index}}" value="{{item.name}}" />
+              <input class="option-input" type="digit" placeholder="价格增加" bindinput="onOptionPriceChange" data-index="{{index}}" value="{{item.price}}" />
+              <view class="remove-option" bindtap="removeOption" data-index="{{index}}">×</view>
+            </view>
+          </block>
+          <view class="add-option-btn" bindtap="addOption">+添加规格选项</view>
+        </view>
       </view>
       <view class="form-group">
         <view class="form-label">商品价格</view>
@@ -136,10 +273,24 @@
         <input class="form-input" type="number" placeholder="请输入库存数量" bindinput="onEditProductInput" data-field="stock" value="{{currentProduct.stock}}" />
       </view>
       <view class="form-group">
-        <view class="form-label">商品分类</view>
-        <picker bindchange="onEditProductPickerChange" value="{{categories.indexOf(currentProduct.category)}}" range="{{categories}}">
-          <view class="picker-value">{{currentProduct.category}}</view>
-        </picker>
+        <view class="form-label">原料</view>
+        <input class="form-input" type="text" placeholder="请输入商品原料" bindinput="onEditProductInput" data-field="ingredients" value="{{currentProduct.ingredients}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">热量 (大卡/100g)</view>
+        <input class="form-input" type="number" placeholder="请输入热量" bindinput="onEditProductInput" data-field="calories" value="{{currentProduct.calories}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">保质期</view>
+        <input class="form-input" type="text" placeholder="请输入保质期" bindinput="onEditProductInput" data-field="shelfLife" value="{{currentProduct.shelfLife}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">存放方式</view>
+        <input class="form-input" type="text" placeholder="请输入存放方式" bindinput="onEditProductInput" data-field="storage" value="{{currentProduct.storage}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">烘焙时间</view>
+        <input class="form-input" type="text" placeholder="请输入烘焙时间" bindinput="onEditProductInput" data-field="bakingTime" value="{{currentProduct.bakingTime}}" />
       </view>
       <view class="form-group">
         <view class="switch-group">
@@ -149,8 +300,14 @@
       </view>
       <view class="form-group">
         <view class="switch-group">
-          <view class="form-label">是否热门</view>
+          <view class="form-label">人气推荐</view>
           <switch checked="{{currentProduct.isHot}}" bindchange="onEditProductHotChange" color="#a68a7b" />
+        </view>
+      </view>
+      <view class="form-group">
+        <view class="switch-group">
+          <view class="form-label">今日新鲜出炉</view>
+          <switch checked="{{currentProduct.isNew}}" bindchange="onEditProductNewChange" color="#a68a7b" />
         </view>
       </view>
       <view class="form-actions">

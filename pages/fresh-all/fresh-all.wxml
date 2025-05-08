@@ -1,0 +1,45 @@
+<!-- fresh-all.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">今日新鲜出炉</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="product-list" wx:elif="{{freshProducts.length > 0}}">
+    <view class="product-card" wx:for="{{freshProducts}}" wx:key="_id" bindtap="goToProductDetail" data-id="{{item._id}}">
+      <view class="badge">今日特供</view>
+      <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="product-info">
+        <text class="product-name">{{item.name}}</text>
+        <text class="product-desc">{{item.description}}</text>
+        <view class="price-row">
+          <view class="price-container">
+            <text class="price">¥{{item.price}}</text>
+            <text class="original-price" wx:if="{{item.originalPrice}}">¥{{item.originalPrice}}</text>
+          </view>
+          <view class="add-to-cart {{item.stock <= 0 ? 'disabled' : ''}}" catchtap="{{item.stock > 0 ? 'addToCart' : ''}}" data-id="{{item._id}}">+</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/assets/images/icons/empty-box.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无新鲜商品，敬请期待</text>
+  </view>
+  
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{freshProducts.length > 0 && !loading}}">
+    <view class="loading" wx:if="{{isLoadingMore}}"></view>
+    <text wx:elif="{{noMoreData}}">— 已经到底啦 —</text>
+    <text wx:else>上拉加载更多</text>
+  </view>
+</view> 

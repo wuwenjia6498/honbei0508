@@ -1,0 +1,95 @@
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <block wx:else>
+    <!-- 收货地址 -->
+    <view class="address-section">
+      <view class="section-title">收货地址</view>
+      <view class="address-content" wx:if="{{address}}" bindtap="goToAddressSelect">
+        <view class="recipient-info">
+          <text class="recipient-name">{{address.name}}</text>
+          <text class="recipient-phone">{{address.phone}}</text>
+        </view>
+        <view class="address-detail">{{address.province}}{{address.city}}{{address.district}}{{address.detailAddress}}</view>
+        <view class="address-right">
+          <text class="iconfont icon-right"></text>
+        </view>
+      </view>
+      <view class="no-address" wx:else>
+        <view class="no-address-tips" bindtap="goToAddressSelect">选择收货地址</view>
+        <view class="add-address-btn" bindtap="addNewAddress">+ 新增地址</view>
+      </view>
+    </view>
+
+    <!-- 商品信息 -->
+    <view class="products-section">
+      <view class="section-title">商品信息</view>
+      <view class="product-list">
+        <view class="product-item" wx:for="{{products}}" wx:key="_id">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="product-info">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-specs" wx:if="{{item.specs}}">规格：{{item.specs}}</view>
+            <view class="product-price-count">
+              <text class="product-price">¥{{item.price}}</text>
+              <text class="product-count">x{{item.count}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 订单备注 -->
+    <view class="remarks-section">
+      <view class="section-title">订单备注</view>
+      <view class="remarks-input-wrap">
+        <input class="remarks-input" type="text" placeholder="请输入备注信息（选填）" bindinput="onRemarksInput" value="{{remarks}}" />
+      </view>
+    </view>
+
+    <!-- 配送信息 -->
+    <view class="delivery-section">
+      <view class="delivery-item">
+        <text class="delivery-label">配送方式</text>
+        <text class="delivery-value">快递配送</text>
+      </view>
+      <view class="delivery-item">
+        <text class="delivery-label">配送说明</text>
+        <text class="delivery-value">订单满99元免配送费</text>
+      </view>
+    </view>
+
+    <!-- 价格信息 -->
+    <view class="price-section">
+      <view class="price-item">
+        <text class="price-label">商品金额</text>
+        <text class="price-value">¥{{productTotal}}</text>
+      </view>
+      <view class="price-item">
+        <text class="price-label">配送费</text>
+        <text class="price-value">¥{{deliveryFee}}</text>
+      </view>
+      <view class="price-item" wx:if="{{discount > 0}}">
+        <text class="price-label">优惠</text>
+        <text class="price-value discount">-¥{{discount}}</text>
+      </view>
+      <view class="price-item total">
+        <text class="price-label">实付款</text>
+        <text class="price-value total-price">¥{{totalPrice}}</text>
+      </view>
+    </view>
+
+    <!-- 底部提交栏 -->
+    <view class="footer">
+      <view class="footer-price">
+        <text>实付款：</text>
+        <text class="total-amount">¥{{totalPrice}}</text>
+      </view>
+      <button class="submit-btn {{!canSubmit ? 'disabled' : ''}}" bindtap="submitOrder" disabled="{{!canSubmit}}">提交订单</button>
+    </view>
+  </block>
+</view> 

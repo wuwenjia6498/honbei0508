@@ -1,0 +1,15 @@
+{
+  "name": "00honbei-0415",
+  "version": "1.0.0",
+  "description": "## 项目简介 梧桐小姐烘焙小程序是一个专注于提供优质烘焙产品的移动端应用。通过简洁优雅的界面设计，为用户提供便捷的烘焙产品浏览、选购和配送服务。",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
+  }
+}

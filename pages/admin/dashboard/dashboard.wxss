@@ -30,9 +30,9 @@ page {
 /* 顶部标题栏 */
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 30rpx 30rpx 20rpx;
+  padding: 24rpx 30rpx 20rpx;
   background-color: #a68a7b;
   color: white;
   position: fixed;
@@ -41,30 +41,43 @@ page {
   z-index: 999;
 }
 
-.title-wrapper {
+.header-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* 返回用户界面按钮容器 */
+.back-to-user-container {
+  padding: 30rpx 30rpx 20rpx;
   display: flex;
-  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 20rpx;
 }
 
 .back-to-user {
   display: flex;
   align-items: center;
-  margin-bottom: 10rpx;
-  font-size: 24rpx;
-  background-color: rgba(255,255,255,0.2);
-  padding: 6rpx 12rpx;
-  border-radius: 4rpx;
+  font-size: 28rpx;
+  background-color: #fff;
+  color: #a68a7b;
+  padding: 16rpx 30rpx;
+  border-radius: 30rpx;
+  transition: all 0.2s ease;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.12);
+  border: 1rpx solid rgba(166, 138, 123, 0.3);
+}
+
+.back-to-user:active {
+  background-color: #f8f8f8;
+  transform: scale(0.97);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08);
 }
 
 .back-icon {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-}
-
-.title {
-  font-size: 36rpx;
-  font-weight: 500;
+  margin-right: 12rpx;
+  font-size: 30rpx;
+  font-weight: bold;
 }
 
 .notification {
@@ -77,13 +90,72 @@ page {
   height: 100%;
 }
 
-/* 欢迎信息栏 */
-.welcome-bar {
-  background-color: #a68a7b;
-  color: white;
-  padding: 0 30rpx 30rpx 30rpx;
-  font-size: 28rpx;
-  margin-top: 134rpx; /* 标题栏高度 + 状态栏高度 */
+/* 内容区域 */
+.content-area {
+  padding: 0 0 40rpx 0;
+  margin-top: 160rpx; /* 标题栏高度 + 状态栏高度 + 额外间距 */
+}
+
+/* 工具区域 */
+.tools-section {
+  padding: 30rpx;
+}
+
+.tools-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tool-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.tool-card:active {
+  background-color: #f9f9f9;
+  transform: scale(0.98);
+}
+
+.tool-icon-container {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3ece8;
+  margin-bottom: 16rpx;
+}
+
+.tool-icon-image {
+  width: 48rpx;
+  height: 48rpx;
+  opacity: 0.8;
+}
+
+.tool-label {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.tool-desc {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.tool-icon {
+  font-size: 48rpx;
 }
 
 /* 数据统计区域 */
@@ -139,6 +211,12 @@ page {
   color: #333;
 }
 
+.stat-value.loading {
+  font-size: 28rpx;
+  color: #999;
+  font-weight: normal;
+}
+
 .stat-icon-container {
   position: absolute;
   top: 30rpx;
@@ -185,6 +263,7 @@ page {
 /* 最近订单区域 */
 .recent-orders-section {
   padding: 30rpx;
+  margin-bottom: 100rpx; /* 为底部导航栏留出空间 */
 }
 
 .section-header {
@@ -195,75 +274,170 @@ page {
 }
 
 .view-all {
-  font-size: 26rpx;
-  color: #999;
   display: flex;
   align-items: center;
+  font-size: 26rpx;
+  color: #a68a7b;
 }
 
 .arrow {
-  margin-left: 6rpx;
+  margin-left: 5rpx;
 }
 
-.order-list {
+/* 加载状态 */
+.loading-state {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
 }
 
-.order-item {
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #a68a7b;
+  border-radius: 50%;
+  margin-bottom: 20rpx;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50rpx 0;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.7;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 订单列表 */
+.order-list {
   background-color: #fff;
   border-radius: 12rpx;
-  padding: 20rpx;
+  overflow: hidden;
   box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
 }
 
-.order-info {
+.order-item {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-basic-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.order-number {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.order-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-customer-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15rpx;
+}
+
+.user-avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+}
+
+.user-avatar-text {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+  font-size: 32rpx;
+  line-height: 40rpx;
+}
+
+.customer-name {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-status-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.order-left, .order-right {
-  display: flex;
-  flex-direction: column;
-}
-
-.order-number {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 8rpx;
-}
-
-.order-customer {
+.order-products {
   font-size: 24rpx;
   color: #999;
 }
 
-.order-price {
-  font-size: 28rpx;
-  font-weight: 500;
+.order-amount {
+  font-size: 30rpx;
   color: #333;
-  text-align: right;
-  margin-bottom: 8rpx;
+  font-weight: 500;
 }
 
 .order-status {
   font-size: 24rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 100rpx;
-  text-align: center;
+  padding: 6rpx 12rpx;
+  border-radius: 20rpx;
 }
 
-.delivering {
-  background-color: #e8f4ff;
-  color: #4499ff;
+/* 订单状态颜色 */
+.order-status.pending {
+  background-color: #f5f5f5;
+  color: #999;
 }
 
-.pending {
-  background-color: #f3ece8;
-  color: #a68a7b;
+.order-status.paid {
+  background-color: #fff7e6;
+  color: #ff9500;
+}
+
+.order-status.shipped {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.order-status.completed {
+  background-color: #e6fff0;
+  color: #34c759;
+}
+
+.order-status.canceled {
+  background-color: #fff0f0;
+  color: #ff3b30;
 }
 
 /* 底部导航栏样式已移至组件中 */ 

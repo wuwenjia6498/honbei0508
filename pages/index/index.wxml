@@ -29,10 +29,10 @@
         <view class="view-more" bindtap="viewAllFresh">查看全部</view>
       </view>
       
-      <scroll-view scroll-x="true" class="product-scroll" enable-flex="true">
-        <view class="product-card fresh-card" wx:for="{{freshProducts}}" wx:key="id" bindtap="goToProductDetail" data-id="{{item.id}}">
+      <scroll-view scroll-x="true" class="product-scroll" enable-flex="true" enhanced="true" show-scrollbar="false">
+        <view class="product-card fresh-card" wx:for="{{freshProducts}}" wx:key="_id" bindtap="goToProductDetail" data-id="{{item._id}}">
           <view class="badge">今日特供</view>
-          <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="product-image" src="{{item.image}}" mode="aspectFill" lazy-load="true"></image>
           <view class="product-info">
             <text class="product-name">{{item.name}}</text>
             <view class="price-row">
@@ -40,7 +40,7 @@
                 <text class="price">¥{{item.price}}</text>
                 <text class="price-unit">{{item.price}} 元</text>
               </view>
-              <view class="add-to-cart" catchtap="addToCart" data-id="{{item.id}}">+</view>
+              <view class="add-to-cart" catchtap="addToCart" data-id="{{item._id}}">+</view>
             </view>
           </view>
         </view>
@@ -55,21 +55,21 @@
       </view>
       
       <view class="popular-list">
-        <view class="product-card-large" wx:for="{{popularProducts}}" wx:key="id" bindtap="goToProductDetail" data-id="{{item.id}}">
+        <view class="product-card-large" wx:for="{{popularProducts}}" wx:key="_id" bindtap="goToProductDetail" data-id="{{item._id}}">
           <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
           <view class="product-info">
             <text class="product-name">{{item.name}}</text>
             <view class="rating">
               <view class="star-container">
                 <text class="star">★</text>
-                <text class="score">{{item.rating}}</text>
-                <text class="reviews">({{item.reviews}})</text>
+                <text class="score">{{item.rating || '5.0'}}</text>
+                <text class="reviews">({{item.reviews || '0'}})</text>
               </view>
               <view class="price-container">
                 <text class="price">¥{{item.price}}</text>
               </view>
             </view>
-            <view class="add-to-cart" catchtap="addToCart" data-id="{{item.id}}">+</view>
+            <view class="add-to-cart" catchtap="addToCart" data-id="{{item._id}}">+</view>
           </view>
         </view>
       </view>

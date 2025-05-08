@@ -1,109 +1,154 @@
 <!-- 订单详情页 -->
-<view class="order-detail">
-  <!-- 订单状态 -->
-  <view class="order-status">
-    <view class="status-icon">
-      <image src="/assets/images/icons/delivery.svg"></image>
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav-bar">
+    <view class="nav-back" bindtap="backToOrderList">
+      <van-icon name="arrow-left" size="20px" color="#333"/>
     </view>
-    <view class="status-info">
-      <view class="status-title">{{orderInfo.statusText}}</view>
-      <view class="status-desc">{{orderInfo.statusDesc}}</view>
-    </view>
+    <view class="nav-title">订单详情</view>
+    <view class="nav-placeholder"></view>
   </view>
 
-  <!-- 订单进度 -->
-  <view class="order-progress">
-    <view class="progress-item {{item.status}}" wx:for="{{orderInfo.progress}}" wx:key="title">
-      <view class="progress-dot"></view>
-      <view class="progress-content">
-        <view class="progress-title">{{item.title}}</view>
-        <view class="progress-time" wx:if="{{item.time}}">{{item.time}}</view>
-        <view class="progress-delivery" wx:if="{{item.delivery}}">{{item.delivery}}</view>
-        <view class="progress-desc" wx:if="{{item.desc && item.status === 'completed'}}">{{item.desc}}</view>
-        <view class="progress-desc" wx:if="{{item.waitDesc && item.status !== 'completed'}}">{{item.waitDesc}}</view>
+  <!-- 加载中状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading"></view>
+    <view class="loading-text">订单信息加载中...</view>
+  </view>
+
+  <!-- 空数据提示 -->
+  <view class="empty-container" wx:elif="{{!orderInfo}}">
+    <view class="empty-icon">📋</view>
+    <view class="empty-text">未找到订单信息</view>
+    <view class="return-btn" bindtap="navigateToOrderList">返回订单列表</view>
+  </view>
+
+  <!-- 订单详情内容 -->
+  <block wx:else>
+    <!-- 订单状态 -->
+    <view class="status-card">
+      <view class="status-header">
+        <text class="status-text">{{orderInfo.statusText}}</text>
+        <text class="status-desc">{{orderInfo.statusDesc}}</text>
       </view>
     </view>
-  </view>
-
-  <!-- 收货人信息 -->
-  <view class="recipient-info">
-    <view class="recipient-icon">
-      <image src="/assets/images/icons/location.svg"></image>
-    </view>
-    <view class="recipient-detail">
-      <view class="recipient-name">{{orderInfo.recipient.name}}，{{orderInfo.recipient.phone}}</view>
-      <view class="recipient-address">{{orderInfo.recipient.address}}</view>
-    </view>
-  </view>
-
-  <!-- 订单商品 -->
-  <view class="order-products">
-    <view class="section-title bold">订单商品</view>
-    <view class="product-item" wx:for="{{orderInfo.products}}" wx:key="id">
-      <image class="product-image" src="{{item.image}}"></image>
-      <view class="product-info">
-        <view class="product-name">{{item.name}}</view>
-        <view class="product-desc">{{item.desc}}</view>
+    
+    <!-- 主体内容区 -->
+    <view class="main-content">
+      <!-- 订单进度 -->
+      <view class="content-section">
+        <view class="section-title">订单进度</view>
+        <view class="section-divider"></view>
+        <view class="order-progress">
+          <view class="progress-item {{item.status}}" wx:for="{{orderInfo.progress}}" wx:key="title">
+            <view class="progress-line" wx:if="{{index > 0}}"></view>
+            <view class="progress-circle"></view>
+            <view class="progress-content">
+              <view class="progress-title">{{item.title}}</view>
+              <view class="progress-time" wx:if="{{item.time}}">{{item.time}}</view>
+              <view class="progress-desc" wx:if="{{item.desc}}">{{item.desc}}</view>
+              <view class="progress-desc" wx:elif="{{item.status == 'waiting' && item.waitDesc}}">{{item.waitDesc}}</view>
+              <view class="progress-delivery" wx:if="{{item.delivery}}">{{item.delivery}}</view>
+            </view>
+          </view>
+        </view>
       </view>
-      <view class="product-price-qty">
-        <view class="product-price">¥{{item.price}}</view>
-        <view class="product-qty">x{{item.quantity}}</view>
+
+      <!-- 收货信息 -->
+      <view class="content-section">
+        <view class="section-title">收货信息</view>
+        <view class="section-divider"></view>
+        <view class="recipient-info">
+          <view class="recipient-row">
+            <text class="recipient-name">{{orderInfo.recipient.name}}</text>
+            <text class="recipient-phone">{{orderInfo.recipient.phone}}</text>
+          </view>
+          <view class="recipient-address">{{orderInfo.recipient.address}}</view>
+        </view>
+      </view>
+      
+      <!-- 商品信息 -->
+      <view class="content-section">
+        <view class="section-title">商品信息</view>
+        <view class="section-divider"></view>
+        <view class="product-list">
+          <view class="product-item" wx:for="{{orderInfo.products}}" wx:key="id">
+            <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+            <view class="product-details">
+              <view class="product-name">{{item.name}}</view>
+              <view class="product-desc">{{item.desc}}</view>
+              <view class="product-price-row">
+                <text class="product-price">¥{{item.price}}</text>
+                <text class="product-quantity">x{{item.quantity}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 订单信息 -->
+      <view class="content-section">
+        <view class="section-title">订单信息</view>
+        <view class="section-divider"></view>
+        <view class="order-detail-list">
+          <view class="detail-item">
+            <text class="detail-label">订单编号</text>
+            <view class="detail-value-wrap">
+              <text class="detail-value">{{orderInfo.orderDetail.orderNumber}}</text>
+              <text class="copy-btn" bindtap="copyOrderNumber">复制</text>
+            </view>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">下单时间</text>
+            <text class="detail-value">{{orderInfo.orderDetail.orderTime}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">支付方式</text>
+            <text class="detail-value">{{orderInfo.orderDetail.paymentMethod}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">配送时间</text>
+            <text class="detail-value">{{orderInfo.orderDetail.deliveryTime}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-label">备注</text>
+            <text class="detail-value">{{orderInfo.orderDetail.remark}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 金额信息 -->
+      <view class="content-section">
+        <view class="section-title">支付金额</view>
+        <view class="section-divider"></view>
+        <view class="amount-list">
+          <view class="amount-item">
+            <text class="amount-label">商品金额</text>
+            <text class="amount-value">¥{{orderInfo.amount.productTotal}}</text>
+          </view>
+          <view class="amount-item">
+            <text class="amount-label">配送费</text>
+            <text class="amount-value">¥{{orderInfo.amount.deliveryFee}}</text>
+          </view>
+          <view class="amount-item" wx:if="{{orderInfo.amount.discount > 0}}">
+            <text class="amount-label">优惠</text>
+            <text class="amount-value discount-value">-¥{{orderInfo.amount.discount}}</text>
+          </view>
+          <view class="amount-item total">
+            <text class="amount-label">实付金额</text>
+            <text class="amount-value total-value">¥{{orderInfo.amount.total}}</text>
+          </view>
+        </view>
       </view>
     </view>
-  </view>
-
-  <!-- 订单信息 -->
-  <view class="order-info">
-    <view class="section-title bold">订单信息</view>
-    <view class="info-item">
-      <text class="info-label">订单编号</text>
-      <view class="info-value">
-        <text>{{orderInfo.orderDetail.orderNumber}}</text>
-        <text class="copy-btn" bindtap="copyOrderNumber">复制</text>
+    
+    <!-- 底部操作栏 -->
+    <view class="footer-action-bar">
+      <view class="action-button service-btn" bindtap="contactService">
+        <text class="button-text">联系客服</text>
+      </view>
+      <view class="action-button reorder-btn" bindtap="reorder">
+        <text class="button-text">再来一单</text>
       </view>
     </view>
-    <view class="info-item">
-      <text class="info-label">下单时间</text>
-      <text class="info-value">{{orderInfo.orderDetail.orderTime}}</text>
-    </view>
-    <view class="info-item">
-      <text class="info-label">支付方式</text>
-      <text class="info-value">{{orderInfo.orderDetail.paymentMethod}}</text>
-    </view>
-    <view class="info-item">
-      <text class="info-label">配送时间</text>
-      <text class="info-value">{{orderInfo.orderDetail.deliveryTime}}</text>
-    </view>
-    <view class="info-item">
-      <text class="info-label">备注</text>
-      <text class="info-value">{{orderInfo.orderDetail.remark}}</text>
-    </view>
-  </view>
-
-  <!-- 订单金额 -->
-  <view class="order-amount">
-    <view class="section-title bold">订单金额</view>
-    <view class="amount-item">
-      <text class="amount-label">商品金额</text>
-      <text class="amount-value">¥{{orderInfo.amount.productTotal}}</text>
-    </view>
-    <view class="amount-item">
-      <text class="amount-label">配送费</text>
-      <text class="amount-value">¥{{orderInfo.amount.deliveryFee}}</text>
-    </view>
-    <view class="amount-item">
-      <text class="amount-label">优惠</text>
-      <text class="amount-value discount">-¥{{orderInfo.amount.discount}}</text>
-    </view>
-    <view class="amount-item total">
-      <text class="amount-label bold">实付金额</text>
-      <text class="amount-value">¥{{orderInfo.amount.total}}</text>
-    </view>
-  </view>
-
-  <!-- 底部按钮 -->
-  <view class="bottom-btns">
-    <button class="btn btn-contact" bindtap="contactService">联系我</button>
-    <button class="btn btn-reorder" bindtap="reorder">再来一单</button>
-  </view>
+  </block>
 </view> 

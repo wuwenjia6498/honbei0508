@@ -1,9 +1,13 @@
 // pages/profile/profile.js
+const app = getApp();
+const { orderApi } = require('../../utils/cloudApi');
+
 Page({
   /**
    * 页面的初始数据
    */
   data: {
+    isLogin: false,
     userInfo: {
       avatarUrl: '../../assets/images/icons/user-active.png',
       nickName: '张伟',
@@ -16,79 +20,205 @@ Page({
     orderStats: {
       toPay: 0,
       toBake: 0,
-      toDeliver: 2,
+      toDeliver: 0,
       completed: 0
     },
-    recentOrders: [
-      {
-        id: '202312051234S',
-        status: 'delivery',
-        statusText: '配送中',
-        products: [
-          { 
-            id: 1, 
-            image: '../../assets/images/products/product-brownie.jpg',
-            count: 2
-          },
-          { 
-            id: 2, 
-            image: '../../assets/images/products/product-tiramisu.jpg',
-            count: 1
-          },
-          { 
-            id: 3, 
-            image: '../../assets/images/products/product-cream-puff.jpg',
-            count: 1
-          }
-        ],
-        totalCount: 4,
-        totalPrice: 88.00
-      },
-      {
-        id: '202312049876S',
-        status: 'completed',
-        statusText: '已完成',
-        products: [
-          { 
-            id: 4, 
-            image: '../../assets/images/products/product-croissant.jpg',
-            count: 2
-          },
-          { 
-            id: 5, 
-            image: '../../assets/images/products/product-mango-layer.jpg',
-            count: 3
-          }
-        ],
-        totalCount: 5,
-        totalPrice: 98.00
-      }
-    ]
+    recentOrders: [],
+    isLoading: false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    // 这里可以从服务器获取用户数据、订单数据等
-    // 模拟从服务器获取数据
-    this.getUserData();
+    this.checkLoginStatus();
   },
 
   /**
-   * 获取用户数据（模拟）
+   * 生命周期函数--监听页面显示
    */
-  getUserData: function() {
-    // 实际应用中，这里应该是发送请求到服务器获取数据
-    // 模拟数据请求延迟
+  onShow: function () {
+    this.checkLoginStatus();
+    if (app.globalData.isLogin) {
+      this.getOrderList();
+    }
+  },
+
+  /**
+   * 检查登录状态
+   */
+  checkLoginStatus: function() {
+    const isLogin = app.globalData.isLogin || false;
+    
+    this.setData({ isLogin });
+    
+    if (isLogin && app.globalData.userInfo) {
+      this.setData({
+        userInfo: {
+          avatarUrl: app.globalData.userInfo.avatar || '../../assets/images/icons/user-active.png',
+          nickName: app.globalData.userInfo.nickname || '微信用户',
+          phone: app.globalData.userInfo.phone || '未绑定手机号'
+        }
+      });
+    }
+  },
+
+  /**
+   * 获取订单列表
+   */
+  getOrderList: function() {
+    if (!app.globalData.isLogin) {
+      return;
+    }
+
+    this.setData({ isLoading: true });
+    
     wx.showLoading({
       title: '加载中',
     });
     
-    setTimeout(() => {
-      wx.hideLoading();
-      // 如有需要可以在这里更新页面数据
-    }, 500);
+    orderApi.getOrders()
+      .then(res => {
+        console.log('获取订单列表成功', res);
+        if (res && res.success && res.data && res.data.orders) {
+          const orders = res.data.orders;
+          
+          // 统计各状态订单数量
+          const orderStats = {
+            toPay: 0,
+            toBake: 0,
+            toDeliver: 0,
+            completed: 0
+          };
+          
+          orders.forEach(order => {
+            switch(order.status) {
+              case 'pending':
+                orderStats.toPay++;
+                break;
+              case 'paid':
+                orderStats.toBake++;
+                break;
+              case 'processing':
+                orderStats.toBake++;
+                break;
+              case 'delivering':
+                orderStats.toDeliver++;
+                break;
+              case 'completed':
+                orderStats.completed++;
+                break;
+            }
+          });
+          
+          // 格式化最近订单数据
+          const recentOrders = orders.slice(0, 3).map(order => {
+            // 获取订单商品的图片
+            const products = order.products.map(product => ({
+              id: product.productId,
+              image: product.image || '../../assets/images/products/default.png',
+              count: product.quantity
+            }));
+            
+            // 计算商品总数
+            const totalCount = order.products.reduce((sum, product) => sum + product.quantity, 0);
+            
+            // 状态文本映射
+            const statusTextMap = {
+              'pending': '待付款',
+              'paid': '已付款',
+              'processing': '制作中',
+              'delivering': '配送中',
+              'completed': '已完成',
+              'cancelled': '已取消'
+            };
+            
+            return {
+              id: order._id,
+              status: order.status,
+              statusText: statusTextMap[order.status] || order.statusText,
+              products: products,
+              totalCount: totalCount,
+              totalPrice: order.totalAmount.toFixed(2),
+              createTime: order.createTime
+            };
+          });
+          
+          this.setData({
+            orderStats,
+            recentOrders
+          });
+        } else {
+          console.error('获取订单数据格式错误', res);
+        }
+      })
+      .catch(err => {
+        console.error('获取订单列表失败', err);
+      })
+      .finally(() => {
+        this.setData({ isLoading: false });
+        wx.hideLoading();
+      });
+  },
+
+  /**
+   * 跳转到登录页面
+   */
+  goToLogin: function() {
+    wx.navigateTo({
+      url: '/pages/login/login'
+    });
+  },
+
+  /**
+   * 退出登录
+   */
+  logout: function() {
+    wx.showModal({
+      title: '确认退出登录',
+      content: '是否确认退出登录？',
+      success: (res) => {
+        if (res.confirm) {
+          // 清除登录状态
+          app.globalData.isLogin = false;
+          app.globalData.userInfo = null;
+          
+          // 更新页面状态
+          this.setData({
+            isLogin: false,
+            userInfo: {
+              avatarUrl: '../../assets/images/icons/user-active.png',
+              nickName: '点击登录',
+              phone: '登录后查看'
+            },
+            recentOrders: [] // 清空订单数据
+          });
+          
+          wx.showToast({
+            title: '已退出登录',
+            icon: 'success'
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 获取用户数据
+   */
+  getUserData: function() {
+    if (!app.globalData.isLogin) {
+      return;
+    }
+    
+    wx.showLoading({
+      title: '加载中',
+    });
+    
+    // 获取订单数据
+    this.getOrderList();
+    
+    wx.hideLoading();
   },
 
   /**
@@ -97,7 +227,7 @@ Page({
   goToOrders: function(e) {
     const status = e.currentTarget.dataset.status || '';
     wx.navigateTo({
-      url: '/pages/order-detail/order-detail?status=' + status
+      url: '/pages/orders/orders?status=' + status
     });
   },
 
@@ -121,11 +251,14 @@ Page({
   },
 
   /**
-   * 生命周期函数--监听页面显示
+   * 显示功能开发中提示
    */
-  onShow: function () {
-    // 每次显示页面时，可以刷新数据
-    this.getUserData();
+  showDevelopingToast: function() {
+    wx.showToast({
+      title: '功能开发中...',
+      icon: 'none',
+      duration: 2000
+    });
   },
 
   /**

@@ -1,0 +1,43 @@
+<view class="login-container">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <view class="back-arrow"></view>
+    </view>
+    <view class="header-title">用户登录</view>
+  </view>
+  
+  <!-- 主内容区 -->
+  <view class="content">
+    <!-- 登录前显示 -->
+    <block wx:if="{{!userInfo}}">
+      <view class="login-banner">
+        <image class="login-image" src="/assets/images/icons/user-active.png" mode="aspectFit"></image>
+        <view class="login-title">欢迎来到梧桐小姐烘焙</view>
+        <view class="login-subtitle">{{tipMessage}}</view>
+      </view>
+      
+      <button 
+        class="login-btn {{loading ? 'loading' : ''}}" 
+        bindtap="getUserProfile" 
+        disabled="{{loading}}"
+        hover-class="none"
+      >{{loading ? '登录中...' : '微信一键登录'}}</button>
+      
+      <view class="privacy-tip">
+        登录即表示您同意《用户协议》和《隐私政策》
+      </view>
+    </block>
+    
+    <!-- 登录后显示 -->
+    <block wx:else>
+      <view class="user-info-display">
+        <image class="user-avatar" src="{{userInfo.avatar || '/assets/images/icons/user-active.png'}}" mode="aspectFill"></image>
+        <view class="user-nickname">{{userInfo.nickname || '微信用户'}}</view>
+        <view class="login-status">{{tipMessage}}</view>
+      </view>
+      
+      <button class="back-home-btn" bindtap="goBack">返回继续购物</button>
+    </block>
+  </view>
+</view> 

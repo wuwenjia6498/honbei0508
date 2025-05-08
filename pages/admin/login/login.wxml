@@ -34,7 +34,7 @@
     <view class="error-message" wx:if="{{errorMessage}}">{{errorMessage}}</view>
     
     <button class="login-button {{loading ? 'loading' : ''}}" bindtap="login" disabled="{{loading}}">
-      {{loading ? '登录中...' : '直接登录（测试模式）'}}
+      <text class="button-text">{{loading ? '登录中...' : '直接登录（测试模式）'}}</text>
     </button>
   </view>
   

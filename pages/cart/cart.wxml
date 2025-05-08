@@ -1,73 +1,95 @@
 <view class="cart-container">
-  <!-- 头部标题和编辑按钮 -->
-  <view class="cart-header">
-    <text class="header-title">我的购物车</text>
-    <text class="header-edit" bindtap="onToggleEditMode">{{isEditing ? '完成' : '编辑'}}</text>
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-icon"></view>
+    <view class="loading-text">加载中...</view>
   </view>
 
-  <!-- 配送通知栏 -->
-  <view class="delivery-notice">
-    <icon class="notice-icon" type="info" size="16" color="#fff"></icon>
-    <text class="notice-text">今日特供商品，结账后新鲜烘焙，21:00前下单可当日配送</text>
+  <!-- 空购物车 -->
+  <view class="empty-cart" wx:elif="{{cartItems.length === 0}}">
+    <image class="empty-cart-image" src="/images/empty-cart.png" mode="aspectFit"></image>
+    <view class="empty-cart-text">购物车还是空的</view>
+    <view class="empty-cart-subtext">赶紧挑选心仪的商品吧</view>
+    <button class="go-shopping-btn" bindtap="goShopping" hover-class="none">去购物</button>
   </view>
 
-  <!-- 购物车商品列表 -->
-  <view class="cart-items">
-    <block wx:for="{{cartItems}}" wx:key="id">
-      <view class="cart-item">
-        <checkbox class="item-checkbox" checked="{{item.checked}}" color="#ff6b6b" bindtap="onToggleItemCheck" data-index="{{index}}" />
-        <image class="item-image" src="{{item.image}}"></image>
+  <!-- 购物车内容 -->
+  <block wx:else>
+    <!-- 购物车头部 -->
+    <view class="cart-header">
+      <view class="header-title">购物车</view>
+      <view class="header-action" bindtap="toggleEditMode">
+        {{editMode ? '完成' : '编辑'}}
+      </view>
+    </view>
+
+    <!-- 购物车商品列表 -->
+    <view class="cart-items">
+      <view class="cart-item" wx:for="{{cartItems}}" wx:key="_id">
+        <!-- 选择框 -->
+        <view class="item-checkbox" bindtap="toggleItemSelect" data-index="{{index}}">
+          <icon type="{{item.checked ? 'success' : 'circle'}}" size="20" color="{{item.checked ? '#07c160' : '#999'}}"></icon>
+        </view>
+
+        <!-- 商品图片 -->
+        <image class="item-image" src="{{item.image}}" mode="aspectFill" bindtap="goToProductDetail" data-id="{{item.productId}}"></image>
+
+        <!-- 商品信息 -->
         <view class="item-info">
-          <text class="item-name">{{item.name}}</text>
-          <text class="item-desc">{{item.desc}}</text>
-          <view class="item-price-row">
-            <text class="item-price">¥{{item.price}}</text>
-            <view class="item-counter">
-              <text class="counter-btn counter-minus" bindtap="onDecreaseCount" data-index="{{index}}">-</text>
-              <text class="counter-num">{{item.count}}</text>
-              <text class="counter-btn counter-plus" bindtap="onIncreaseCount" data-index="{{index}}">+</text>
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-spec" wx:if="{{item.spec}}">{{item.spec}}</view>
+          <view class="item-price-quantity">
+            <view class="item-price">¥{{item.price}}</view>
+            
+            <!-- 编辑模式下显示删除，非编辑模式下显示数量控制 -->
+            <view class="item-delete" wx:if="{{editMode}}" bindtap="deleteItem" data-id="{{item._id}}">
+              <icon type="clear" size="20" color="#999"></icon>
+            </view>
+            <view class="item-quantity" wx:else>
+              <view class="quantity-decrease" bindtap="decreaseQuantity" data-index="{{index}}">-</view>
+              <view class="quantity-number">{{item.quantity}}</view>
+              <view class="quantity-increase" bindtap="increaseQuantity" data-index="{{index}}">+</view>
+              <view class="stock-info" wx:if="{{item.stock > 0}}">库存:{{item.stock}}</view>
+              <view class="stock-info stock-empty" wx:else>无库存</view>
             </view>
           </view>
         </view>
       </view>
-    </block>
-  </view>
+    </view>
 
-  <!-- 订单备注 -->
-  <view class="order-remark" bindtap="onAddRemark">
-    <icon class="remark-icon" type="warn" size="14" color="#ff6b6b"></icon>
-    <text class="remark-title">订单备注</text>
-    <text class="remark-link">添加备注信息 ></text>
-  </view>
+    <!-- 价格明细 -->
+    <view class="price-details">
+      <view class="price-item">
+        <text class="price-label">商品金额</text>
+        <text class="price-value">¥{{totalPrice}}</text>
+      </view>
+      <view class="price-item">
+        <text class="price-label">配送费</text>
+        <text class="price-value">¥{{deliveryFee}}</text>
+      </view>
+      <view class="price-item" wx:if="{{discount > 0}}">
+        <text class="price-label">优惠</text>
+        <text class="price-value price-discount">-¥{{discount}}</text>
+      </view>
+    </view>
 
-  <!-- 订单价格明细 -->
-  <view class="price-detail">
-    <view class="price-row">
-      <text class="price-label">小计</text>
-      <text class="price-value">¥{{subtotal}}</text>
+    <!-- 购物车底部 -->
+    <view class="cart-footer">
+      <view class="select-all" bindtap="toggleSelectAll">
+        <icon type="{{allSelected ? 'success' : 'circle'}}" size="20" color="{{allSelected ? '#07c160' : '#999'}}"></icon>
+        <text>全选</text>
+      </view>
+      
+      <view wx:if="{{editMode}}" class="footer-actions">
+        <button class="delete-btn" bindtap="deleteSelectedItems" hover-class="none">删除所选</button>
+      </view>
+      <view wx:else class="footer-actions">
+        <view class="total-price">
+          <text>合计：</text>
+          <text class="price">¥{{finalPrice}}</text>
+        </view>
+        <button class="checkout-btn" bindtap="goToCheckout">结算({{selectedItems.length}})</button>
+      </view>
     </view>
-    <view class="price-row">
-      <text class="price-label">配送费</text>
-      <text class="price-value">¥{{deliveryFee}}.00</text>
-    </view>
-    <view class="price-row">
-      <text class="price-label">优惠</text>
-      <text class="price-value discount">-¥{{discount}}.00</text>
-    </view>
-  </view>
-
-  <!-- 结算栏 -->
-  <view class="checkout-bar">
-    <view class="select-all" bindtap="onToggleAllCheck">
-      <checkbox class="all-checkbox" checked="{{allChecked}}" color="#ff6b6b" />
-      <text class="all-text">全选</text>
-    </view>
-    <view class="total-section">
-      <text class="total-label">合计：</text>
-      <text class="total-price">¥{{totalPrice}}</text>
-    </view>
-    <view class="checkout-btn" bindtap="onCheckout">
-      <text class="btn-text">去结算 ({{totalCount}}件)</text>
-    </view>
-  </view>
+  </block>
 </view> 

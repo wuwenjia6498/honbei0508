@@ -1,0 +1,44 @@
+<view class="container" wx:if="{{loaded}}">
+  <!-- 成功提示区域 -->
+  <view class="success-area">
+    <view class="success-icon">
+      <icon type="success" size="70" color="#07c160"></icon>
+    </view>
+    <view class="success-title">订单支付成功</view>
+    <view class="success-desc">您的订单已成功提交，我们将尽快为您安排发货</view>
+  </view>
+
+  <!-- 订单信息区域 -->
+  <view class="order-info">
+    <view class="info-item">
+      <view class="item-label">订单编号</view>
+      <view class="item-value">{{orderNo}}</view>
+    </view>
+    <view class="info-item">
+      <view class="item-label">支付金额</view>
+      <view class="item-value price">¥{{paymentAmount}}</view>
+    </view>
+    <view class="info-item">
+      <view class="item-label">支付方式</view>
+      <view class="item-value">{{paymentMethod}}</view>
+    </view>
+    <view class="info-item">
+      <view class="item-label">预计发货</view>
+      <view class="item-value">{{estimatedDelivery}}</view>
+    </view>
+  </view>
+
+  <!-- 按钮区域 -->
+  <view class="buttons">
+    <button class="btn btn-primary" bindtap="viewOrderDetail">查看订单详情</button>
+    <button class="btn btn-secondary" bindtap="viewAllOrders">查看全部订单</button>
+    <button class="btn btn-plain" bindtap="backToHome">返回首页</button>
+  </view>
+</view>
+
+<view class="loading-container" wx:else>
+  <view class="loading">
+    <image class="loading-image" src="/images/loading.gif" mode="aspectFit"></image>
+    <view class="loading-text">正在加载订单信息...</view>
+  </view>
+</view> 

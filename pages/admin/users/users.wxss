@@ -9,13 +9,14 @@ page {
   width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
+  padding-bottom: 0; /* 确保页面底部没有额外padding */
 }
 
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 100rpx;
+  padding-bottom: 120rpx; /* 为底部导航栏预留足够空间 */
   box-sizing: border-box;
   background-color: #f7f7f7;
   padding: 0;
@@ -36,7 +37,7 @@ page {
 /* 顶部区域 */
 .header {
   background-color: #fff;
-  padding: 24rpx 30rpx 20rpx;
+  padding: 15rpx 30rpx 10rpx; /* 进一步减少内边距 */
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   width: 100%;
   box-sizing: border-box;
@@ -48,13 +49,18 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30rpx;
+  margin-bottom: 15rpx; /* 进一步减少标题和搜索框之间的间距 */
 }
 
 .header-title {
-  font-size: 36rpx;
+  font-size: 34rpx; /* 稍微减小标题字体 */
   font-weight: bold;
   color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
 }
 
 .add-user-btn {
@@ -76,55 +82,98 @@ page {
 /* 搜索栏 */
 .search-bar {
   display: flex;
+  flex-direction: column;
+  margin-bottom: 10rpx; /* 减少搜索栏底部间距 */
+  width: 100%;
+}
+
+.search-input-container {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
+  margin-bottom: 10rpx; /* 减少搜索输入框和筛选器之间的间距 */
 }
 
 .search-input-wrapper {
-  flex: 1;
   display: flex;
+  flex: 1;
   align-items: center;
-  background-color: #f0f0f0;
-  border-radius: 30rpx;
-  padding: 12rpx 20rpx;
-  margin-right: 20rpx;
+  background-color: #F5F5F5;
+  border-radius: 36rpx;
+  padding: 0 20rpx; /* 减少输入框左右内边距 */
+  height: 66rpx; /* 减少输入框高度 */
+  margin-right: 10rpx; /* 减少右边距 */
+  position: relative;
 }
 
 .icon-search {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 12rpx;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
   opacity: 0.5;
 }
 
 .search-input {
   flex: 1;
-  height: 36rpx;
+  height: 100%;
   font-size: 28rpx;
   color: #333;
+}
+
+.clear-icon {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #999;
+  opacity: 0.6;
+}
+
+.search-btn {
+  background-color: #a68a7b;
+  color: white;
+  border-radius: 36rpx;
+  padding: 0 25rpx; /* 减少搜索按钮内边距 */
+  font-size: 26rpx; /* 减小字体大小 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 66rpx; /* 匹配输入框高度 */
+  min-width: 90rpx; /* 减少最小宽度 */
+}
+
+/* 筛选器操作组 */
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx; /* 减少筛选器之间的间距 */
 }
 
 /* 筛选器 */
 .filter-wrapper {
   position: relative;
-  margin-right: 20rpx;
+  margin-right: 10rpx;
+  margin-bottom: 5rpx;
 }
 
 .filter-btn {
   display: flex;
   align-items: center;
   background-color: #f0f0f0;
-  padding: 12rpx 20rpx;
+  padding: 6rpx 12rpx; /* 进一步减少按钮内边距 */
   border-radius: 30rpx;
-  font-size: 26rpx;
+  font-size: 22rpx; /* 减小字体大小 */
   color: #666;
+  height: 50rpx; /* 显式设置高度 */
+  box-sizing: border-box;
 }
 
 .icon-filter {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 10rpx;
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
   opacity: 0.6;
 }
 
@@ -165,17 +214,19 @@ page {
 /* 排序选项 */
 .sort-wrapper {
   position: relative;
-  margin-right: 20rpx;
+  margin-right: 10rpx;
 }
 
 .sort-btn {
   display: flex;
   align-items: center;
-  padding: 12rpx 20rpx;
+  padding: 6rpx 12rpx; /* 进一步减少按钮内边距 */
   background-color: #f0f0f0;
   border-radius: 30rpx;
-  font-size: 26rpx;
+  font-size: 22rpx; /* 减小字体大小 */
   color: #666;
+  height: 50rpx; /* 显式设置高度 */
+  box-sizing: border-box;
 }
 
 .icon-arrow {
@@ -234,17 +285,19 @@ page {
 .logout-btn {
   display: flex;
   align-items: center;
-  padding: 12rpx 20rpx;
+  padding: 6rpx 12rpx; /* 进一步减少按钮内边距 */
   background-color: #f0f0f0;
   border-radius: 30rpx;
-  font-size: 26rpx;
+  font-size: 22rpx; /* 减小字体大小 */
   color: #666;
+  height: 50rpx; /* 显式设置高度 */
+  box-sizing: border-box;
 }
 
 .icon-logout {
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 10rpx;
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
   opacity: 0.6;
 }
 
@@ -252,26 +305,33 @@ page {
 .user-list {
   flex: 1;
   padding: 20rpx 30rpx;
-  padding-top: 190rpx; /* 调整顶部间距，确保内容不被标题栏遮挡 */
+  padding-top: 320rpx; /* 最终调整顶部边距 */
+  padding-bottom: 180rpx; /* 保持底部边距不变 */
+  box-sizing: border-box; /* 确保padding包含在宽度内 */
+}
+
+/* 搜索结果区域，确保不被搜索栏遮挡 */
+.search-results {
+  margin-top: 10rpx; /* 减少额外的顶部边距 */
 }
 
 .user-item {
   display: flex;
   align-items: center;
-  padding: 30rpx;
+  padding: 24rpx;
   background-color: white;
   border-radius: 12rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
   position: relative;
 }
 
 .user-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 70rpx;
+  height: 70rpx;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 20rpx;
+  margin-right: 16rpx;
   background-color: #f0f0f0;
 }
 
@@ -294,10 +354,10 @@ page {
 }
 
 .user-name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 500;
   color: #333;
-  margin-right: 15rpx;
+  margin-right: 12rpx;
 }
 
 .user-tag {
@@ -318,7 +378,7 @@ page {
 }
 
 .user-phone {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #999;
 }
 
@@ -330,13 +390,13 @@ page {
 }
 
 .spend-type {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #999;
-  margin-bottom: 5rpx;
+  margin-bottom: 4rpx;
 }
 
 .spend-amount {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }

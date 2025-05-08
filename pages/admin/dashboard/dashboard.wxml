@@ -4,110 +4,129 @@
   
   <!-- 顶部标题栏 -->
   <view class="header" style="top:{{statusBarHeight}}px;">
-    <view class="title-wrapper">
+    <view class="header-title">管理员控制台</view>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content-area">
+    <!-- 返回用户界面按钮 -->
+    <view class="back-to-user-container">
       <view class="back-to-user" bindtap="backToUserInterface">
-        <image class="back-icon" src="/assets/images/icons/arrow-left.svg" mode="aspectFit"></image>
+        <text class="back-icon">←</text>
         <text>返回用户界面</text>
       </view>
-      <view class="title">管理员控制台</view>
     </view>
-    <view class="notification">
-      <image class="bell-icon" src="/assets/images/icons/notification.svg" mode="aspectFit"></image>
-    </view>
-  </view>
-
-  <!-- 欢迎信息 -->
-  <view class="welcome-bar">
-    <text>欢迎回来，今天是 {{currentDate}}</text>
-  </view>
-
-  <!-- 数据统计区域 -->
-  <view class="data-section">
-    <view class="section-title">数据统计</view>
     
-    <view class="stats-grid">
-      <!-- 本月营收 -->
-      <view class="stat-card month-revenue">
-        <view class="stat-label">本月营收</view>
-        <view class="stat-icon-container yellow">
-          <text class="currency">¥</text>
+    <!-- 工具区域 -->
+    <view class="tools-section">
+      <view class="section-title">管理工具</view>
+      <view class="tools-grid">
+        <view class="tool-card" bindtap="navigateToDataInit">
+          <view class="tool-icon-container">
+            <text class="tool-icon">⚙️</text>
+          </view>
+          <view class="tool-label">数据初始化</view>
+          <view class="tool-desc">初始化测试数据</view>
         </view>
-        <view class="stat-value">¥9,845</view>
       </view>
+    </view>
+
+    <!-- 数据统计区域 -->
+    <view class="data-section">
+      <view class="section-title">数据统计</view>
       
-      <!-- 本周营收 -->
-      <view class="stat-card week-revenue">
-        <view class="stat-label">本周营收</view>
-        <view class="stat-icon-container blue">
-          <text class="stat-icon">📊</text>
+      <view class="stats-grid">
+        <!-- 本月营收 -->
+        <view class="stat-card month-revenue">
+          <view class="stat-label">本月营收</view>
+          <view class="stat-icon-container yellow">
+            <text class="currency">¥</text>
+          </view>
+          <view class="stat-value" wx:if="{{!statsLoading}}">¥{{stats.monthlyRevenue}}</view>
+          <view class="stat-value loading" wx:else>加载中...</view>
         </view>
-        <view class="stat-value">¥2,468</view>
+        
+        <!-- 本周营收 -->
+        <view class="stat-card week-revenue">
+          <view class="stat-label">本周营收</view>
+          <view class="stat-icon-container blue">
+            <text class="stat-icon">📊</text>
+          </view>
+          <view class="stat-value" wx:if="{{!statsLoading}}">¥{{stats.weeklyRevenue}}</view>
+          <view class="stat-value loading" wx:else>加载中...</view>
+        </view>
+        
+        <!-- 本月销售量 -->
+        <view class="stat-card month-sales">
+          <view class="stat-label">本月销售量</view>
+          <view class="stat-icon-container green">
+            <text class="stat-icon">🛍️</text>
+          </view>
+          <view class="stat-value" wx:if="{{!statsLoading}}">{{stats.monthlySales}}</view>
+          <view class="stat-value loading" wx:else>加载中...</view>
+        </view>
+        
+        <!-- 库存商品 -->
+        <view class="stat-card inventory">
+          <view class="stat-label">库存商品</view>
+          <view class="stat-icon-container brown">
+            <text class="stat-icon">📦</text>
+          </view>
+          <view class="stat-value" wx:if="{{!statsLoading}}">{{stats.inventory}}</view>
+          <view class="stat-value loading" wx:else>加载中...</view>
+        </view>
       </view>
-      
-      <!-- 本月销售量 -->
-      <view class="stat-card month-sales">
-        <view class="stat-label">本月销售量</view>
-        <view class="stat-icon-container green">
-          <text class="stat-icon">🛍️</text>
+    </view>
+
+    <!-- 最近订单 -->
+    <view class="recent-orders-section">
+      <view class="section-header">
+        <text class="section-title">最近订单</text>
+        <view class="view-all" bindtap="viewAllOrders">
+          <text>查看全部</text>
+          <text class="arrow">></text>
         </view>
-        <view class="stat-value">156</view>
       </view>
-      
-      <!-- 库存商品 -->
-      <view class="stat-card inventory">
-        <view class="stat-label">库存商品</view>
-        <view class="stat-icon-container brown">
-          <text class="stat-icon">📦</text>
+
+      <view class="order-list">
+        <!-- 加载中显示 -->
+        <view class="loading-state" wx:if="{{ordersLoading}}">
+          <view class="loading-spinner"></view>
+          <text>正在加载订单...</text>
         </view>
-        <view class="stat-value">47</view>
+        
+        <!-- 空状态 -->
+        <view class="empty-state" wx:if="{{!ordersLoading && recentOrders.length === 0}}">
+          <text class="empty-icon">📄</text>
+          <text class="empty-text">暂无订单数据</text>
+        </view>
+        
+        <!-- 订单列表 -->
+        <block wx:if="{{!ordersLoading && recentOrders.length > 0}}">
+          <view class="order-item" wx:for="{{recentOrders}}" wx:key="_id">
+            <view class="order-basic-info">
+              <view class="order-number">
+                <text>订单号: {{item.orderNumber}}</text>
+              </view>
+              <view class="order-time">{{item.formattedCreatedAt}}</view>
+            </view>
+            
+            <view class="order-customer-info">
+              <text class="user-avatar-text">👤</text>
+              <view class="customer-name">{{item.address.name}}</view>
+            </view>
+            
+            <view class="order-status-info">
+              <view class="order-products">{{item.products.length}}件商品</view>
+              <view class="order-amount">¥{{item.totalAmount}}</view>
+              <view class="order-status {{item.status}}">{{item.statusText}}</view>
+            </view>
+          </view>
+        </block>
       </view>
     </view>
   </view>
 
-  <!-- 最近订单 -->
-  <view class="recent-orders-section">
-    <view class="section-header">
-      <text class="section-title">最近订单</text>
-      <view class="view-all" bindtap="viewAllOrders">
-        <text>查看全部</text>
-        <text class="arrow">></text>
-      </view>
-    </view>
-
-    <view class="order-list">
-      <!-- 订单1 -->
-      <view class="order-item">
-        <view class="order-info">
-          <view class="order-left">
-            <view class="order-number">订单 #86523</view>
-            <view class="order-customer">李小姐 · 2023-05-12</view>
-          </view>
-          <view class="order-right">
-            <view class="order-price">¥158</view>
-            <view class="order-status delivering">配送中</view>
-          </view>
-        </view>
-      </view>
-      
-      <!-- 订单2 -->
-      <view class="order-item">
-        <view class="order-info">
-          <view class="order-left">
-            <view class="order-number">订单 #86498</view>
-            <view class="order-customer">王先生 · 2023-05-12</view>
-          </view>
-          <view class="order-right">
-            <view class="order-price">¥110</view>
-            <view class="order-status pending">待配送</view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 使用统一的底部导航栏组件 -->
+  <!-- 底部导航栏 -->
   <admin-tab-bar activeTab="dashboard"></admin-tab-bar>
-  
-  <!-- 为底部导航栏留出空间 -->
-  <view style="height: 120rpx;"></view>
 </view> 

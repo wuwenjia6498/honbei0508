@@ -23,6 +23,10 @@ page {
   font-weight: bold;
   color: #333;
   margin-right: 20rpx;
+  padding: 15rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-title {
@@ -48,7 +52,7 @@ page {
   margin-top: 2rpx;
 }
 
-.location-icon, .time-icon {
+.location-icon, .time-icon, .remark-icon {
   width: 36rpx;
   font-size: 36rpx;
   margin-right: 20rpx;
@@ -104,6 +108,13 @@ page {
 .time-value {
   font-size: 30rpx;
   color: #333;
+  margin-top: 4rpx;
+}
+
+/* 备注值 */
+.remark-value {
+  font-size: 30rpx;
+  color: #666;
   margin-top: 4rpx;
 }
 
@@ -325,4 +336,595 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* 加载中样式 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300rpx;
+  margin-top: 100rpx;
+}
+
+.loading {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #a68a7b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 30rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 添加配送时间弹出层样式 */
+.delivery-time-popup {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.delivery-time-popup.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 30rpx;
+  box-sizing: border-box;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.delivery-time-popup.show .popup-content {
+  transform: translateY(0);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.popup-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.popup-close {
+  font-size: 32rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.time-section {
+  margin: 30rpx 0;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.date-scroll {
+  white-space: nowrap;
+  padding-bottom: 10rpx;
+}
+
+.date-list {
+  display: inline-flex;
+  padding: 10rpx 0;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140rpx;
+  height: 140rpx;
+  margin-right: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+
+.date-item.active {
+  background-color: #a68a7b;
+  color: #fff;
+}
+
+.day {
+  font-size: 28rpx;
+  margin-bottom: 8rpx;
+}
+
+.date {
+  font-size: 26rpx;
+}
+
+.time-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10rpx;
+}
+
+.time-item {
+  width: calc(50% - 20rpx);
+  margin: 10rpx;
+  height: 90rpx;
+  border-radius: 12rpx;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+
+.time-item.active {
+  background-color: #a68a7b;
+  color: #fff;
+}
+
+.time-item.disabled {
+  background-color: #f1f1f1;
+  color: #ccc;
+  opacity: 0.8;
+}
+
+.time {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.status {
+  font-size: 22rpx;
+  margin-top: 4rpx;
+}
+
+.time-item.active .status {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.popup-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.confirm-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #8D6E63;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-btn:active {
+  opacity: 0.9;
+}
+
+.address-footer {
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+}
+
+/* 地址弹出层样式 */
+.address-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s;
+}
+
+.address-popup.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-height: 80%;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+}
+
+.address-popup.show .popup-content {
+  transform: translateY(0);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.popup-close {
+  font-size: 36rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.address-scroll {
+  max-height: 750rpx;
+}
+
+.address-list {
+  padding: 0 30rpx;
+}
+
+.address-item {
+  position: relative;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+}
+
+.address-item.default {
+  background-color: #fffef0;
+}
+
+.address-badge {
+  position: absolute;
+  top: 10rpx;
+  left: 10rpx;
+  font-size: 20rpx;
+  color: #ff5722;
+  border: 1rpx solid #ff5722;
+  padding: 2rpx 8rpx;
+  border-radius: 4rpx;
+  background-color: #fff;
+  z-index: 10;
+}
+
+.popup-address-info {
+  flex: 1;
+  padding-left: 0;
+  padding-right: 20rpx;
+  margin-top: 40rpx;
+}
+
+.address-top {
+  margin-bottom: 16rpx;
+}
+
+.address-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-right: 16rpx;
+}
+
+.address-phone {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.address-bottom {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.address-select-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 1rpx solid #ddd;
+}
+
+.address-item.selected .address-select-icon {
+  border-color: #ff5722;
+  background-color: #ff5722;
+  position: relative;
+}
+
+.address-item.selected .address-select-icon:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20rpx;
+  height: 10rpx;
+  border-left: 2rpx solid #fff;
+  border-bottom: 2rpx solid #fff;
+  transform: translate(-50%, -60%) rotate(-45deg);
+}
+
+.popup-loading, .popup-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #ff5722;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text, .empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 20rpx;
+}
+
+.popup-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.address-footer {
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+}
+
+.add-address-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #ff5722;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manage-address-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #ffffff;
+  color: #666;
+  font-size: 32rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #ddd;
+}
+
+.add-address-btn:active {
+  opacity: 0.9;
+}
+
+.manage-address-btn:active {
+  opacity: 0.9;
+}
+
+/* 微信收货地址按钮 */
+.wechat-address-btn-wrap {
+  padding: 15rpx 30rpx;
+}
+
+.wechat-address-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0;
+  background-color: #07c160;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.wx-icon {
+  display: inline-block;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 12rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  line-height: 36rpx;
+  text-align: center;
+}
+
+/* 地址分割线 */
+.address-divider {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: #e5e5e5;
+}
+
+.divider-text {
+  padding: 0 20rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
+/* 备注弹出层样式 */
+.remarks-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.3s, opacity 0.3s;
+}
+
+.remarks-popup.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.remarks-popup .popup-content {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+}
+
+.remarks-popup.show .popup-content {
+  transform: translateY(0);
+}
+
+.remarks-input-container {
+  padding: 30rpx;
+  position: relative;
+}
+
+.remarks-input {
+  width: 100%;
+  height: 200rpx;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.remarks-counter {
+  position: absolute;
+  right: 40rpx;
+  bottom: 40rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.remarks-tips {
+  padding: 0 30rpx 20rpx;
+}
+
+.tips-title {
+  font-size: 26rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 15rpx;
+}
+
+.remarks-tips text {
+  /* 删除这个样式，已被 .tips-title 替代 */
+}
+
+.quick-remarks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.quick-remark {
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  margin: 0 20rpx 20rpx 0;
+  display: inline-block;
+  position: relative;
+  min-width: 120rpx;
+  text-align: center;
+  line-height: 1.5;
+  border: none;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.quick-remark-hover {
+  background-color: #e0e0e0;
+  opacity: 0.8;
+}
+
+.quick-remark:active {
+  /* 删除这个样式，已被 hover-class 替代 */
 } 

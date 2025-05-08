@@ -1,35 +1,76 @@
 // product.js
+// 导入云API模块
+const { productApi, cartApi } = require('../../utils/cloudApi');
+
 Page({
   data: {
-    product: {
-      id: 1,
-      name: '法式牛角面包',
-      price: 12,
-      image: '/assets/images/products/product-croissant.jpg',
-      rating: 4.9,
-      reviews: 324,
-      description: '采用进口法国黄油和高筋面粉精心制作，反复折叠出酥脆的96层口感。外壳金黄酥脆，内部松软多层，带有浓郁的黄油香气，每日现烤，口感绝佳。',
-      ingredients: '高筋面粉、法国进口黄油、酵母、糖、盐',
-      calories: '295',
-      shelfLife: '建议24小时内食用',
-      storage: '室温密封保存',
-      bakingTime: '今日早上7:30',
-      allergens: '含麸质、乳制品'
-    },
+    product: null, // 初始化为null
+    isLoading: true, // 添加加载状态
     selectedFlavor: 'original',  // 默认原味
     selectedFilling: 'none',     // 默认无馅料
     quantity: 1,                 // 默认数量
     specialRequest: '',          // 特殊要求
     totalPrice: 0,               // 总价格
+    hasStock: false,             // 是否有库存
   },
 
   onLoad: function(options) {
-    // 获取商品ID，正式项目中应该通过ID从服务器获取商品数据
+    // 获取商品ID，从服务器获取商品数据
     const productId = options.id;
     console.log('商品ID:', productId);
     
-    // 设置初始总价
-    this.calculateTotalPrice();
+    if (productId) {
+      this.fetchProductDetail(productId);
+    } else {
+      wx.showToast({
+        title: '商品ID不存在',
+        icon: 'none'
+      });
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+    }
+  },
+  
+  // 获取商品详情
+  fetchProductDetail: async function(productId) {
+    try {
+      wx.showLoading({
+        title: '加载中...',
+      });
+      
+      const result = await productApi.getProductDetail(productId);
+      
+      if (result.success && result.data) {
+        // 获取库存状态
+        const stock = result.data.stock !== undefined ? result.data.stock : 0;
+        const hasStock = stock > 0;
+        
+        this.setData({
+          product: result.data,
+          isLoading: false,
+          hasStock: hasStock
+        });
+        // 设置初始总价
+        this.calculateTotalPrice();
+      } else {
+        wx.showToast({
+          title: '商品不存在',
+          icon: 'none'
+        });
+        setTimeout(() => {
+          wx.navigateBack();
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('获取商品详情失败:', error);
+      wx.showToast({
+        title: '获取商品信息失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
   },
   
   // 选择口味
@@ -48,10 +89,24 @@ Page({
   
   // 增加数量
   increaseQuantity: function() {
+    // 检查库存是否足够
+    const stock = this.data.product.stock !== undefined ? this.data.product.stock : 0;
+    if (this.data.quantity >= stock) {
+      wx.showToast({
+        title: '库存不足',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    
     this.setData({
       quantity: this.data.quantity + 1
     });
     this.calculateTotalPrice();
+    
+    // 更新库存状态
+    this.updateStockStatus();
   },
   
   // 减少数量
@@ -61,7 +116,22 @@ Page({
         quantity: this.data.quantity - 1
       });
       this.calculateTotalPrice();
+      
+      // 更新库存状态
+      this.updateStockStatus();
     }
+  },
+  
+  // 更新库存状态
+  updateStockStatus: function() {
+    if (!this.data.product) return;
+    
+    const stock = this.data.product.stock !== undefined ? this.data.product.stock : 0;
+    const hasStock = stock > 0 && stock >= this.data.quantity;
+    
+    this.setData({
+      hasStock: hasStock
+    });
   },
   
   // 更新特殊要求
@@ -73,6 +143,8 @@ Page({
   
   // 计算总价
   calculateTotalPrice: function() {
+    if (!this.data.product) return;
+    
     let basePrice = this.data.product.price;
     
     // 加上口味附加价格
@@ -99,32 +171,74 @@ Page({
   },
   
   // 添加到购物车
-  addToCart: function() {
-    // 在真实项目中，应该将选中的商品添加到购物车中
-    // 这里用提示代替
-    wx.showToast({
-      title: '已加入购物车',
-      icon: 'success',
-      duration: 2000
-    });
+  addToCart: async function() {
+    if (!this.data.product) return;
+    
+    // 检查库存是否足够
+    const stock = this.data.product.stock !== undefined ? this.data.product.stock : 0;
+    if (stock <= 0 || stock < this.data.quantity) {
+      wx.showToast({
+        title: '商品库存不足',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    
+    try {
+      wx.showLoading({
+        title: '添加中...'
+      });
+      
+      const result = await cartApi.addToCart(this.data.product._id, this.data.quantity);
+      
+      if (result.success) {
+        wx.showToast({
+          title: '已加入购物车',
+          icon: 'success',
+          duration: 2000
+        });
+      } else {
+        wx.showToast({
+          title: result.message || '添加失败',
+          icon: 'none',
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      console.error('添加到购物车失败:', error);
+      wx.showToast({
+        title: '添加失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    } finally {
+      wx.hideLoading();
+    }
   },
   
   // 立即购买
   buyNow: function() {
-    // 跳转到结算页面
-    // 正式项目中，应该将商品信息传递给结算页面
-    wx.showToast({
-      title: '跳转到结算页',
-      icon: 'none',
-      duration: 2000
-    });
+    if (!this.data.product) return;
     
-    // wx.navigateTo({
-    //   url: '/pages/checkout/checkout?from=buy_now&productId=' + this.data.product.id
-    //        + '&flavor=' + this.data.selectedFlavor
-    //        + '&filling=' + this.data.selectedFilling
-    //        + '&quantity=' + this.data.quantity
-    //        + '&special=' + encodeURIComponent(this.data.specialRequest)
-    // });
+    // 检查库存是否足够
+    const stock = this.data.product.stock !== undefined ? this.data.product.stock : 0;
+    if (stock <= 0 || stock < this.data.quantity) {
+      wx.showToast({
+        title: '商品库存不足',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    
+    // 跳转到结算页面
+    wx.navigateTo({
+      url: '/pages/checkout/checkout?from=buy_now&productId=' + this.data.product._id
+           + '&flavor=' + this.data.selectedFlavor
+           + '&filling=' + this.data.selectedFilling
+           + '&quantity=' + this.data.quantity
+           + '&special=' + encodeURIComponent(this.data.specialRequest)
+    });
   }
 }) 

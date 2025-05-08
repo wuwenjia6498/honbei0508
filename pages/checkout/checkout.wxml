@@ -6,103 +6,270 @@
     <view class="page-title">订单确认</view>
   </view>
 
-  <!-- 配送地址 -->
-  <view class="address-section" bindtap="navigateToAddress">
-    <view class="location-icon">📍</view>
-    <view class="section-content">
-      <view class="section-label">配送地址</view>
-      <view class="address-info">
-        <view>
-          <text class="user-name">{{address.name}}</text>
-          <text class="user-phone">{{address.phone}}</text>
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 页面内容 -->
+  <block wx:else>
+    <!-- 配送地址 -->
+    <view class="address-section" bindtap="showAddressPopup">
+      <view class="location-icon">📍</view>
+      <view class="section-content">
+        <view class="section-label">配送地址</view>
+        <view class="address-info">
+          <view>
+            <text class="user-name">{{address.name}}</text>
+            <text class="user-phone" wx:if="{{address.phone}}">{{address.phone}}</text>
+          </view>
+          <view class="address-text">{{address.address}}</view>
         </view>
-        <view class="address-text">{{address.address}}</view>
       </view>
+      <view class="arrow-icon">›</view>
     </view>
-    <view class="arrow-icon">›</view>
-  </view>
 
-  <!-- 配送时间 -->
-  <view class="delivery-section" bindtap="selectDeliveryTime">
-    <view class="time-icon">🕒</view>
-    <view class="section-content">
-      <view class="section-label">配送时间</view>
-      <view class="time-value">{{deliveryTime}}</view>
+    <!-- 配送时间 -->
+    <view class="delivery-section" bindtap="showDeliveryTimePopup">
+      <view class="time-icon">🕒</view>
+      <view class="section-content">
+        <view class="section-label">配送时间</view>
+        <view class="time-value">{{deliveryTime}}</view>
+      </view>
+      <view class="arrow-icon">›</view>
     </view>
-    <view class="arrow-icon">›</view>
-  </view>
-
-  <!-- 配送提示 -->
-  <view class="notice-section">
-    <view class="notice-icon">ℹ️</view>
-    <view class="notice-text">{{notification}}</view>
-  </view>
-
-  <!-- 订单商品列表 -->
-  <view class="order-items-section">
-    <view class="section-title">订单商品</view>
     
-    <view class="order-items">
-      <block wx:for="{{orderItems}}" wx:key="id">
-        <view class="order-item">
-          <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="item-details">
-            <view class="item-name">{{item.name}}</view>
-            <view class="item-spec">{{item.specs}}</view>
-            <view class="item-price-row">
-              <text class="item-price">¥{{item.price}}</text>
-              <text class="item-count">x{{item.count}}</text>
+    <!-- 订单备注 -->
+    <view class="delivery-section" bindtap="showRemarksPopup">
+      <view class="remark-icon">📝</view>
+      <view class="section-content">
+        <view class="section-label">订单备注</view>
+        <view class="remark-value">{{remarks || '添加订单备注'}}</view>
+      </view>
+      <view class="arrow-icon">›</view>
+    </view>
+
+    <!-- 配送提示 -->
+    <view class="notice-section">
+      <view class="notice-icon">ℹ️</view>
+      <view class="notice-text">{{notification}}</view>
+    </view>
+
+    <!-- 订单商品列表 -->
+    <view class="order-items-section">
+      <view class="section-title">订单商品</view>
+      
+      <view class="order-items">
+        <block wx:for="{{orderItems}}" wx:key="id">
+          <view class="order-item">
+            <image class="item-image" src="{{item.image}}" mode="aspectFill"></image>
+            <view class="item-details">
+              <view class="item-name">{{item.name}}</view>
+              <view class="item-spec">{{item.specs}}</view>
+              <view class="item-price-row">
+                <text class="item-price">¥{{item.price}}</text>
+                <text class="item-count">x{{item.count}}</text>
+              </view>
             </view>
           </view>
-        </view>
-      </block>
+        </block>
+      </view>
     </view>
-  </view>
 
-  <!-- 支付方式 -->
-  <view class="payment-section">
-    <view class="section-title">支付方式</view>
-    
-    <view class="payment-options">
-      <block wx:for="{{paymentMethods}}" wx:key="id">
-        <view class="payment-option {{item.selected ? 'selected' : ''}}" bindtap="selectPayment" data-id="{{item.id}}">
-          <image class="payment-icon" src="/assets/images/payment/{{item.id == 'wechat' ? 'wechat-pay' : (item.id == 'cod' ? 'cash' : item.id)}}.png"></image>
-          <view class="payment-name">{{item.name}}</view>
-          <view class="payment-radio">
-            <view class="radio-inner {{item.selected ? 'checked' : ''}}"></view>
+    <!-- 支付方式 -->
+    <view class="payment-section">
+      <view class="section-title">支付方式</view>
+      
+      <view class="payment-options">
+        <block wx:for="{{paymentMethods}}" wx:key="id">
+          <view class="payment-option {{item.selected ? 'selected' : ''}}" bindtap="selectPayment" data-id="{{item.id}}">
+            <image class="payment-icon" src="/assets/images/payment/{{item.id == 'wechat' ? 'wechat-pay' : (item.id == 'cod' ? 'cash' : item.id)}}.png"></image>
+            <view class="payment-name">{{item.name}}</view>
+            <view class="payment-radio">
+              <view class="radio-inner {{item.selected ? 'checked' : ''}}"></view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 订单金额 -->
+    <view class="amount-section">
+      <view class="section-title">订单金额</view>
+      
+      <view class="amount-list">
+        <view class="amount-item">
+          <text class="amount-label">商品金额</text>
+          <text class="amount-value">¥{{orderAmount.goodsTotal}}</text>
+        </view>
+        <view class="amount-item">
+          <text class="amount-label">配送费</text>
+          <text class="amount-value">¥{{orderAmount.delivery}}</text>
+        </view>
+        <view class="amount-item discount" wx:if="{{orderAmount.discount > 0}}">
+          <text class="amount-label">优惠</text>
+          <text class="amount-value">-¥{{orderAmount.discount}}</text>
+        </view>
+      </view>
+      
+      <view class="total-amount">
+        <text class="total-label">实付金额</text>
+        <text class="total-value">¥{{orderAmount.total}}</text>
+      </view>
+    </view>
+
+    <!-- 支付按钮 -->
+    <view class="pay-btn-container">
+      <button class="pay-btn" bindtap="confirmPayment">确认支付 ¥{{orderAmount.total}}</button>
+    </view>
+  </block>
+  
+  <!-- 配送时间选择弹出层 -->
+  <view class="delivery-time-popup {{showTimePopup ? 'show' : ''}}" catchtouchmove="preventTouchMove">
+    <view class="popup-mask" bindtap="hideDeliveryTimePopup"></view>
+    <view class="popup-content">
+      <view class="popup-header">
+        <view class="popup-title">选择配送时间</view>
+        <view class="popup-close" bindtap="hideDeliveryTimePopup">✕</view>
+      </view>
+      
+      <!-- 日期选择 -->
+      <view class="time-section">
+        <view class="section-title">配送日期</view>
+        <scroll-view scroll-x="true" class="date-scroll">
+          <view class="date-list">
+            <view class="date-item {{selectedDateIndex === index ? 'active' : ''}}" 
+                  wx:for="{{dateOptions}}" 
+                  wx:key="date"
+                  bindtap="selectDate"
+                  data-index="{{index}}">
+              <view class="day">{{item.day}}</view>
+              <view class="date">{{item.date}}</view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+      
+      <!-- 时间段选择 -->
+      <view class="time-section">
+        <view class="section-title">配送时间段</view>
+        <view class="time-list">
+          <view class="time-item {{selectedTimeIndex === index ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
+                wx:for="{{timeOptions}}" 
+                wx:key="time" 
+                bindtap="selectTime"
+                data-index="{{index}}">
+            <view class="time">{{item.time}}</view>
+            <view class="status" wx:if="{{item.tag}}">{{item.tag}}</view>
           </view>
         </view>
-      </block>
+      </view>
+      
+      <!-- 确认按钮 -->
+      <view class="popup-footer">
+        <button class="confirm-btn {{!canConfirm ? 'disabled' : ''}}" bindtap="confirmDeliveryTime" disabled="{{!canConfirm}}">确认</button>
+      </view>
     </view>
   </view>
 
-  <!-- 订单金额 -->
-  <view class="amount-section">
-    <view class="section-title">订单金额</view>
-    
-    <view class="amount-list">
-      <view class="amount-item">
-        <text class="amount-label">商品金额</text>
-        <text class="amount-value">¥{{orderAmount.goodsTotal}}</text>
+  <!-- 地址选择弹出层 -->
+  <view class="address-popup {{showAddressPopup ? 'show' : ''}}" catchtouchmove="preventTouchMove">
+    <view class="popup-mask" bindtap="hideAddressPopup"></view>
+    <view class="popup-content">
+      <view class="popup-header">
+        <view class="popup-title">选择收货地址</view>
+        <view class="popup-close" bindtap="hideAddressPopup">✕</view>
       </view>
-      <view class="amount-item">
-        <text class="amount-label">配送费</text>
-        <text class="amount-value">¥{{orderAmount.delivery}}</text>
+      
+      <!-- 微信收货地址按钮 -->
+      <view class="wechat-address-btn-wrap">
+        <button class="wechat-address-btn" bindtap="getWechatAddress">
+          <text class="wx-icon">+</text>
+          <text>获取微信收货地址</text>
+        </button>
       </view>
-      <view class="amount-item discount">
-        <text class="amount-label">优惠</text>
-        <text class="amount-value">-¥{{orderAmount.discount}}</text>
+
+      <!-- 地址分割线 -->
+      <view class="address-divider">
+        <view class="divider-line"></view>
+        <text class="divider-text">已保存地址</text>
+        <view class="divider-line"></view>
       </view>
-    </view>
-    
-    <view class="total-amount">
-      <text class="total-label">实付金额</text>
-      <text class="total-value">¥{{orderAmount.total}}</text>
+      
+      <!-- 加载状态 -->
+      <view class="popup-loading" wx:if="{{addressLoading}}">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <!-- 空地址列表提示 -->
+      <view class="popup-empty" wx:elif="{{addressEmpty}}">
+        <image class="empty-icon" src="/images/icons/empty-address.png" mode="aspectFit"></image>
+        <text class="empty-text">暂无收货地址</text>
+      </view>
+      
+      <!-- 地址列表 -->
+      <scroll-view scroll-y="true" class="address-scroll" wx:else>
+        <view class="address-list">
+          <view class="address-item {{item.isDefault ? 'default' : ''}} {{item._id === selectedAddressId ? 'selected' : ''}}" 
+                wx:for="{{addressList}}" 
+                wx:key="_id" 
+                bindtap="selectAddress" 
+                data-id="{{item._id}}">
+            <!-- 默认地址标记 -->
+            <view class="address-badge" wx:if="{{item.isDefault}}">默认</view>
+            
+            <!-- 地址信息 -->
+            <view class="popup-address-info">
+              <view class="address-top">
+                <text class="address-name">{{item.name}}</text>
+                <text class="address-phone">{{item.phone}}</text>
+              </view>
+              <view class="address-bottom">
+                {{item.region[0]}} {{item.region[1]}} {{item.region[2]}} {{item.detailAddress}}
+              </view>
+            </view>
+            
+            <!-- 选择图标 -->
+            <view class="address-select-icon {{item._id === selectedAddressId ? 'checked' : ''}}"></view>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <!-- 底部按钮 -->
+      <view class="popup-footer address-footer">
+        <button class="add-address-btn" bindtap="navigateToAddAddress">添加新地址</button>
+      </view>
     </view>
   </view>
 
-  <!-- 支付按钮 -->
-  <view class="pay-btn-container">
-    <button class="pay-btn" bindtap="confirmPayment">确认支付 ¥{{orderAmount.total}}</button>
+  <!-- 备注弹出层 -->
+  <view class="remarks-popup {{showRemarksPopup ? 'show' : ''}}" catchtouchmove="preventTouchMove">
+    <view class="popup-mask" bindtap="hideRemarksPopup"></view>
+    <view class="popup-content">
+      <view class="popup-header">
+        <view class="popup-title">订单备注</view>
+        <view class="popup-close" bindtap="hideRemarksPopup">✕</view>
+      </view>
+      
+      <view class="remarks-input-container">
+        <textarea class="remarks-input" placeholder="请输入备注信息（选填）" maxlength="100" bindinput="onRemarksInput" value="{{tempRemarks}}"></textarea>
+        <view class="remarks-counter">{{remarksLength || 0}}/100</view>
+      </view>
+      
+      <view class="remarks-tips">
+        <text class="tips-title">常用备注：</text>
+        <view class="quick-remarks">
+          <button class="quick-remark" hover-class="quick-remark-hover" bindtap="selectQuickRemark" data-remark="少糖">少糖</button>
+          <button class="quick-remark" hover-class="quick-remark-hover" bindtap="selectQuickRemark" data-remark="多加点配料">多加点配料</button>
+          <button class="quick-remark" hover-class="quick-remark-hover" bindtap="selectQuickRemark" data-remark="请放在门口">请放在门口</button>
+        </view>
+      </view>
+      
+      <view class="popup-footer">
+        <button class="confirm-btn" bindtap="confirmRemarks">确认</button>
+      </view>
+    </view>
   </view>
 </view> 

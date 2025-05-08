@@ -6,28 +6,73 @@ page {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft Yahei", Tahoma, Simsun, sans-serif;
   color: #333;
   background-color: #f5f5f5;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background-color: #f5f5f5;
   position: relative;
-  padding-bottom: 140rpx; /* 增加底部间距 */
-  padding-left: 20rpx; /* 增加左边距 */
-  padding-right: 20rpx; /* 增加右边距 */
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #ffffff;
   box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #8D6E63;
+  margin-top: 16px;
+}
+
+/* 错误提示样式 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+
+.error-text {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 32rpx;
+  text-align: center;
+}
+
+.back-btn {
+  padding: 20rpx 60rpx;
+  background-color: #8D6E63;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 16px;
 }
 
 /* 产品图片区域 */
 .product-image-container {
-  width: 100%;
+  width: 100vw;
   height: 550rpx;
   position: relative;
   z-index: 1;
   margin-bottom: -60rpx;
   margin-top: 0;
+  box-sizing: border-box;
 }
 
 .product-image {
@@ -91,6 +136,8 @@ page {
   overflow-y: auto;
   flex: 1;
   box-shadow: 0 -10rpx 20rpx rgba(0, 0, 0, 0.05);
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 .product-header {
@@ -98,6 +145,8 @@ page {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .product-name {
@@ -126,29 +175,45 @@ page {
 }
 
 .star {
-  font-size: 28rpx;
-  color: #ccc;
-}
-
-.star.filled {
-  color: #FFCA28;
-}
-
-.reviews {
   font-size: 24rpx;
   color: #999;
 }
 
+.star.filled {
+  color: #ffb800;
+}
+
+.reviews {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.stock-info {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #07c160;
+  background-color: rgba(7, 193, 96, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+}
+
+.stock-info.stock-empty {
+  color: #ff4500;
+  background-color: rgba(255, 69, 0, 0.1);
+}
+
 .product-description {
-  margin-bottom: 30rpx;
+  margin: 20rpx 0;
   font-size: 28rpx;
   color: #666;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* 选项区域 */
 .option-section {
   margin-bottom: 30rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .option-title {
@@ -163,6 +228,8 @@ page {
   display: flex;
   flex-wrap: wrap;
   gap: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .option-item {
@@ -216,22 +283,12 @@ page {
   font-size: 32rpx;
 }
 
-/* 特殊要求文本框 */
-.special-request {
-  width: 100%;
-  height: 150rpx;
-  background-color: #F5F5F5;
-  border-radius: 20rpx;
-  padding: 20rpx;
-  font-size: 26rpx;
-  color: #666;
-  box-sizing: border-box;
-}
-
 /* 商品详情 */
 .product-details {
   margin-top: 40rpx;
   margin-bottom: 60rpx; /* 增加底部边距，防止内容被底部按钮遮挡 */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .details-title {
@@ -246,6 +303,8 @@ page {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30rpx 20rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .details-row {
@@ -270,15 +329,18 @@ page {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 130rpx; /* 增加高度 */
+  height: 130rpx;
   display: flex;
   background-color: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-  z-index: 30; /* 确保在最上层 */
-  padding: 0 40rpx; /* 增加左右间距 */
-  justify-content: space-between; /* 两边留间距 */
+  z-index: 30;
+  padding: 0 40rpx;
+  justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
+  width: 100vw; /* 使用视口宽度单位 */
+  margin: 0;
+  border: 0;
 }
 
 .add-to-cart, .buy-now {
@@ -294,11 +356,49 @@ page {
 }
 
 .add-to-cart {
-  background-color: #A1887F;
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #07c160;
   color: white;
+  text-align: center;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  margin-right: 10rpx;
+}
+
+.add-to-cart.disabled {
+  background-color: #aaa;
+  color: #fff;
+  pointer-events: none; /* 禁止点击 */
 }
 
 .buy-now {
-  background-color: #8D6E63;
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #ff4500;
   color: white;
+  text-align: center;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  margin-left: 10rpx;
+}
+
+.buy-now.disabled {
+  background-color: #aaa;
+  color: #fff;
+  pointer-events: none; /* 禁止点击 */
+}
+
+/* 特殊要求文本框 */
+.special-request {
+  width: 100%;
+  height: 150rpx;
+  background-color: #F5F5F5;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  font-size: 26rpx;
+  color: #666;
+  box-sizing: border-box;
 } 

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "人气推荐",
+  "usingComponents": {},
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#f5f5f5"
+} 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" fill="white"/>
+  <path d="M120 226C178.542 226 226 178.542 226 120C226 61.4578 178.542 14 120 14C61.4578 14 14 61.4578 14 120C14 178.542 61.4578 226 120 226Z" fill="#F5F7FA"/>
+  <path d="M173 60H77C72.5817 60 69 63.5817 69 68V172C69 176.418 72.5817 180 77 180H173C177.418 180 181 176.418 181 172V68C181 63.5817 177.418 60 173 60Z" fill="#FFFFFF" stroke="#2A5CAA" stroke-width="3"/>
+  <path d="M104 92H88" stroke="#2A5CAA" stroke-width="3" stroke-linecap="round"/>
+  <path d="M124 112H88" stroke="#2A5CAA" stroke-width="3" stroke-linecap="round"/>
+  <path d="M152 132H88" stroke="#2A5CAA" stroke-width="3" stroke-linecap="round"/>
+  <path d="M162 152H88" stroke="#2A5CAA" stroke-width="3" stroke-linecap="round"/>
+  <path d="M136 168H112" stroke="#2A5CAA" stroke-width="3" stroke-linecap="round"/>
+  
+  <circle cx="125" cy="60" r="25" fill="#2A5CAA" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M125 70C130.523 70 135 65.5228 135 60C135 54.4772 130.523 50 125 50C119.477 50 115 54.4772 115 60C115 65.5228 119.477 70 125 70Z" fill="#2A5CAA"/>
+  <path d="M138.57 83.9827C138.57 77.3661 132.617 72 125.21 72H124.79C117.383 72 111.43 77.3661 111.43 83.9827C111.43 84.9921 112.302 85.8 113.36 85.8H136.64C137.698 85.8 138.57 84.9921 138.57 83.9827Z" fill="#2A5CAA"/>
+  
+  <path d="M64 146C64 146 80 126 92 132C104 138 96 152 96 152" stroke="#CCCCCC" stroke-width="3"/>
+  <path d="M188 146C188 146 172 126 160 132C148 138 156 152 156 152" stroke="#CCCCCC" stroke-width="3"/>
+  
+  <path d="M153.89 99.1963C156.482 94.1466 154.536 87.8641 149.486 85.2722C144.436 82.6803 138.154 84.6261 135.562 89.6758L125.726 108.804L144 118.5L153.89 99.1963Z" fill="#FFFFFF" stroke="#2A5CAA" stroke-width="3"/>
+</svg> 

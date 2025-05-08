@@ -1,123 +1,145 @@
 <!--product.wxml-->
 <view class="container">
-  <!-- 头部产品图片 -->
-  <view class="product-image-container">
-    <image class="product-image" src="{{product.image}}" mode="aspectFill"></image>
-    <view class="back-button" bindtap="goBack">
-      <image src="/assets/images/icons/arrow-left.svg" mode="aspectFit"></image>
-    </view>
-    <view class="action-buttons">
-      <view class="favorite-button">
-        <image src="/assets/images/icons/heart.svg" mode="aspectFit"></image>
-      </view>
-      <view class="share-button">
-        <image src="/assets/images/icons/share.svg" mode="aspectFit"></image>
-      </view>
-    </view>
+  <!-- 加载中提示 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-text">加载中...</view>
+  </view>
+  
+  <!-- 错误提示 -->
+  <view class="error-container" wx:if="{{!isLoading && !product}}">
+    <view class="error-text">商品不存在或已下架</view>
+    <view class="back-btn" bindtap="goBack">返回</view>
   </view>
 
-  <!-- 产品信息 -->
-  <view class="product-info">
-    <view class="product-header">
-      <text class="product-name">{{product.name}}</text>
-      <text class="product-price">¥{{product.price}}</text>
-    </view>
-    
-    <view class="product-rating">
-      <view class="stars">
-        <text class="star filled">★</text>
-        <text>{{product.rating}}</text>
+  <!-- 商品内容 -->
+  <block wx:if="{{!isLoading && product}}">
+    <!-- 头部产品图片 -->
+    <view class="product-image-container">
+      <image class="product-image" src="{{product.image}}" mode="aspectFill"></image>
+      <view class="back-button" bindtap="goBack">
+        <image src="/assets/images/icons/arrow-left.svg" mode="aspectFit"></image>
       </view>
-      <text class="reviews">({{product.reviews}} 评价)</text>
-    </view>
-    
-    <view class="product-description">
-      <text>{{product.description}}</text>
-    </view>
-
-    <!-- 口味选择 -->
-    <view class="option-section">
-      <text class="option-title">口味选择</text>
-      <view class="option-list">
-        <view class="option-item {{selectedFlavor === 'original' ? 'selected' : ''}}" 
-              bindtap="selectFlavor" data-flavor="original">
-          <text>原味</text>
+      <view class="action-buttons">
+        <view class="favorite-button">
+          <image src="/assets/images/icons/heart.svg" mode="aspectFit"></image>
         </view>
-        <view class="option-item {{selectedFlavor === 'chocolate' ? 'selected' : ''}}" 
-              bindtap="selectFlavor" data-flavor="chocolate">
-          <text>巧克力</text>
-          <text class="option-price">(+¥3)</text>
+        <view class="share-button">
+          <image src="/assets/images/icons/share.svg" mode="aspectFit"></image>
         </view>
       </view>
     </view>
 
-    <!-- 内馅选择 -->
-    <view class="option-section">
-      <text class="option-title">内馅选择</text>
-      <view class="option-list">
-        <view class="option-item {{selectedFilling === 'none' ? 'selected' : ''}}"
-              bindtap="selectFilling" data-filling="none">
-          <text>无馅料</text>
+    <!-- 产品信息 -->
+    <view class="product-info">
+      <view class="product-header">
+        <text class="product-name">{{product.name}}</text>
+        <text class="product-price">¥{{product.price}}</text>
+      </view>
+      
+      <view class="product-rating">
+        <view class="stars">
+          <text class="star filled">★</text>
+          <text>{{product.rating}}</text>
         </view>
-        <view class="option-item {{selectedFilling === 'almond' ? 'selected' : ''}}"
-              bindtap="selectFilling" data-filling="almond">
-          <text>杏仁奶油</text>
-          <text class="option-price">(+¥4)</text>
+        <text class="reviews">({{product.reviews}} 评价)</text>
+        <!-- 添加库存状态显示 -->
+        <view class="stock-info {{!hasStock ? 'stock-empty' : ''}}">
+          {{hasStock ? '有货' : '库存不足'}}
+        </view>
+      </view>
+      
+      <view class="product-description">
+        <text>{{product.description}}</text>
+      </view>
+
+      <!-- 口味选择 -->
+      <view class="option-section">
+        <text class="option-title">口味选择</text>
+        <view class="option-list">
+          <view class="option-item {{selectedFlavor === 'original' ? 'selected' : ''}}" 
+                bindtap="selectFlavor" data-flavor="original">
+            <text>原味</text>
+          </view>
+          <view class="option-item {{selectedFlavor === 'chocolate' ? 'selected' : ''}}" 
+                bindtap="selectFlavor" data-flavor="chocolate">
+            <text>巧克力</text>
+            <text class="option-price">(+¥3)</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 内馅选择 -->
+      <view class="option-section">
+        <text class="option-title">内馅选择</text>
+        <view class="option-list">
+          <view class="option-item {{selectedFilling === 'none' ? 'selected' : ''}}"
+                bindtap="selectFilling" data-filling="none">
+            <text>无馅料</text>
+          </view>
+          <view class="option-item {{selectedFilling === 'almond' ? 'selected' : ''}}"
+                bindtap="selectFilling" data-filling="almond">
+            <text>杏仁奶油</text>
+            <text class="option-price">(+¥4)</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 数量选择 -->
+      <view class="option-section">
+        <text class="option-title">数量</text>
+        <view class="quantity-control">
+          <view class="quantity-button minus {{quantity <= 1 ? 'disabled' : ''}}" bindtap="decreaseQuantity">-</view>
+          <view class="quantity-value">{{quantity}}</view>
+          <view class="quantity-button plus {{!hasStock ? 'disabled' : ''}}" bindtap="{{hasStock ? 'increaseQuantity' : ''}}">+</view>
+        </view>
+      </view>
+
+      <!-- 特殊要求 -->
+      <view class="option-section">
+        <text class="option-title">特殊要求</text>
+        <textarea class="special-request" placeholder="如有特殊需求，请在此说明..." value="{{specialRequest}}" bindinput="updateSpecialRequest"></textarea>
+      </view>
+
+      <!-- 商品详情 -->
+      <view class="product-details">
+        <text class="details-title">商品详情</text>
+        <view class="details-grid">
+          <view class="details-row" wx:if="{{product.ingredients}}">
+            <text class="details-label">原料</text>
+            <text class="details-value">{{product.ingredients}}</text>
+          </view>
+          <view class="details-row" wx:if="{{product.calories}}">
+            <text class="details-label">热量</text>
+            <text class="details-value">{{product.calories}}大卡/100克</text>
+          </view>
+          <view class="details-row" wx:if="{{product.shelfLife}}">
+            <text class="details-label">保质期</text>
+            <text class="details-value">{{product.shelfLife}}</text>
+          </view>
+          <view class="details-row" wx:if="{{product.storage}}">
+            <text class="details-label">存放方式</text>
+            <text class="details-value">{{product.storage}}</text>
+          </view>
+          <view class="details-row" wx:if="{{product.bakingTime}}">
+            <text class="details-label">烘焙时间</text>
+            <text class="details-value">{{product.bakingTime}}</text>
+          </view>
+          <view class="details-row" wx:if="{{product.allergens}}">
+            <text class="details-label">过敏原</text>
+            <text class="details-value">{{product.allergens}}</text>
+          </view>
         </view>
       </view>
     </view>
 
-    <!-- 数量选择 -->
-    <view class="option-section">
-      <text class="option-title">数量</text>
-      <view class="quantity-control">
-        <view class="quantity-button minus {{quantity <= 1 ? 'disabled' : ''}}" bindtap="decreaseQuantity">-</view>
-        <view class="quantity-value">{{quantity}}</view>
-        <view class="quantity-button plus" bindtap="increaseQuantity">+</view>
+    <!-- 底部操作栏 -->
+    <view class="bottom-actions">
+      <view class="add-to-cart {{!hasStock ? 'disabled' : ''}}" bindtap="{{hasStock ? 'addToCart' : ''}}">
+        加入购物车
+      </view>
+      <view class="buy-now {{!hasStock ? 'disabled' : ''}}" bindtap="{{hasStock ? 'buyNow' : ''}}">
+        立即购买
       </view>
     </view>
-
-    <!-- 特殊要求 -->
-    <view class="option-section">
-      <text class="option-title">特殊要求</text>
-      <textarea class="special-request" placeholder="如有特殊需求，请在此说明..." value="{{specialRequest}}" bindinput="updateSpecialRequest"></textarea>
-    </view>
-
-    <!-- 商品详情 -->
-    <view class="product-details">
-      <text class="details-title">商品详情</text>
-      <view class="details-grid">
-        <view class="details-row">
-          <text class="details-label">原料</text>
-          <text class="details-value">{{product.ingredients}}</text>
-        </view>
-        <view class="details-row">
-          <text class="details-label">热量</text>
-          <text class="details-value">{{product.calories}}大卡/100克</text>
-        </view>
-        <view class="details-row">
-          <text class="details-label">保质期</text>
-          <text class="details-value">{{product.shelfLife}}</text>
-        </view>
-        <view class="details-row">
-          <text class="details-label">存放方式</text>
-          <text class="details-value">{{product.storage}}</text>
-        </view>
-        <view class="details-row">
-          <text class="details-label">烘焙时间</text>
-          <text class="details-value">{{product.bakingTime}}</text>
-        </view>
-        <view class="details-row">
-          <text class="details-label">过敏原</text>
-          <text class="details-value">{{product.allergens}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 底部操作栏 -->
-  <view class="bottom-actions">
-    <view class="add-to-cart" bindtap="addToCart">加入购物车</view>
-    <view class="buy-now" bindtap="buyNow">立即购买</view>
-  </view>
+  </block>
 </view> 

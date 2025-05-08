@@ -6,59 +6,67 @@
   <view class="header" style="margin-top: {{statusBarHeight}}px;">
     <view class="header-title-area">
       <text class="header-title">用户管理</text>
-      <view class="add-user-btn" bindtap="addUser">
-        <image class="icon-add" src="/assets/images/icons/user-add.svg"></image>
-        <text>添加用户</text>
+      <view class="action-buttons">
+        <view class="add-user-btn" bindtap="addUser">
+          <image class="icon-add" src="/assets/images/icons/user-add.svg"></image>
+          <text>添加用户</text>
+        </view>
       </view>
     </view>
     
     <!-- 搜索框 -->
     <view class="search-bar">
-      <view class="search-input-wrapper">
-        <image class="icon-search" src="/assets/images/icons/search.svg"></image>
-        <input class="search-input" placeholder="搜索用户姓名、手机号..." bindinput="onSearchInput" value="{{searchKeyword}}"/>
+      <view class="search-input-container">
+        <view class="search-input-wrapper">
+          <image class="icon-search" src="/assets/images/icons/search.svg"></image>
+          <input class="search-input" placeholder="搜索用户" bindinput="onSearchInput" bindconfirm="searchUsers" value="{{searchKeyword}}"/>
+          <view class="clear-icon" bindtap="clearSearch" wx:if="{{searchKeyword}}">×</view>
+        </view>
+        <view class="search-btn" bindtap="searchUsers">搜索</view>
       </view>
       
-      <!-- 筛选器 -->
-      <view class="filter-wrapper">
-        <view class="filter-btn" bindtap="toggleFilterDropdown">
-          <image class="icon-filter" src="/assets/images/icons/category.png"></image>
-          <text>筛选</text>
+      <view class="filter-actions">
+        <!-- 筛选器 -->
+        <view class="filter-wrapper">
+          <view class="filter-btn" bindtap="toggleFilterDropdown">
+            <image class="icon-filter" src="/assets/images/icons/category.png"></image>
+            <text>筛选</text>
+          </view>
+          <view class="filter-dropdown {{showFilterDropdown ? 'show' : ''}}">
+            <view class="filter-option {{activeFilter === 'all' ? 'active' : ''}}" data-filter="all" bindtap="selectFilter">全部</view>
+            <view class="filter-option {{activeFilter === 'vip' ? 'active' : ''}}" data-filter="vip" bindtap="selectFilter">VIP会员</view>
+            <view class="filter-option {{activeFilter === 'normal' ? 'active' : ''}}" data-filter="normal" bindtap="selectFilter">普通会员</view>
+          </view>
         </view>
-        <view class="filter-dropdown {{showFilterDropdown ? 'show' : ''}}">
-          <view class="filter-option {{activeFilter === 'all' ? 'active' : ''}}" data-filter="all" bindtap="selectFilter">全部</view>
-          <view class="filter-option {{activeFilter === 'vip' ? 'active' : ''}}" data-filter="vip" bindtap="selectFilter">VIP会员</view>
-          <view class="filter-option {{activeFilter === 'normal' ? 'active' : ''}}" data-filter="normal" bindtap="selectFilter">普通会员</view>
+        
+        <!-- 排序选项 -->
+        <view class="sort-wrapper">
+          <view class="sort-btn" bindtap="toggleSortDropdown">
+            <text>排序</text>
+            <view class="icon-arrow {{showSortDropdown ? 'up' : 'down'}}"></view>
+          </view>
+          <view class="sort-dropdown {{showSortDropdown ? 'show' : ''}}">
+            <view class="sort-option {{sortType === 'time' ? 'active' : ''}}" data-sort="time" bindtap="selectSort">注册时间</view>
+            <view class="sort-option {{sortType === 'spend' ? 'active' : ''}}" data-sort="spend" bindtap="selectSort">消费金额</view>
+          </view>
         </view>
-      </view>
-      
-      <!-- 排序选项 -->
-      <view class="sort-wrapper">
-        <view class="sort-btn" bindtap="toggleSortDropdown">
-          <text>排序</text>
-          <view class="icon-arrow {{showSortDropdown ? 'up' : 'down'}}"></view>
+        
+        <!-- 退出按钮 -->
+        <view class="logout-btn" bindtap="logout">
+          <image class="icon-logout" src="/assets/images/icons/share.svg"></image>
+          <text>登出</text>
         </view>
-        <view class="sort-dropdown {{showSortDropdown ? 'show' : ''}}">
-          <view class="sort-option {{sortType === 'time' ? 'active' : ''}}" data-sort="time" bindtap="selectSort">注册时间</view>
-          <view class="sort-option {{sortType === 'spend' ? 'active' : ''}}" data-sort="spend" bindtap="selectSort">消费金额</view>
-        </view>
-      </view>
-      
-      <!-- 退出按钮 -->
-      <view class="logout-btn" bindtap="logout">
-        <image class="icon-logout" src="/assets/images/icons/share.svg"></image>
-        <text>登出</text>
       </view>
     </view>
   </view>
   
   <!-- 用户列表 -->
-  <view class="user-list">
+  <view class="user-list search-results">
     <block wx:if="{{!loading && userList.length > 0}}">
-      <view class="user-item" wx:for="{{userList}}" wx:key="id" bindtap="viewUserDetail" data-id="{{item.id}}">
+      <view class="user-item" wx:for="{{userList}}" wx:key="_id" bindtap="viewUserDetail" data-id="{{item._id}}">
         <!-- 用户头像 -->
         <view class="user-avatar">
-          <image src="{{item.avatar || '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg'}}" mode="aspectFill"></image>
+          <image src="/assets/images/users/default-avatar.png" mode="aspectFill"></image>
         </view>
         
         <!-- 用户信息 -->
@@ -81,7 +89,7 @@
         
         <!-- 操作按钮 -->
         <view class="user-actions">
-          <view class="action-menu-btn" catchtap="showActionMenu" data-id="{{item.id}}">
+          <view class="action-menu-btn" catchtap="showActionMenu" data-id="{{item._id}}">
             <view class="action-dot"></view>
             <view class="action-dot"></view>
             <view class="action-dot"></view>
@@ -126,5 +134,5 @@
   <admin-tab-bar activeTab="users"></admin-tab-bar>
   
   <!-- 为底部导航栏留出空间 -->
-  <view style="height: 120rpx;"></view>
+  <view style="height: 160rpx;"></view>
 </view> 

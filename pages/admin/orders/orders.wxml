@@ -2,6 +2,27 @@
 <view class="orders-page">
   <!-- 列表视图 -->
   <view class="list-view" wx:if="{{showListView}}">
+    <!-- 顶部搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <view class="search-icon-text">🔍</view>
+        <input 
+          class="search-input" 
+          placeholder="搜索订单号/收货人/手机号" 
+          value="{{searchValue}}"
+          confirm-type="search"
+          bindconfirm="onSearch"
+        />
+        <view class="clear-icon" bindtap="clearSearch" wx:if="{{searchValue}}">×</view>
+      </view>
+      <view class="menu-btn" bindtap="onShowActionSheet">
+        <view class="menu-dot"></view>
+        <view class="menu-dot"></view>
+        <view class="menu-dot"></view>
+      </view>
+      <view class="export-btn" bindtap="exportOrders">导出</view>
+    </view>
+    
     <!-- 顶部标签页 -->
     <view class="tab-bar">
       <view 
@@ -22,30 +43,48 @@
       </view>
       
       <view wx:elif="{{filteredOrders.length === 0}}" class="empty-list">
-        <image src="/images/empty-order.png" mode="aspectFit"></image>
+        <!-- 使用emoji代替图片 -->
+        <view class="empty-icon">📦</view>
         <text>暂无订单</text>
+        <button class="init-demo-btn" bindtap="initTestOrders">初始化测试订单</button>
+        <button class="init-demo-btn real-order-btn" bindtap="importRealOrders">导入真实订单</button>
       </view>
       
       <block wx:else>
+        <!-- 添加清空订单按钮 -->
+        <view class="clean-orders-container">
+          <button class="clean-orders-btn" bindtap="clearAllOrders">清空所有订单</button>
+        </view>
+        
         <view 
           wx:for="{{filteredOrders}}" 
-          wx:key="id" 
-          class="order-item"
-          bindtap="viewOrderDetail"
-          data-id="{{item.id}}">
+          wx:key="_id" 
+          wx:for-index="orderIdx"
+          class="order-item">
           <view class="order-header">
-            <text class="order-number">订单号: {{item.id}}</text>
-            <view class="order-status {{item.status}}">{{item.statusText}}</view>
+            <view class="order-top">
+              <text class="order-number">订单号: {{item.orderNumber || item._id}}</text>
+              <view class="order-status-group">
+                <view class="order-status {{item.status}}">{{item.statusText}}</view>
+                <button 
+                  class="action-btn" 
+                  catchtap="openActionSheet" 
+                  data-id="{{item._id}}">
+                  <text class="btn-icon-small">⚙️</text>修改
+                </button>
+              </view>
+            </view>
           </view>
           
-          <view class="order-content">
+          <view class="order-content" bindtap="viewOrderDetail" data-id="{{item._id}}">
             <view class="product-list">
               <view 
                 wx:for="{{item.products}}" 
                 wx:for-item="product" 
                 wx:key="id"
+                wx:for-index="productIdx"
                 class="product-item">
-                <image class="product-image" src="{{product.image}}" mode="aspectFill"></image>
+                <image class="product-image" src="{{product.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{productIdx}}" data-order-index="{{orderIdx}}"></image>
                 <view class="product-info">
                   <view class="product-name">{{product.name}}</view>
                   <view class="product-spec">{{product.spec}}</view>
@@ -58,7 +97,7 @@
             </view>
             
             <view class="order-footer">
-              <view class="order-time">{{item.createTime}}</view>
+              <view class="order-time">{{item.createTimeFormat || item.createTime}}</view>
               <view class="order-amount">
                 <text>共{{item.products.length}}件商品</text>
                 <text>合计：<text class="price">¥{{item.totalAmount}}</text></text>
@@ -66,50 +105,67 @@
             </view>
           </view>
         </view>
+        
+        <!-- 加载更多 -->
+        <view class="loading-more" wx:if="{{loadingMore}}">
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+          <view class="loading-dot"></view>
+        </view>
+        
+        <!-- 无更多数据 -->
+        <view class="no-more" wx:if="{{!hasMoreOrders && filteredOrders.length > 0 && !loadingMore}}">
+          — 没有更多订单了 —
+        </view>
       </block>
     </view>
   </view>
   
   <!-- 详情视图 -->
   <view class="detail-view" wx:else>
-    <view class="detail-header">
-      <view class="back-button" bindtap="backToList">
-        <view class="back-icon"></view>
-        <text>返回列表</text>
-      </view>
-      <view class="status-card {{currentOrder.status}}">
-        <view class="status-icon"></view>
-        <text>{{currentOrder.statusText}}</text>
-      </view>
+    <!-- 标题提示 -->
+    <view class="detail-title-bar">
+      <text>订单详情</text>
     </view>
     
     <view class="detail-content">
+      <!-- 订单状态卡片 -->
+      <view class="status-card-container">
+        <view class="status-card {{currentOrder.status}}">
+          <view class="status-icon"></view>
+          <text>{{currentOrder.statusText}}</text>
+        </view>
+        <view class="action-button" bindtap="openActionSheet" data-id="{{currentOrder._id}}">
+          <text class="btn-icon-small">⚙️</text> 修改状态
+        </view>
+      </view>
+
       <!-- 订单信息 -->
       <view class="detail-section info-section">
         <view class="section-title">订单信息</view>
         <view class="info-item">
           <text class="info-label">订单编号</text>
           <view class="info-value with-action">
-            <text>{{currentOrder.orderNumber}}</text>
-            <view class="copy-btn" bindtap="copyText" data-text="{{currentOrder.orderNumber}}">复制</view>
+            <text>{{currentOrder.orderNumber || currentOrder._id}}</text>
+            <view class="copy-btn" bindtap="copyText" data-text="{{currentOrder.orderNumber || currentOrder._id}}">复制</view>
           </view>
         </view>
         <view class="info-item">
           <text class="info-label">创建时间</text>
-          <text class="info-value">{{currentOrder.createTime}}</text>
+          <text class="info-value">{{currentOrder.createTimeFormat || currentOrder.createTime}}</text>
         </view>
         <view class="info-item">
           <text class="info-label">支付方式</text>
-          <text class="info-value">{{currentOrder.paymentMethod}}</text>
+          <text class="info-value">{{currentOrder.paymentMethod || '微信支付'}}</text>
         </view>
         <view class="info-item">
           <text class="info-label">支付时间</text>
-          <text class="info-value">{{currentOrder.paymentTime}}</text>
+          <text class="info-value">{{currentOrder.paymentTimeFormat || currentOrder.paymentTime || '未知'}}</text>
         </view>
       </view>
       
       <!-- 配送进度 -->
-      <view class="detail-section progress-section">
+      <view class="detail-section progress-section" wx:if="{{currentOrder.progress}}">
         <view class="section-title">配送进度</view>
         <view class="progress-timeline">
           <view 
@@ -133,8 +189,9 @@
         <view 
           wx:for="{{currentOrder.products}}" 
           wx:key="id"
+          wx:for-index="productIdx"
           class="detail-product-item">
-          <image class="detail-product-image" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="detail-product-image" src="{{item.image}}" mode="aspectFill" binderror="handleImageError" data-index="{{productIdx}}"></image>
           <view class="detail-product-info">
             <view class="detail-product-name">{{item.name}}</view>
             <view class="detail-product-spec">规格：{{item.spec}}</view>
@@ -149,11 +206,11 @@
         <view class="order-summary">
           <view class="summary-item">
             <text class="summary-label">商品金额</text>
-            <text class="summary-value">¥{{currentOrder.totalAmount}}</text>
+            <text class="summary-value">¥{{calculateSubtotal(currentOrder)}}</text>
           </view>
           <view class="summary-item">
             <text class="summary-label">配送费用</text>
-            <text class="summary-value">¥0.00</text>
+            <text class="summary-value">¥{{currentOrder.deliveryFee || '0.00'}}</text>
           </view>
           <view class="summary-item total">
             <text class="summary-label">实付金额</text>
@@ -170,15 +227,24 @@
             <text class="user-name">{{currentOrder.address.name}}</text>
             <text class="user-phone">{{currentOrder.address.phone}}</text>
           </view>
-          <view class="address-detail">{{currentOrder.address.detail}}</view>
+          <view class="address-detail">{{currentOrder.address.detail || currentOrder.address.fullAddress || (currentOrder.address.province + currentOrder.address.city + currentOrder.address.district + currentOrder.address.street)}}</view>
         </view>
       </view>
     </view>
     
+    <!-- 底部分隔线 -->
+    <view class="footer-divider"></view>
+    
     <!-- 底部操作按钮 -->
     <view class="detail-footer">
-      <view class="footer-btn service-btn" bindtap="contactService">联系客服</view>
-      <view class="footer-btn rebuy-btn" bindtap="rebuyOrder">再次购买</view>
+      <view class="footer-btn service-btn" bindtap="contactCustomer">
+        <text class="btn-icon">📞</text>
+        <text>联系客户</text>
+      </view>
+      <view class="footer-btn back-btn" bindtap="backToList">
+        <text class="btn-icon">🔙</text>
+        <text>返回订单列表</text>
+      </view>
     </view>
   </view>
 </view>
@@ -188,6 +254,30 @@
 
 <!-- 使用统一的导航栏组件 -->
 <admin-tab-bar activeTab="orders"></admin-tab-bar>
+
+<!-- 操作菜单 -->
+<view class="action-sheet {{showActionSheet ? 'show' : ''}}" catchtouchmove="preventTouchMove">
+  <view class="action-sheet-mask" bindtap="closeActionSheet"></view>
+  <view class="action-sheet-container">
+    <view class="action-sheet-header">
+      <text>订单操作</text>
+      <view class="close-icon" bindtap="closeActionSheet">×</view>
+    </view>
+    <view class="action-sheet-content">
+      <view 
+        wx:for="{{actions}}" 
+        wx:key="value" 
+        class="action-item"
+        data-value="{{item.value}}"
+        bindtap="handleAction">
+        {{item.name}}
+      </view>
+    </view>
+    <view class="action-sheet-footer">
+      <view class="cancel-btn" bindtap="closeActionSheet">取消</view>
+    </view>
+  </view>
+</view>
 
 <!-- 模拟数据 -->
 <wxs module="mockData">

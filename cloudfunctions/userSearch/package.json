@@ -1,0 +1,11 @@
+{
+  "name": "userSearch",
+  "version": "1.0.0",
+  "description": "占位云函数，解决编译错误",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  },
+  "author": "",
+  "license": "ISC"
+} 

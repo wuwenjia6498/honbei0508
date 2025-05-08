@@ -1,12 +1,4 @@
 <view class="container">
-  <!-- 顶部标题和提示内容 -->
-  <view class="header">
-    <text class="page-title">分类管理</text>
-    <view class="user-icon">
-      <image src="/assets/images/icons/user.png" mode="aspectFit"></image>
-    </view>
-  </view>
-
   <!-- 提示信息 -->
   <view class="tip-box">
     <image class="tip-icon" src="/assets/images/icons/notification.svg" mode="aspectFit"></image>
@@ -32,24 +24,22 @@
         <!-- 分类图标和名称 -->
         <view class="category-info" bindtap="showEditCategoryForm" data-id="{{item.id}}">
           <view class="category-icon" style="background-color: {{getCategoryColor(item.name)}};">
-            <image src="{{getCategoryIcon(item.name)}}" mode="aspectFit"></image>
+            <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"></image>
+            <image wx:else src="{{getCategoryIcon(item.name)}}" mode="aspectFit"></image>
           </view>
           <view class="category-name">
             <text>{{item.name}}</text>
-            <text class="product-count">{{item.productCount}}件商品</text>
+            <text class="product-count">{{item.productCount || 0}}件商品</text>
           </view>
         </view>
         
         <!-- 分类操作按钮 -->
         <view class="category-actions">
           <view class="action-btn edit-btn" catchtap="showEditCategoryForm" data-id="{{item.id}}">
-            <image src="/assets/images/icons/user-edit.svg" mode="aspectFit"></image>
+            <image class="action-icon" src="/assets/images/icons/edit.svg" mode="aspectFit"></image>
           </view>
           <view class="action-btn delete-btn" catchtap="deleteCategory" data-id="{{item.id}}">
-            <image src="/assets/images/icons/user-delete.svg" mode="aspectFit"></image>
-          </view>
-          <view class="action-btn more-btn">
-            <text>›</text>
+            <image class="action-icon" src="/assets/images/icons/trash.svg" mode="aspectFit"></image>
           </view>
         </view>
       </view>
@@ -68,6 +58,19 @@
       <view class="modal-header">
         <text>添加分类</text>
         <view class="close-btn" bindtap="closeAddCategoryForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">分类图片</view>
+        <view class="upload-container">
+          <view class="upload-preview" wx:if="{{newCategory.tempImage}}">
+            <image src="{{newCategory.tempImage}}" mode="aspectFill"></image>
+            <view class="upload-delete" bindtap="removeNewCategoryImage">×</view>
+          </view>
+          <view class="upload-btn" bindtap="chooseNewCategoryImage" wx:else>
+            <image class="upload-icon" src="/assets/images/icons/upload.svg" mode="aspectFit"></image>
+            <text>上传图片</text>
+          </view>
+        </view>
       </view>
       <view class="form-group">
         <view class="form-label">分类名称</view>
@@ -97,6 +100,19 @@
       <view class="modal-header">
         <text>编辑分类</text>
         <view class="close-btn" bindtap="closeEditCategoryForm">×</view>
+      </view>
+      <view class="form-group">
+        <view class="form-label">分类图片</view>
+        <view class="upload-container">
+          <view class="upload-preview" wx:if="{{currentCategory.tempImage || currentCategory.image}}">
+            <image src="{{currentCategory.tempImage || currentCategory.image}}" mode="aspectFill"></image>
+            <view class="upload-delete" bindtap="removeCurrentCategoryImage">×</view>
+          </view>
+          <view class="upload-btn" bindtap="chooseCurrentCategoryImage" wx:else>
+            <image class="upload-icon" src="/assets/images/icons/upload.svg" mode="aspectFit"></image>
+            <text>上传图片</text>
+          </view>
+        </view>
       </view>
       <view class="form-group">
         <view class="form-label">分类名称</view>

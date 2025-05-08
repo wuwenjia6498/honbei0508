@@ -1,0 +1,70 @@
+<!-- popular-all.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">人气推荐</text>
+  </view>
+
+  <!-- 筛选条件 -->
+  <view class="filter-bar">
+    <view class="filter-item {{sortType === 'default' ? 'active' : ''}}" bindtap="changeSort" data-type="default">
+      <text>默认</text>
+    </view>
+    <view class="filter-item {{sortType === 'sales' ? 'active' : ''}}" bindtap="changeSort" data-type="sales">
+      <text>销量</text>
+    </view>
+    <view class="filter-item {{sortType === 'rating' ? 'active' : ''}}" bindtap="changeSort" data-type="rating">
+      <text>好评</text>
+    </view>
+    <view class="filter-item {{sortType === 'price' ? 'active' : ''}}" bindtap="changeSort" data-type="price">
+      <text>价格</text>
+      <view class="sort-icon">
+        <view class="arrow-up {{sortOrder === 'asc' && sortType === 'price' ? 'active' : ''}}"></view>
+        <view class="arrow-down {{sortOrder === 'desc' && sortType === 'price' ? 'active' : ''}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="product-list" wx:elif="{{popularProducts.length > 0}}">
+    <view class="product-card" wx:for="{{popularProducts}}" wx:key="_id" bindtap="goToProductDetail" data-id="{{item._id}}">
+      <image class="product-image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="product-info">
+        <text class="product-name">{{item.name}}</text>
+        <view class="rating">
+          <view class="star-container">
+            <text class="star">★</text>
+            <text class="score">{{item.rating || 5.0}}</text>
+            <text class="reviews">({{item.reviews || 0}})</text>
+          </view>
+        </view>
+        <view class="price-row">
+          <view class="price-container">
+            <text class="price">¥{{item.price}}</text>
+            <text class="original-price" wx:if="{{item.originalPrice}}">¥{{item.originalPrice}}</text>
+          </view>
+          <view class="add-to-cart {{item.stock <= 0 ? 'disabled' : ''}}" catchtap="{{item.stock > 0 ? 'addToCart' : ''}}" data-id="{{item._id}}">+</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/assets/images/icons/empty-box.png" mode="aspectFit"></image>
+    <text class="empty-text">暂无推荐商品，敬请期待</text>
+  </view>
+  
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{popularProducts.length > 0 && !loading}}">
+    <view class="loading" wx:if="{{isLoadingMore}}"></view>
+    <text wx:elif="{{noMoreData}}">— 已经到底啦 —</text>
+    <text wx:else>上拉加载更多</text>
+  </view>
+</view>

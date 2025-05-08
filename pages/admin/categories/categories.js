@@ -3,63 +3,15 @@ Page({
    * 页面的初始数据
    */
   data: {
-    categories: [
-      {
-        id: 1,
-        name: '面包类',
-        image: '/assets/images/products/product-croissant.jpg',
-        productCount: 12,
-        order: 1,
-        isActive: true
-      },
-      {
-        id: 2,
-        name: '蛋糕类',
-        image: '/assets/images/products/product-tiramisu.jpg',
-        productCount: 8,
-        order: 2,
-        isActive: true
-      },
-      {
-        id: 3,
-        name: '饼干类',
-        image: '/assets/images/products/product-brownie.jpg',
-        productCount: 6,
-        order: 3,
-        isActive: true
-      },
-      {
-        id: 4,
-        name: '甜点类',
-        image: '/assets/images/products/product-matcha-cake.jpg',
-        productCount: 5,
-        order: 4,
-        isActive: true
-      },
-      {
-        id: 5,
-        name: '饮品类',
-        image: '/assets/images/products/photo-1499636136210-6f4ee915583e.jpeg',
-        productCount: 3,
-        order: 5,
-        isActive: true
-      },
-      {
-        id: 6,
-        name: '手工派类',
-        image: '/assets/images/products/photo-1565299624946-b28f40a0ae38.jpeg',
-        productCount: 4,
-        order: 6,
-        isActive: true
-      }
-    ],
+    categories: [],
     showAddForm: false,
     showEditForm: false,
     currentCategory: null,
     newCategory: {
       name: '',
       order: '',
-      isActive: true
+      isActive: true,
+      tempImage: ''
     },
     dragging: false,
     startY: 0,
@@ -74,14 +26,17 @@ Page({
       '默认': '#F5F5F5'
     },
     categoryIcons: {
-      '面包类': '/assets/images/icons/category.png',
-      '蛋糕类': '/assets/images/icons/category.png',
-      '饼干类': '/assets/images/icons/category.png',
-      '甜点类': '/assets/images/icons/category.png',
-      '饮品类': '/assets/images/icons/category.png',
-      '手工派类': '/assets/images/icons/category.png',
+      '面包类': '/assets/images/icons/category-active.png',
+      '蛋糕类': '/assets/images/icons/star.svg',
+      '饼干类': '/assets/images/icons/heart.svg',
+      '甜点类': '/assets/images/icons/heart-filled.svg',
+      '饮品类': '/assets/images/icons/notification.svg',
+      '手工派类': '/assets/images/icons/share.svg',
       '默认': '/assets/images/icons/category.png'
-    }
+    },
+    loading: false,
+    errorMessage: '',
+    isCategoriesLoaded: false
   },
 
   /**
@@ -94,7 +49,7 @@ Page({
     // 获取分类数据
     this.getCategoriesData();
     
-    // 占位函数，后续开发时会完善
+    // 隐藏底部导航栏
     wx.hideTabBar();
   },
 
@@ -102,7 +57,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    // 占位函数，后续开发时会完善
+    // 隐藏底部导航栏
     wx.hideTabBar();
   },
 
@@ -126,15 +81,64 @@ Page({
    * 获取分类数据
    */
   getCategoriesData: function() {
-    // 模拟从服务器获取数据的过程
     wx.showLoading({
       title: '加载中',
     });
     
-    setTimeout(() => {
+    // 调用云函数获取分类数据
+    wx.cloud.callFunction({
+      name: 'getCategories',
+      data: {}
+    }).then(res => {
       wx.hideLoading();
-      // 实际应用中，这里应该调用API获取分类数据
-    }, 500);
+      
+      if (res.result && res.result.data) {
+        // 处理分类数据，添加id字段以兼容旧代码
+        let categories = res.result.data.map(item => ({
+          ...item,
+          id: item._id, // 为了兼容现有代码，将_id也复制到id字段
+          productCount: item.productCount || 0 // 确保使用服务器返回的商品数量
+        }));
+        
+        // 去重处理：通过分类名称去重
+        const uniqueCategories = [];
+        const categoryNamesSet = new Set();
+        
+        categories.forEach(category => {
+          if (!categoryNamesSet.has(category.name)) {
+            categoryNamesSet.add(category.name);
+            uniqueCategories.push(category);
+          } else {
+            console.log(`发现重复分类: ${category.name}，已跳过`);
+          }
+        });
+        
+        this.setData({
+          categories: uniqueCategories,
+          isCategoriesLoaded: true
+        });
+        
+        console.log('分类数据加载成功，包含商品数量:', uniqueCategories);
+        
+        // 调试信息：记录每个分类的商品数量
+        uniqueCategories.forEach(category => {
+          console.log(`分类 "${category.name}" 的商品数量: ${category.productCount || 0}`);
+        });
+      } else {
+        console.error('获取分类数据失败:', res);
+        wx.showToast({
+          title: '获取分类失败',
+          icon: 'none'
+        });
+      }
+    }).catch(err => {
+      wx.hideLoading();
+      console.error('获取分类数据失败:', err);
+      wx.showToast({
+        title: '获取分类失败',
+        icon: 'none'
+      });
+    });
   },
 
   /**
@@ -180,12 +184,146 @@ Page({
   },
 
   /**
-   * 提交添加分类表单
+   * 上传分类图片到云存储
+   */
+  uploadCategoryImageToCloud: function(tempFilePath) {
+    return new Promise((resolve, reject) => {
+      // 生成随机文件名
+      const timestamp = Date.now();
+      const randomStr = Math.random().toString(36).substring(2, 8);
+      const cloudPath = `categories/${timestamp}_${randomStr}.jpg`;
+      
+      // 上传到云存储
+      wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: tempFilePath,
+        success: res => {
+          console.log('分类图片上传成功:', res);
+          const fileID = res.fileID;
+          
+          // 获取临时访问链接
+          wx.cloud.getTempFileURL({
+            fileList: [fileID],
+            success: result => {
+              console.log('获取临时文件链接成功', result);
+              if (result.fileList && result.fileList.length > 0) {
+                const tempFileURL = result.fileList[0].tempFileURL;
+                
+                // 将临时URL存入缓存
+                const cacheKey = `category_image_${timestamp}_${randomStr}`;
+                wx.setStorageSync(cacheKey, tempFileURL);
+                
+                // 返回fileID，而不是临时URL
+                resolve(fileID);
+              } else {
+                resolve(fileID);
+              }
+            },
+            fail: err => {
+              console.error('获取临时文件链接失败', err);
+              // 即使获取临时链接失败，仍返回fileID
+              resolve(fileID);
+            }
+          });
+        },
+        fail: err => {
+          console.error('分类图片上传失败:', err);
+          reject(err);
+        }
+      });
+    });
+  },
+
+  /**
+   * 为新分类选择图片
+   */
+  chooseNewCategoryImage: function() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        // 获取选中图片的临时路径
+        const tempFilePath = res.tempFilePaths[0];
+        
+        // 更新数据，显示预览图
+        this.setData({
+          'newCategory.tempImage': tempFilePath
+        });
+        
+        wx.showToast({
+          title: '图片选择成功',
+          icon: 'success'
+        });
+      }
+    });
+  },
+  
+  /**
+   * 为当前编辑分类选择图片
+   */
+  chooseCurrentCategoryImage: function() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        // 获取选中图片的临时路径
+        const tempFilePath = res.tempFilePaths[0];
+        
+        // 更新数据，显示预览图
+        this.setData({
+          'currentCategory.tempImage': tempFilePath
+        });
+        
+        wx.showToast({
+          title: '图片选择成功',
+          icon: 'success'
+        });
+      }
+    });
+  },
+  
+  /**
+   * 移除新分类图片
+   */
+  removeNewCategoryImage: function() {
+    this.setData({
+      'newCategory.tempImage': ''
+    });
+  },
+  
+  /**
+   * 移除当前编辑分类图片
+   */
+  removeCurrentCategoryImage: function() {
+    this.setData({
+      'currentCategory.tempImage': '',
+      'currentCategory.image': '' // 同时清除原有图片路径
+    });
+  },
+
+  /**
+   * 清理缓存文件
+   */
+  removeTempFile: function(filePath) {
+    if (filePath && filePath.startsWith('wxfile://')) {
+      wx.removeSavedFile({
+        filePath: filePath,
+        fail: function() {
+          console.log('删除临时文件失败', filePath);
+        }
+      });
+    }
+  },
+
+  /**
+   * 提交添加分类
    */
   submitAddCategory: function() {
-    const { newCategory } = this.data;
+    const newCategory = this.data.newCategory;
     
-    // 简单的表单验证
+    // 表单验证
     if (!newCategory.name) {
       wx.showToast({
         title: '请输入分类名称',
@@ -194,43 +332,73 @@ Page({
       return;
     }
     
-    // 模拟添加分类到服务器
     wx.showLoading({
-      title: '添加中',
+      title: '保存中',
     });
     
-    setTimeout(() => {
-      // 模拟添加成功
-      const categories = this.data.categories;
-      // 生成一个新的ID（真实环境中应由服务器生成）
-      const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+    // 准备提交的分类数据
+    const categoryData = {
+      name: newCategory.name,
+      isActive: true,
+      order: newCategory.order || this.data.categories.length + 1
+    };
+    
+    console.log('准备添加分类:', categoryData);
+    console.log('是否有图片:', !!newCategory.tempImage);
+    
+    // 处理图片上传
+    let uploadTask;
+    if (newCategory.tempImage) {
+      uploadTask = this.uploadCategoryImageToCloud(newCategory.tempImage);
+    } else {
+      // 如果没有选择图片，就使用空字符串
+      uploadTask = Promise.resolve('');
+    }
+    
+    uploadTask.then(imageUrl => {
+      // 如果上传了图片，将图片URL添加到分类数据中
+      if (imageUrl) {
+        categoryData.image = imageUrl;
+        console.log('图片上传成功:', imageUrl);
+      }
       
-      // 创建新分类对象
-      const categoryToAdd = {
-        ...newCategory,
-        id: newId,
-        order: parseInt(newCategory.order) || categories.length + 1,
-        image: '/assets/images/products/photo-1517686469429-8bdb88b9f907.jpeg', // 默认图片
-        productCount: 0
-      };
+      console.log('最终添加的分类数据:', categoryData);
       
-      // 添加到数组
-      categories.push(categoryToAdd);
-      
-      // 按照order排序
-      categories.sort((a, b) => a.order - b.order);
-      
-      this.setData({
-        categories,
-        showAddForm: false
+      // 调用云函数添加分类
+      return wx.cloud.callFunction({
+        name: 'getCategories',
+        data: {
+          action: 'add',
+          category: categoryData
+        }
       });
+    }).then(res => {
+      wx.hideLoading();
       
+      if (res.result && res.result.success) {
+        // 关闭添加表单并刷新分类列表
+        this.closeAddCategoryForm();
+        this.getCategoriesData();
+        
+        wx.showToast({
+          title: '添加成功',
+          icon: 'success'
+        });
+      } else {
+        wx.showToast({
+          title: res.result?.message || '添加失败',
+          icon: 'none'
+        });
+        console.error('添加分类失败:', res);
+      }
+    }).catch(err => {
       wx.hideLoading();
       wx.showToast({
-        title: '添加成功',
-        icon: 'success'
+        title: '添加失败',
+        icon: 'none'
       });
-    }, 1000);
+      console.error('添加分类失败:', err);
+    });
   },
 
   /**
@@ -241,9 +409,23 @@ Page({
     const category = this.data.categories.find(c => c.id === id);
     
     if (category) {
+      console.log('打开编辑分类表单:', category);
+      
+      // 确保分类数据包含ID字段
+      const categoryWithId = { 
+        ...category,
+        _id: category._id || category.id // 确保有_id字段
+      };
+      
       this.setData({
-        currentCategory: { ...category },
+        currentCategory: categoryWithId,
         showEditForm: true
+      });
+    } else {
+      console.error('找不到对应的分类:', id);
+      wx.showToast({
+        title: '找不到分类',
+        icon: 'none'
       });
     }
   },
@@ -259,13 +441,13 @@ Page({
   },
 
   /**
-   * 提交编辑分类表单
+   * 提交编辑分类
    */
   submitEditCategory: function() {
-    const { currentCategory, categories } = this.data;
+    const editCategory = this.data.currentCategory;
     
-    // 简单的表单验证
-    if (!currentCategory.name) {
+    // 表单验证
+    if (!editCategory.name) {
       wx.showToast({
         title: '请输入分类名称',
         icon: 'none'
@@ -273,38 +455,88 @@ Page({
       return;
     }
     
-    // 模拟更新分类到服务器
     wx.showLoading({
-      title: '更新中',
+      title: '保存中',
     });
     
-    setTimeout(() => {
-      // 更新分类列表
-      const updatedCategories = categories.map(c => {
-        if (c.id === currentCategory.id) {
-          return {
-            ...currentCategory,
-            order: parseInt(currentCategory.order) || c.order
-          };
-        }
-        return c;
-      });
-      
-      // 按照order排序
-      updatedCategories.sort((a, b) => a.order - b.order);
-      
-      this.setData({
-        categories: updatedCategories,
-        showEditForm: false,
-        currentCategory: null
-      });
-      
+    // 获取分类ID
+    const categoryId = editCategory._id || editCategory.id;
+    
+    // 确保分类ID存在
+    if (!categoryId) {
       wx.hideLoading();
       wx.showToast({
-        title: '更新成功',
-        icon: 'success'
+        title: '缺少分类ID',
+        icon: 'none'
       });
-    }, 1000);
+      console.error('缺少分类ID:', editCategory);
+      return;
+    }
+    
+    // 准备提交的分类数据
+    const categoryData = {
+      name: editCategory.name,
+      isActive: editCategory.isActive,
+      order: editCategory.order || 0
+    };
+    
+    // 处理图片上传
+    let uploadTask;
+    if (editCategory.tempImage) {
+      uploadTask = this.uploadCategoryImageToCloud(editCategory.tempImage);
+    } else if (editCategory.image) {
+      // 如果没有新上传的图片，但有原来的图片，保留原图片
+      uploadTask = Promise.resolve(editCategory.image);
+    } else {
+      // 如果没有图片，就使用空字符串
+      uploadTask = Promise.resolve('');
+    }
+    
+    uploadTask.then(imageUrl => {
+      // 如果有图片URL，添加到分类数据中
+      if (imageUrl) {
+        categoryData.image = imageUrl;
+      }
+      
+      console.log('更新分类ID:', categoryId);
+      console.log('更新分类数据:', categoryData);
+      
+      // 调用云函数更新分类
+      return wx.cloud.callFunction({
+        name: 'getCategories',
+        data: {
+          action: 'update',
+          categoryId: categoryId,
+          category: categoryData
+        }
+      });
+    }).then(res => {
+      wx.hideLoading();
+      
+      if (res.result && res.result.success) {
+        // 关闭编辑表单并刷新分类列表
+        this.closeEditCategoryForm();
+        this.getCategoriesData();
+        
+        wx.showToast({
+          title: '更新成功',
+          icon: 'success'
+        });
+      } else {
+        wx.showToast({
+          title: res.result?.message || '更新失败',
+          icon: 'none'
+        });
+        console.error('更新分类失败:', res);
+      }
+    }).catch(err => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '更新失败',
+        icon: 'none'
+      });
+      console.error('更新分类失败:', err);
+    });
   },
 
   /**
@@ -329,25 +561,43 @@ Page({
       content: '确定要删除该分类吗？此操作不可恢复。',
       success: res => {
         if (res.confirm) {
-          // 模拟从服务器删除分类
           wx.showLoading({
             title: '删除中',
           });
           
-          setTimeout(() => {
-            // 从列表中移除
-            const updatedCategories = this.data.categories.filter(c => c.id !== id);
+          // 调用云函数删除分类
+          wx.cloud.callFunction({
+            name: 'getCategories',
+            data: {
+              action: 'delete',
+              categoryId: category._id || category.id
+            }
+          }).then(res => {
+            wx.hideLoading();
             
-            this.setData({
-              categories: updatedCategories
-            });
-            
+            if (res.result && res.result.success) {
+              // 删除成功，刷新分类列表
+              this.getCategoriesData();
+              
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              });
+            } else {
+              wx.showToast({
+                title: res.result?.message || '删除失败',
+                icon: 'none'
+              });
+              console.error('删除分类失败:', res);
+            }
+          }).catch(err => {
             wx.hideLoading();
             wx.showToast({
-              title: '删除成功',
-              icon: 'success'
+              title: '删除失败',
+              icon: 'none'
             });
-          }, 1000);
+            console.error('删除分类失败:', err);
+          });
         }
       }
     });
@@ -362,30 +612,55 @@ Page({
     const category = categories.find(c => c.id === id);
     
     if (category) {
-      // 模拟向服务器更新状态
       wx.showLoading({
         title: '更新中',
       });
       
-      setTimeout(() => {
-        // 更新分类列表
-        const updatedCategories = categories.map(c => {
-          if (c.id === id) {
-            return { ...c, isActive: !c.isActive };
+      // 调用云函数更新分类状态
+      wx.cloud.callFunction({
+        name: 'getCategories',
+        data: {
+          action: 'update',
+          categoryId: category._id || category.id,
+          category: {
+            isActive: !category.isActive
           }
-          return c;
-        });
+        }
+      }).then(res => {
+        wx.hideLoading();
         
-        this.setData({
-          categories: updatedCategories
-        });
-        
+        if (res.result && res.result.success) {
+          // 更新本地数据
+          const updatedCategories = categories.map(c => {
+            if (c.id === id) {
+              return { ...c, isActive: !c.isActive };
+            }
+            return c;
+          });
+          
+          this.setData({
+            categories: updatedCategories
+          });
+          
+          wx.showToast({
+            title: category.isActive ? '已禁用' : '已启用',
+            icon: 'success'
+          });
+        } else {
+          wx.showToast({
+            title: res.result?.message || '操作失败',
+            icon: 'none'
+          });
+          console.error('更新分类状态失败:', res);
+        }
+      }).catch(err => {
         wx.hideLoading();
         wx.showToast({
-          title: category.isActive ? '已禁用' : '已启用',
-          icon: 'success'
+          title: '操作失败',
+          icon: 'none'
         });
-      }, 500);
+        console.error('更新分类状态失败:', err);
+      });
     }
   },
 
@@ -493,11 +768,41 @@ Page({
    */
   dragEnd: function() {
     if (this.data.dragging) {
-      // 模拟向服务器更新排序
-      wx.showToast({
-        title: '排序已更新',
-        icon: 'success'
-      });
+      const { categories, currentIndex } = this.data;
+      
+      if (currentIndex !== -1 && categories[currentIndex]) {
+        // 获取分类ID
+        const categoryId = categories[currentIndex]._id || categories[currentIndex].id;
+        
+        // 确保分类ID存在
+        if (!categoryId) {
+          console.error('排序更新失败：缺少分类ID', categories[currentIndex]);
+          return;
+        }
+        
+        // 更新被拖动分类的排序
+        wx.cloud.callFunction({
+          name: 'getCategories',
+          data: {
+            action: 'update',
+            categoryId: categoryId,
+            category: {
+              order: currentIndex + 1
+            }
+          }
+        }).then(res => {
+          if (res.result && res.result.success) {
+            wx.showToast({
+              title: '排序已更新',
+              icon: 'success'
+            });
+          } else {
+            console.error('更新排序失败:', res);
+          }
+        }).catch(err => {
+          console.error('更新排序失败:', err);
+        });
+      }
       
       this.setData({
         dragging: false,
