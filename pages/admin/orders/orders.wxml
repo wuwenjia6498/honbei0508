@@ -46,16 +46,9 @@
         <!-- 使用emoji代替图片 -->
         <view class="empty-icon">📦</view>
         <text>暂无订单</text>
-        <button class="init-demo-btn" bindtap="initTestOrders">初始化测试订单</button>
-        <button class="init-demo-btn real-order-btn" bindtap="importRealOrders">导入真实订单</button>
       </view>
       
       <block wx:else>
-        <!-- 添加清空订单按钮 -->
-        <view class="clean-orders-container">
-          <button class="clean-orders-btn" bindtap="clearAllOrders">清空所有订单</button>
-        </view>
-        
         <view 
           wx:for="{{filteredOrders}}" 
           wx:key="_id" 

@@ -78,6 +78,11 @@ page {
   margin-top: -30rpx;
   position: relative;
   box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.member-info-container:active {
+  background-color: #fff0d9;
 }
 
 .member-badge {
@@ -108,6 +113,17 @@ page {
   padding: 8rpx 20rpx;
   border-radius: 30rpx;
   font-size: 24rpx;
+  display: flex;
+  align-items: center;
+}
+
+.detail-arrow {
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 2rpx solid #ff9800;
+  border-right: 2rpx solid #ff9800;
+  transform: rotate(45deg);
+  margin-left: 6rpx;
 }
 
 /* 订单区域 */
@@ -520,24 +536,39 @@ page {
   background: rgba(255, 255, 255, 0.15);
 }
 
-/* 登录按钮样式 */
-.login-button, .logout-button {
-  position: absolute;
-  right: 30rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 10rpx 30rpx;
+/* 登录按钮 */
+.login-button {
+  padding: 5rpx 20rpx;
+  background-color: rgba(141, 110, 99, 0.1);
   border-radius: 30rpx;
   font-size: 24rpx;
-  font-weight: 500;
+  color: #8D6E63;
+  margin-left: auto;
 }
 
-.login-button {
-  background-color: #a68a7b;
-  color: #fff;
-}
-
+/* 退出登录按钮 */
 .logout-button {
-  background-color: #f5f5f5;
-  color: #999;
+  padding: 8rpx 24rpx;
+  background-color: #ffeded;
+  border: 1px solid #ff3b30;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ff3b30;
+  margin-left: auto;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.logout-button:active {
+  background-color: #ffe0e0;
+}
+
+/* 退出图标 */
+.logout-icon {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-right: 6rpx;
+  line-height: 1;
 } 

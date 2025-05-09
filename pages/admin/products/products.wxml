@@ -4,50 +4,6 @@
     <view class="add-btn" bindtap="showAddProductForm">
       <text>+ 添加商品</text>
     </view>
-    
-    <!-- 数据库管理按钮 -->
-    <view class="db-actions">
-      <view class="db-btn clean-btn" bindtap="openDatabaseActionModal">
-        <text>数据库管理</text>
-      </view>
-    </view>
-  </view>
-  
-  <!-- 数据库操作弹窗 -->
-  <view class="form-modal" wx:if="{{showDatabaseModal}}">
-    <view class="modal-mask" bindtap="closeDatabaseActionModal"></view>
-    <view class="modal-content db-modal">
-      <view class="modal-header">
-        <text>数据库管理</text>
-        <view class="close-btn" bindtap="closeDatabaseActionModal">×</view>
-      </view>
-      
-      <view class="form-group">
-        <view class="warning-text">请谨慎操作！以下操作将直接影响数据库。</view>
-      </view>
-      
-      <view class="db-actions-group">
-        <view class="db-action-btn clean-only-btn" bindtap="cleanDatabaseOnly">
-          <text>清空数据库</text>
-          <text class="btn-desc">清空商品和分类数据，不添加测试数据</text>
-        </view>
-        
-        <view class="db-action-btn init-btn" bindtap="initDatabaseWithTestData">
-          <text>初始化测试数据</text>
-          <text class="btn-desc">清空数据后添加默认测试数据</text>
-        </view>
-      </view>
-      
-      <view class="form-group" wx:if="{{dbActionMessage}}">
-        <view class="message-box {{dbActionSuccess ? 'success' : 'error'}}">
-          {{dbActionMessage}}
-        </view>
-      </view>
-      
-      <view class="help-link" bindtap="checkCloudFunctionDeployment">
-        <text>操作失败？点击查看解决方法</text>
-      </view>
-    </view>
   </view>
   
   <!-- 搜索框 -->

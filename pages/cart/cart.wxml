@@ -49,8 +49,6 @@
               <view class="quantity-decrease" bindtap="decreaseQuantity" data-index="{{index}}">-</view>
               <view class="quantity-number">{{item.quantity}}</view>
               <view class="quantity-increase" bindtap="increaseQuantity" data-index="{{index}}">+</view>
-              <view class="stock-info" wx:if="{{item.stock > 0}}">库存:{{item.stock}}</view>
-              <view class="stock-info stock-empty" wx:else>无库存</view>
             </view>
           </view>
         </view>

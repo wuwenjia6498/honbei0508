@@ -13,7 +13,9 @@ Page({
     canIUseNicknameComp: wx.canIUse('input.type.nickname'),
     freshProducts: [],
     popularProducts: [],
-    loading: true
+    loading: true,
+    searchKeyword: '',
+    allProducts: []
   },
   onLoad() {
     // 检查云环境是否正确初始化
@@ -38,6 +40,53 @@ Page({
     
     // 获取人气推荐商品数据
     this.getPopularProducts()
+    
+    // 获取所有商品数据用于搜索
+    this.getAllProducts()
+  },
+  
+  // 处理搜索输入
+  onSearchInput: function(e) {
+    this.setData({
+      searchKeyword: e.detail.value
+    });
+  },
+  
+  // 执行搜索功能
+  searchProducts: function(e) {
+    const keyword = this.data.searchKeyword;
+    console.log('搜索关键词:', keyword);
+    
+    if (!keyword || keyword.trim() === '') {
+      return;
+    }
+    
+    // 导航到搜索结果页面
+    wx.navigateTo({
+      url: `/pages/search/search?keyword=${encodeURIComponent(keyword)}`
+    });
+  },
+  
+  // 获取所有商品数据用于搜索
+  getAllProducts: function() {
+    wx.cloud.callFunction({
+      name: 'getproducts',
+      data: {
+        onlyActive: true,
+        pageSize: 100
+      },
+      success: res => {
+        console.log('获取所有商品数据结果:', res);
+        if (res.result && res.result.success && res.result.data) {
+          this.setData({
+            allProducts: res.result.data
+          });
+        }
+      },
+      fail: err => {
+        console.error('获取所有商品数据失败:', err);
+      }
+    });
   },
   
   // 获取新鲜出炉商品

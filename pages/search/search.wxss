@@ -1,0 +1,240 @@
+/* search.wxss */
+page {
+  height: 100vh;
+  background-color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft Yahei", Tahoma, Simsun, sans-serif;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* 顶部搜索栏样式 */
+.search-header {
+  display: flex;
+  align-items: center;
+  padding: 15rpx 20rpx;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.back-button {
+  margin-right: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40rpx;
+}
+
+.back-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 64rpx;
+  background-color: #f0f0f0;
+  border-radius: 32rpx;
+  padding: 0 15rpx;
+  position: relative;
+}
+
+.search-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 10rpx;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 28rpx;
+  color: #333;
+  padding-right: 30rpx;
+}
+
+.clear-icon {
+  position: absolute;
+  right: 15rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28rpx;
+  height: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.search-button {
+  margin-left: 12rpx;
+  font-size: 28rpx;
+  color: #a68a7b;
+  padding: 0 5rpx;
+}
+
+/* 搜索结果区域 */
+.search-results {
+  flex: 1;
+  padding: 15rpx 20rpx;
+  box-sizing: border-box;
+  overflow-y: auto;
+  width: 100%;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+}
+
+.loading {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid #f0f0f0;
+  border-top: 3rpx solid #a68a7b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 无结果提示 */
+.empty-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.empty-tip {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 搜索结果列表 */
+.results-count {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 15rpx;
+  display: block;
+  padding: 0 4rpx;
+}
+
+.product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.product-card {
+  background-color: #fff;
+  border-radius: 10rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: calc(50% - 10rpx);
+  margin-bottom: 16rpx;
+}
+
+.product-image {
+  width: 100%;
+  height: 180rpx;
+  background-color: #f8f8f8;
+}
+
+.product-info {
+  padding: 12rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-name {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 8rpx;
+  height: 72rpx;
+}
+
+.product-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 4rpx;
+}
+
+.product-price {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #8D6E63;
+}
+
+.add-to-cart {
+  width: 44rpx;
+  height: 44rpx;
+  background-color: #8D6E63;
+  color: #fff;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  box-shadow: 0 2rpx 5rpx rgba(0, 0, 0, 0.1);
+} 

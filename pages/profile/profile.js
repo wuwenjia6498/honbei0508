@@ -10,8 +10,8 @@ Page({
     isLogin: false,
     userInfo: {
       avatarUrl: '../../assets/images/icons/user-active.png',
-      nickName: '张伟',
-      phone: '138****5678'
+      nickName: '点击登录',
+      phone: '登录后查看'
     },
     memberInfo: {
       level: '甜心会员',
@@ -80,6 +80,44 @@ Page({
         }
       });
     }
+  },
+
+  /**
+   * 微信一键登录功能
+   */
+  handleWechatLogin: function() {
+    wx.showLoading({
+      title: '登录中',
+      mask: true
+    });
+
+    // 调用全局getUserProfile方法
+    app.getUserProfile()
+      .then(userInfo => {
+        wx.hideLoading();
+        
+        // 更新页面状态
+        this.checkLoginStatus();
+        this.getOrderList();
+        
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success'
+        });
+      })
+      .catch(err => {
+        wx.hideLoading();
+        
+        let errorMsg = '登录失败，请重试';
+        if (err.errMsg && err.errMsg.includes('deny')) {
+          errorMsg = '您已拒绝授权';
+        }
+        
+        wx.showToast({
+          title: errorMsg,
+          icon: 'none'
+        });
+      });
   },
 
   /**
@@ -195,9 +233,18 @@ Page({
   logout: function() {
     wx.showModal({
       title: '确认退出登录',
-      content: '是否确认退出登录？',
+      content: '退出后将无法查看订单、会员信息等个人数据',
+      confirmText: '确认退出',
+      confirmColor: '#ff3b30',
+      cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
+          // 显示加载提示
+          wx.showLoading({
+            title: '退出中...',
+            mask: true
+          });
+          
           // 清除登录状态
           app.globalData.isLogin = false;
           app.globalData.userInfo = null;
@@ -210,13 +257,27 @@ Page({
               nickName: '点击登录',
               phone: '登录后查看'
             },
-            recentOrders: [] // 清空订单数据
+            recentOrders: [], // 清空订单数据
+            orderStats: {
+              toPay: 0,
+              toBake: 0,
+              toDeliver: 0,
+              completed: 0
+            }
           });
           
-          wx.showToast({
-            title: '已退出登录',
-            icon: 'success'
-          });
+          // 调用应用的logout方法清除更多数据
+          app.logout();
+          
+          // 延迟关闭加载提示并显示成功提示
+          setTimeout(() => {
+            wx.hideLoading();
+            wx.showToast({
+              title: '已安全退出',
+              icon: 'success',
+              duration: 2000
+            });
+          }, 600);
         }
       }
     });
@@ -256,9 +317,31 @@ Page({
   },
 
   /**
+   * 显示登录提示对话框
+   */
+  showLoginDialog: function() {
+    wx.showModal({
+      title: '请先登录',
+      content: '登录后才能查看订单信息',
+      confirmText: '去登录',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          this.goToLogin();
+        }
+      }
+    });
+  },
+
+  /**
    * 跳转到会员详情页面
    */
   goToMemberDetail: function() {
+    if (!getApp().globalData.isLogin) {
+      this.showLoginDialog();
+      return;
+    }
+    
     wx.navigateTo({
       url: '/pages/member/member'
     });

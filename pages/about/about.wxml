@@ -11,14 +11,14 @@
     <view class="section">
       <view class="section-title">关于我们</view>
       <view class="section-content">
-        <text>梧桐小姐烘焙屋创立于2023年，是一家专注于高品质烘焙的小店。我们坚持使用天然、健康的原材料，为顾客提供美味又健康的烘焙产品。</text>
+        <text>梧桐小姐烘焙屋创立于2025年，是一家专注于高品质烘焙的小店。我们坚持使用天然、健康的原材料，为您提供美味又健康的烘焙产品。</text>
       </view>
     </view>
     
     <view class="section">
       <view class="section-title">我们的理念</view>
       <view class="section-content">
-        <text>用心烘焙，用爱传递。我们相信，每一款甜点都承载着美好的情感与记忆，我们希望通过精心制作的甜点，为您和您爱的人带来甜蜜与幸福。</text>
+        <text>用心烘焙，用爱传递。我们相信，每一款点心都承载着美好的情感与记忆，希望通过精心制作的点心，为您和您爱的人带来健康与快乐。</text>
       </view>
     </view>
     
@@ -35,7 +35,7 @@
         </view>
         <view class="contact-item">
           <text class="label">地址：</text>
-          <text class="value">阳光城市 幸福大道123号</text>
+          <text class="value">宁波市江北 海外滩</text>
         </view>
       </view>
     </view>
@@ -43,6 +43,6 @@
   
   <!-- 底部版权信息 -->
   <view class="footer">
-    <text>© 2023-2024 梧桐小姐烘焙屋 版权所有</text>
+    <text>© 2025-2026 梧桐小姐烘焙屋 版权所有</text>
   </view>
 </view> 

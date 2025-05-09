@@ -557,9 +557,12 @@ Page({
       if (status === 'pending') {
         // 待发货状态
         queryParams.status = 'pending';
+        // 添加备选状态，以兼容多种可能的状态值
+        queryParams.alternativeStatuses = ['paid', 'processing'];
       } else if (status === 'shipping') {
         // 配送中状态
         queryParams.status = 'shipping';
+        queryParams.alternativeStatuses = ['delivering'];
       } else if (status === 'completed') {
         // 已完成状态
         queryParams.status = 'completed';
@@ -652,7 +655,7 @@ Page({
         }
         
         // 根据标签筛选
-        this.filterOrdersByTab(activeTab);
+        this.directFilterOrders(activeTab);
       } else {
         console.error('获取订单失败', res.result);
         wx.showToast({
@@ -689,6 +692,8 @@ Page({
     
     // 查询条件
     let query = {};
+    const db = wx.cloud.database();
+    const _ = db.command;
     
     // 根据标签页筛选
     if (activeTab > 0) {
@@ -697,12 +702,12 @@ Page({
       if (status === 'pending') {
         // 处理中、待付款、已付款状态都显示在待发货选项卡
         query = {
-          status: wx.cloud.database().command.in(['pending', 'paid', 'processing'])
+          status: _.in(['pending', 'paid', 'processing'])
         };
       } else if (status === 'shipping') {
         // 配送中状态
         query = {
-          status: wx.cloud.database().command.in(['shipping', 'delivering'])
+          status: _.in(['shipping', 'delivering'])
         };
       } else if (status === 'completed') {
         // 已完成状态
@@ -716,7 +721,6 @@ Page({
     // 如果有搜索关键词
     if (searchValue) {
       // 支持搜索订单号、收货人姓名、手机号
-      const db = wx.cloud.database();
       const orConditions = [
         { orderNumber: db.RegExp({
           regexp: searchValue,
@@ -832,7 +836,7 @@ Page({
         }
         
         // 根据标签筛选
-        this.filterOrdersByTab(activeTab);
+        this.directFilterOrders(activeTab);
         return;
       }
       
@@ -935,7 +939,7 @@ Page({
         }
         
         // 根据标签筛选
-        this.filterOrdersByTab(activeTab);
+        this.directFilterOrders(activeTab);
       })
       .catch(err => {
         console.error('回退方案获取订单失败', err);
@@ -979,35 +983,80 @@ Page({
    */
   switchTab: function (e) {
     const tabIndex = e.currentTarget.dataset.index;
+    console.log('切换到标签:', tabIndex, this.data.tabList[tabIndex]);
+    
     this.setData({
       activeTab: tabIndex,
       currentPage: 1, // 切换标签时重置页码
       hasMoreOrders: true
     });
     
-    // 重新加载订单
-    this.loadOrders();
+    // 立即使用当前内存中的订单数据进行筛选
+    this.directFilterOrders(tabIndex);
+    
+    // 然后重新加载订单（如果需要的话）
+    // this.loadOrders();
+  },
+
+  /**
+   * 直接筛选当前内存中的订单数据
+   * 这个函数仅使用订单的显示文本(statusText)进行筛选
+   */
+  directFilterOrders: function(tabIndex) {
+    const { orders, tabList } = this.data;
+    let filteredOrders = [];
+    
+    console.log('开始直接筛选 - 共有订单:', orders.length, '当前标签:', tabList[tabIndex]);
+    
+    // 输出所有订单的ID和状态，便于调试
+    orders.forEach((order, index) => {
+      console.log(`订单${index+1} - ID:${order._id}, 显示状态:${order.statusText}, 系统状态:${order.status}`);
+    });
+    
+    if (tabIndex === 0) {
+      // 全部订单
+      filteredOrders = orders;
+    } else {
+      // 通过状态文本筛选 - 这是最直接可靠的方式
+      const targetStatusText = tabList[tabIndex]; // 直接使用标签文本作为状态文本
+      console.log('目标状态文本:', targetStatusText);
+      
+      filteredOrders = orders.filter(order => {
+        const match = order.statusText === targetStatusText;
+        console.log(`订单${order._id} - 状态文本:"${order.statusText}", 匹配:"${targetStatusText}" = ${match}`);
+        return match;
+      });
+    }
+    
+    console.log(`筛选后订单数: ${filteredOrders.length}/${orders.length}`);
+    
+    // 更新界面
+    this.setData({
+      filteredOrders: filteredOrders
+    });
+    
+    return filteredOrders.length;
   },
 
   /**
    * 根据标签筛选订单
+   * 这个函数将被保留用于兼容性，但实际使用directFilterOrders进行筛选
    */
   filterOrdersByTab: function (tabIndex) {
-    const { orders, statusMap } = this.data;
-    let filteredOrders = [];
-
-    if (tabIndex === 0) {
-      // 全部订单
-        filteredOrders = orders;
-    } else {
-      // 根据状态筛选
-      const status = statusMap[tabIndex];
-      filteredOrders = orders.filter(order => order.normalizedStatus === status);
+    return this.directFilterOrders(tabIndex);
+  },
+  
+  /**
+   * 根据标签索引获取对应的状态文本
+   */
+  getStatusTextByTabIndex: function(tabIndex) {
+    switch(tabIndex) {
+      case 1: return '待发货';
+      case 2: return '配送中';
+      case 3: return '已完成';
+      case 4: return '已取消';
+      default: return '';
     }
-
-    this.setData({
-      filteredOrders: filteredOrders
-    });
   },
 
   /**
@@ -1309,10 +1358,10 @@ Page({
   },
 
   /**
-   * 显示页面右上角菜单
+   * 显示管理选项菜单
    */
   onShowActionSheet: function() {
-    const menuItems = ['刷新数据', '初始化订单数据', '清空所有订单', '诊断连接问题', '设置管理员权限'];
+    const menuItems = ['刷新数据', '诊断连接问题', '设置管理员权限'];
     
     // 在演示模式下增加额外选项
     if (this.data.isDemoMode) {
@@ -1337,18 +1386,12 @@ Page({
             wx.hideLoading();
           }, 1000);
         } else if (res.tapIndex === 1) {
-          // 初始化订单数据
-          this.initOrderData();
-        } else if (res.tapIndex === 2) {
-          // 清空所有订单
-          this.clearAllOrders();
-        } else if (res.tapIndex === 3) {
           // 诊断连接问题
           this.enhancedDiagnose();
-        } else if (res.tapIndex === 4) {
+        } else if (res.tapIndex === 2) {
           // 设置当前用户为管理员
           this.setAsAdmin();
-        } else if (res.tapIndex === 5 && this.data.isDemoMode) {
+        } else if (res.tapIndex === 3 && this.data.isDemoMode) {
           // 显示云函数部署指南
           wx.showModal({
             title: '云函数部署指南',
@@ -1419,12 +1462,7 @@ Page({
             wx.showModal({
               title: '初始化失败',
               content: '云函数调用失败：' + (err.errMsg || JSON.stringify(err)),
-              confirmText: '切换演示模式',
-              success: (res) => {
-                if (res.confirm) {
-                  this.enterDemoMode();
-                }
-              }
+              showCancel: false
             });
           });
         }

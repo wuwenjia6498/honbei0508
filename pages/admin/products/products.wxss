@@ -486,37 +486,35 @@
   margin-top: 10rpx;
 }
 
-/* 操作按钮区域 */
+/* 顶部操作按钮 */
 .action-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  margin-top: 20rpx;
   margin-bottom: 30rpx;
 }
 
-/* 数据库管理按钮 */
+/* 数据库管理相关样式 */
 .db-actions {
-  display: flex;
+  margin-left: auto;
 }
 
 .db-btn {
-  background-color: #5c6bc0;
-  color: #fff;
   padding: 16rpx 30rpx;
   border-radius: 30rpx;
   font-size: 28rpx;
   display: inline-block;
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 .clean-btn {
-  background-color: #5c6bc0;
+  background-color: #ffebee;
+  color: #f44336;
 }
 
-/* 数据库操作弹窗样式 */
 .db-modal {
-  width: 80%;
-  max-width: 600rpx;
+  max-height: 80vh;
 }
 
 .warning-text {
@@ -524,7 +522,6 @@
   font-size: 28rpx;
   text-align: center;
   margin-bottom: 30rpx;
-  font-weight: bold;
 }
 
 .db-actions-group {
@@ -535,40 +532,47 @@
 }
 
 .db-action-btn {
-  padding: 30rpx 20rpx;
+  padding: 30rpx;
   border-radius: 8rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  background-color: #f8f8f8;
 }
 
-.db-action-btn text {
-  color: white;
-  font-size: 30rpx;
-  font-weight: bold;
+.db-action-btn text:first-child {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 10rpx;
 }
 
 .btn-desc {
-  font-size: 24rpx !important;
-  font-weight: normal !important;
-  margin-top: 10rpx;
-  opacity: 0.8;
+  font-size: 24rpx;
+  color: #666;
 }
 
 .clean-only-btn {
-  background-color: #ef5350;
+  background-color: #ffebee;
+}
+
+.clean-only-btn text:first-child {
+  color: #f44336;
 }
 
 .init-btn {
-  background-color: #42a5f5;
+  background-color: #e8f5e9;
+}
+
+.init-btn text:first-child {
+  color: #4caf50;
 }
 
 .message-box {
   padding: 20rpx;
   border-radius: 8rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   text-align: center;
-  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .message-box.success {
@@ -583,13 +587,10 @@
 
 /* 帮助链接样式 */
 .help-link {
-  margin-top: 20rpx;
   text-align: center;
-  padding: 10rpx 0;
-}
-
-.help-link text {
-  color: #5c6bc0;
-  font-size: 26rpx;
+  color: #2196f3;
+  font-size: 24rpx;
   text-decoration: underline;
+  margin-bottom: 20rpx;
+  cursor: pointer;
 } 

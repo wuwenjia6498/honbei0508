@@ -21,12 +21,13 @@
     
     <!-- 退出登录按钮 -->
     <view wx:else class="logout-button" bindtap="logout">
-      <text>退出登录</text>
+      <view class="logout-icon">⏏</view>
+      <text>安全退出</text>
     </view>
   </view>
 
   <!-- 会员信息区域 -->
-  <view class="member-info-container">
+  <view class="member-info-container" bindtap="goToMemberDetail">
     <view class="member-badge">
       <view class="crown-icon">👑</view>
       <view class="member-text">{{memberInfo.level}}</view>
@@ -34,8 +35,9 @@
     <view class="member-savings">
       <text>已累计节省 ¥{{memberInfo.saved}}</text>
     </view>
-    <view class="member-detail-btn" bindtap="goToMemberDetail">
+    <view class="member-detail-btn">
       <text>会员详情</text>
+      <view class="detail-arrow"></view>
     </view>
   </view>
 

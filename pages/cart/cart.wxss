@@ -193,17 +193,6 @@
   border-right: 1px solid #eee;
 }
 
-/* 库存信息样式 */
-.stock-info {
-  font-size: 22rpx;
-  color: #999;
-  margin-left: 16rpx;
-}
-
-.stock-empty {
-  color: #ff4500;
-}
-
 /* 价格明细 */
 .price-details {
   background-color: #fff;

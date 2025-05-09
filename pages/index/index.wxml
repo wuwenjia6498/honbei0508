@@ -17,7 +17,7 @@
     <view class="search-icon-container">
       <image class="search-icon" src="/assets/images/icons/search-filled.svg" mode="aspectFit"></image>
     </view>
-    <input type="text" placeholder="搜索烘焙美食..." />
+    <input type="text" placeholder="搜索烘焙美食..." bindinput="onSearchInput" bindconfirm="searchProducts" value="{{searchKeyword}}"/>
   </view>
 
   <!-- 内容区域 -->

@@ -359,7 +359,38 @@ App({
         desc: '用于完善会员资料',
         success: (res) => {
           console.log('获取用户信息成功:', res);
-          resolve(res.userInfo);
+          
+          // 调用登录云函数
+          wx.cloud.callFunction({
+            name: 'userService',
+            data: {
+              action: 'login',
+              userInfo: res.userInfo
+            }
+          }).then(result => {
+            if (result.result && result.result.success) {
+              // 更新全局登录状态
+              this.globalData.isLogin = true;
+              this.globalData.userInfo = result.result.data;
+              this.globalData.openid = result.result.data.openid;
+              
+              // 更新本地缓存
+              wx.setStorageSync('userInfo', result.result.data);
+              wx.setStorageSync('openid', result.result.data.openid);
+              
+              // 更新购物车信息
+              this.updateCart();
+              
+              resolve(result.result.data);
+            } else {
+              const errMsg = result.result?.message || '登录失败';
+              console.error('登录失败', errMsg);
+              reject(new Error(errMsg));
+            }
+          }).catch(err => {
+            console.error('调用登录云函数失败:', err);
+            reject(err);
+          });
         },
         fail: (err) => {
           console.error('获取用户信息失败:', err);

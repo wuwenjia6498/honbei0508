@@ -1,0 +1,48 @@
+<!-- search.wxml -->
+<view class="container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-header">
+    <view class="back-button" bindtap="goBack">
+      <image class="back-icon" src="/assets/images/icons/arrow-left.svg" mode="aspectFit"></image>
+    </view>
+    <view class="search-bar">
+      <image class="search-icon" src="/assets/images/icons/search-filled.svg" mode="aspectFit"></image>
+      <input class="search-input" type="text" placeholder="搜索烘焙美食..." value="{{keyword}}" bindinput="onSearchInput" bindconfirm="doSearch" confirm-type="search" focus="{{true}}"/>
+      <view class="clear-icon" bindtap="clearSearch" wx:if="{{keyword}}">×</view>
+    </view>
+    <view class="search-button" bindtap="doSearch">搜索</view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results">
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading"></view>
+      <text class="loading-text">搜索中...</text>
+    </view>
+
+    <!-- 无结果提示 -->
+    <view class="empty-results" wx:if="{{!loading && searchResults.length === 0}}">
+      <image class="empty-icon" src="/assets/images/icons/search-not-found.svg" mode="aspectFit"></image>
+      <text class="empty-text">未找到"{{keyword}}"相关商品</text>
+      <text class="empty-tip">请尝试其他关键词</text>
+    </view>
+
+    <!-- 搜索结果列表 -->
+    <block wx:if="{{!loading && searchResults.length > 0}}">
+      <view class="results-count">找到 {{searchResults.length}} 个相关商品</view>
+      <view class="product-grid">
+        <view wx:for="{{searchResults}}" wx:key="_id" class="product-card" bindtap="goToProductDetail" data-id="{{item._id}}">
+          <image class="product-image" src="{{item.image}}" mode="aspectFill" lazy-load="true"></image>
+          <view class="product-info">
+            <text class="product-name">{{item.name}}</text>
+            <view class="product-price-row">
+              <text class="product-price">¥{{item.price}}</text>
+              <view class="add-to-cart" catchtap="addToCart" data-id="{{item._id}}">+</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view> 

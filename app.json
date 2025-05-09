@@ -11,7 +11,8 @@
     "pages/popular-all/popular-all",
     "pages/login/login",
     "pages/address/address-list",
-    "pages/address/address-edit"
+    "pages/address/address-edit",
+    "pages/search/search"
   ],
   "subpackages": [
     {
@@ -85,5 +86,7 @@
   },
   "requiredPrivateInfos": [
     "chooseAddress"
-  ]
+  ],
+  "pageOrientation": "portrait",
+  "resizable": false
 }
