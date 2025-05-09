@@ -1,1 +1,12 @@
- 
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="96px" height="96px" viewBox="0 0 96 96" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M72,24 L72,72 C72,75.3137085 69.3137085,78 66,78 L30,78 C26.6862915,78 24,75.3137085 24,72 L24,24 L72,24 Z" stroke="#CCCCCC" stroke-width="2"/>
+        <path d="M78,24 L18,24 C16.8954305,24 16,23.1045695 16,22 L16,18 C16,16.8954305 16.8954305,16 18,16 L78,16 C79.1045695,16 80,16.8954305 80,18 L80,22 C80,23.1045695 79.1045695,24 78,24 Z" fill="#CCCCCC"/>
+        <rect fill="#EEEEEE" x="32" y="36" width="32" height="4" rx="2"></rect>
+        <rect fill="#EEEEEE" x="32" y="48" width="32" height="4" rx="2"></rect>
+        <rect fill="#EEEEEE" x="32" y="60" width="32" height="4" rx="2"></rect>
+        <line x1="48" y1="34" x2="48" y2="66" stroke="#CCCCCC" stroke-width="2" transform="translate(48, 50) rotate(45) translate(-48, -50)"></line>
+        <line x1="48" y1="34" x2="48" y2="66" stroke="#CCCCCC" stroke-width="2" transform="translate(48, 50) rotate(-45) translate(-48, -50)"></line>
+    </g>
+</svg> 
