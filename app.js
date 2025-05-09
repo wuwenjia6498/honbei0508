@@ -41,44 +41,33 @@ App({
     try {
       // 确保指定正确的环境ID
       wx.cloud.init({
-        env: 'cloud1-3g9nsaj9f3a1b0ed',
+        env: wx.cloud.DYNAMIC_CURRENT_ENV, // 使用默认环境
         traceUser: true,
       })
-      console.log('云环境初始化完成，当前环境ID: cloud1-3g9nsaj9f3a1b0ed')
+      console.log('云环境初始化完成，使用默认环境ID')
       
       // 测试云环境连接
-      wx.cloud.callFunction({
-        name: 'getCategories',
-        data: { onlyActive: true }
-      }).then(res => {
-        console.log('云环境连接测试成功:', res)
-        if (!res.result) {
-          console.error('云函数返回数据为空')
-          wx.showModal({
-            title: '初始化提示',
-            content: '数据库可能未初始化，是否现在初始化数据？',
-            success: (res) => {
-              if (res.confirm) {
-                this.initCloudData()
-              }
-            }
-          })
-        }
-      }).catch(err => {
-        console.error('云环境连接测试失败:', err)
-        wx.showModal({
-          title: '连接失败',
-          content: '云环境连接测试失败，请检查云函数是否已部署，错误信息：' + (err.errMsg || JSON.stringify(err)),
-          showCancel: false
-        })
-      })
+      this.testCloudConnection();
     } catch (err) {
       console.error('云环境初始化失败:', err)
-      wx.showModal({
-        title: '初始化失败',
-        content: '云环境初始化失败，请检查环境ID是否正确。错误信息：' + (err.errMsg || JSON.stringify(err)),
-        showCancel: false
-      })
+      // 尝试使用固定环境ID
+      try {
+        wx.cloud.init({
+          env: 'cloud1-3g9nsaj9f3a1b0ed',
+          traceUser: true,
+        })
+        console.log('云环境初始化完成(回退方案)，当前环境ID: cloud1-3g9nsaj9f3a1b0ed')
+        
+        // 测试云环境连接
+        this.testCloudConnection();
+      } catch (fallbackErr) {
+        console.error('云环境初始化完全失败:', fallbackErr)
+        wx.showModal({
+          title: '初始化失败',
+          content: '云环境初始化失败，请检查环境ID是否正确。错误信息：' + (fallbackErr.errMsg || JSON.stringify(fallbackErr)),
+          showCancel: false
+        })
+      }
     }
 
     // 获取设备信息
@@ -317,16 +306,16 @@ App({
         }
       }).then(res => {
         console.log('用户登录结果', res);
-        if (res.result && res.result.code === 0) {
+        if (res.result && res.result.success) {
           const userData = res.result.data;
           
           // 保存用户信息
-          this.globalData.userInfo = userData.userInfo;
+          this.globalData.userInfo = userData;
           this.globalData.openid = userData.openid;
           this.globalData.isLogin = true;
           
           // 缓存到本地
-          wx.setStorageSync('userInfo', userData.userInfo);
+          wx.setStorageSync('userInfo', userData);
           wx.setStorageSync('openid', userData.openid);
           
           // 更新购物车信息
@@ -334,7 +323,9 @@ App({
           
           resolve(userData);
         } else {
-          reject(new Error(res.result?.message || '登录失败'));
+          const errMsg = res.result?.message || '登录失败';
+          console.error('登录失败', errMsg);
+          reject(new Error(errMsg));
         }
       }).catch(err => {
         console.error('登录失败', err);
@@ -359,5 +350,44 @@ App({
     
     // 更新购物车徽标
     this.updateCartBadge();
-  }
+  },
+
+  // 安全获取用户信息
+  getUserProfile: function() {
+    return new Promise((resolve, reject) => {
+      wx.getUserProfile({
+        desc: '用于完善会员资料',
+        success: (res) => {
+          console.log('获取用户信息成功:', res);
+          resolve(res.userInfo);
+        },
+        fail: (err) => {
+          console.error('获取用户信息失败:', err);
+          reject(err);
+        }
+      });
+    });
+  },
+
+  // 测试云环境连接
+  testCloudConnection: function() {
+    wx.cloud.callFunction({
+      name: 'userService',
+      data: { 
+        action: 'getOpenid'
+      }
+    }).then(res => {
+      console.log('云环境连接测试成功:', res)
+      if (!res.result || !res.result.success) {
+        console.warn('云函数返回了非预期的结果:', res)
+      }
+    }).catch(err => {
+      console.error('云环境连接测试失败:', err)
+      wx.showModal({
+        title: '连接失败',
+        content: '云环境连接测试失败，请检查云函数是否已部署及环境配置是否正确。错误信息：' + (err.errMsg || JSON.stringify(err)),
+        showCancel: false
+      })
+    })
+  },
 })

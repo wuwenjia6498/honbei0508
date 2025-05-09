@@ -16,14 +16,21 @@ Page({
     loading: true
   },
   onLoad() {
-    // 初始化云环境
+    // 检查云环境是否正确初始化
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
+      wx.showToast({
+        title: '云环境初始化失败',
+        icon: 'none',
+        duration: 2000
+      });
     } else {
       wx.cloud.init({
         env: 'cloud1-3g9nsaj9f3a1b0ed',
         traceUser: true,
       });
+      
+      console.log('云环境初始化成功，开始获取商品数据');
     }
     
     // 获取新鲜出炉商品数据
@@ -39,19 +46,65 @@ Page({
     
     console.log('开始获取新鲜出炉商品');
     
-    // 使用本地云数据库查询替代云函数
-    this.getProductsByType('isNew');
+    // 直接调用云函数获取数据，保证获取真实数据库数据
+    this.callProductCloudFunction('isNew');
   },
   
   // 获取人气推荐商品
   getPopularProducts() {
     console.log('开始获取人气推荐商品');
     
-    // 使用本地云数据库查询替代云函数
-    this.getProductsByType('isHot');
+    // 直接调用云函数获取数据，保证获取真实数据库数据
+    this.callProductCloudFunction('isHot');
   },
   
-  // 按类型获取商品（通用方法）
+  // 使用云函数获取商品数据（优先方式）
+  callProductCloudFunction(type) {
+    console.log(`使用云函数获取${type}商品数据`);
+    
+    const data = {
+      onlyActive: true,
+      pageSize: type === 'isNew' ? 10 : 5  // 新鲜商品保持10条，人气推荐只显示5条
+    };
+    
+    if (type === 'isNew') {
+      data.isNew = true;
+    } else {
+      data.isHot = true;
+    }
+    
+    wx.cloud.callFunction({
+      name: 'getproducts',
+      data: data,
+      success: res => {
+        console.log(`云函数获取${type}商品结果:`, res);
+        
+        if (res.result && res.result.success && res.result.data && res.result.data.length > 0) {
+          // 确保每个商品都有库存属性
+          const products = res.result.data.map(product => {
+            return {
+              ...product,
+              stock: product.stock !== undefined ? product.stock : 0
+            };
+          });
+          
+          // 处理商品图片URL
+          this.processProductImages(products, type);
+        } else {
+          console.warn(`云函数返回的${type}商品数据为空，尝试本地数据库查询`);
+          // 如果云函数没有返回数据，尝试本地数据库查询
+          this.getProductsByType(type);
+        }
+      },
+      fail: err => {
+        console.error(`云函数获取${type}商品失败:`, err);
+        // 如果云函数调用失败，尝试本地数据库查询
+        this.getProductsByType(type);
+      }
+    });
+  },
+  
+  // 按类型获取商品（备用方法）
   getProductsByType(type) {
     const db = wx.cloud.database();
     const _ = db.command;
@@ -60,11 +113,13 @@ Page({
     const condition = { isActive: true };
     condition[type] = true;
     
-    console.log(`查询${type}商品，条件:`, condition);
+    console.log(`备用方法：本地查询${type}商品，条件:`, condition);
     
     // 首先查看数据库中有多少商品
     db.collection('products').count().then(res => {
       console.log('数据库中总商品数:', res.total);
+    }).catch(err => {
+      console.error('获取商品总数失败:', err);
     });
     
     // 执行查询
@@ -75,26 +130,111 @@ Page({
       .then(res => {
         console.log(`${type}商品查询结果:`, res.data);
         
-        // 确保每个商品都有库存属性
-        const products = res.data.map(product => {
-          return {
-            ...product,
-            stock: product.stock !== undefined ? product.stock : 0
-          };
-        });
-        
-        // 处理商品图片URL
-        this.processProductImages(products, type);
+        if (res.data && res.data.length > 0) {
+          // 确保每个商品都有库存属性
+          const products = res.data.map(product => {
+            return {
+              ...product,
+              stock: product.stock !== undefined ? product.stock : 0
+            };
+          });
+          
+          // 处理商品图片URL
+          this.processProductImages(products, type);
+        } else {
+          console.warn(`本地数据库中没有${type}商品数据，初始化数据库`);
+          // 如果本地数据库中也没有数据，尝试初始化数据库
+          this.initializeDatabaseIfEmpty(type);
+        }
       })
       .catch(err => {
         console.error(`获取${type}商品失败:`, err);
         this.setData({ loading: false });
         
-        // 如果本地查询失败，回退到云函数查询
-        this.fallbackToCloudFunction(type);
+        // 如果本地查询失败，尝试初始化数据库
+        this.initializeDatabaseIfEmpty(type);
       });
   },
   
+  // 尝试初始化数据库（如果为空）
+  initializeDatabaseIfEmpty(type) {
+    console.log('尝试初始化数据库');
+    
+    wx.cloud.callFunction({
+      name: 'initData',
+      data: {
+        action: 'unifyInit'  // 使用统一初始化函数
+      },
+      success: res => {
+        console.log('统一初始化数据库结果:', res);
+        if (res.result && res.result.success) {
+          wx.showToast({
+            title: '数据初始化成功',
+            icon: 'success',
+            duration: 2000
+          });
+          
+          // 数据初始化成功后，重新获取商品数据
+          setTimeout(() => {
+            if (type === 'isNew') {
+              this.getFreshProducts();
+            } else {
+              this.getPopularProducts();
+            }
+          }, 1000);
+        } else {
+          console.error('统一初始化数据失败，尝试使用cleanDatabase');
+          // 如果统一初始化失败，回退到使用cleanDatabase
+          this.fallbackToCleanDatabase(type);
+        }
+      },
+      fail: err => {
+        console.error('调用initData统一初始化云函数失败:', err);
+        // 如果调用失败，回退到使用cleanDatabase
+        this.fallbackToCleanDatabase(type);
+      }
+    });
+  },
+  
+  // 回退到使用cleanDatabase函数初始化
+  fallbackToCleanDatabase(type) {
+    console.log('回退到使用cleanDatabase初始化数据');
+    
+    wx.cloud.callFunction({
+      name: 'cleanDatabase',
+      data: {
+        action: 'init'  // 初始化数据
+      },
+      success: res => {
+        console.log('cleanDatabase初始化结果:', res);
+        if (res.result && res.result.success) {
+          wx.showToast({
+            title: '数据初始化成功',
+            icon: 'success',
+            duration: 2000
+          });
+          
+          // 数据初始化成功后，重新获取商品数据
+          setTimeout(() => {
+            if (type === 'isNew') {
+              this.getFreshProducts();
+            } else {
+              this.getPopularProducts();
+            }
+          }, 1000);
+        } else {
+          console.error('所有初始化方法都失败，使用测试数据');
+          this.useTestData(type);
+        }
+      },
+      fail: err => {
+        console.error('调用cleanDatabase云函数失败:', err);
+        // 所有方法都失败，最后才使用测试数据
+        this.useTestData(type);
+      }
+    });
+  },
+
   // 处理商品图片，获取临时URL
   processProductImages(products, type) {
     // 收集所有需要转换的云存储图片ID
@@ -228,61 +368,15 @@ Page({
     });
   },
   
-  // 回退到云函数查询
-  fallbackToCloudFunction(type) {
-    console.log(`回退到云函数查询${type}商品`);
-    
-    const data = {
-      onlyActive: true,
-      pageSize: type === 'isNew' ? 10 : 5  // 新鲜商品保持10条，人气推荐只显示5条
-    };
-    
-    if (type === 'isNew') {
-      data.isNew = true;
-    } else {
-      data.isHot = true;
-    }
-    
-    wx.cloud.callFunction({
-      name: 'getproducts',
-      data: data,
-      success: res => {
-        console.log(`云函数获取${type}商品结果:`, res);
-        
-        if (res.result && res.result.success) {
-          // 确保每个商品都有库存属性
-          const products = (res.result.data || []).map(product => {
-            return {
-              ...product,
-              stock: product.stock !== undefined ? product.stock : 0
-            };
-          });
-          
-          if (type === 'isNew') {
-            this.setData({
-              freshProducts: products,
-              loading: false
-            });
-          } else {
-            this.setData({
-              popularProducts: products,
-              loading: false
-            });
-          }
-        }
-      },
-      fail: err => {
-        console.error(`云函数获取${type}商品失败:`, err);
-        
-        // 如果所有方法都失败，填充一些测试数据
-        this.useTestData(type);
-      }
-    });
-  },
-  
   // 使用测试数据（最后的备用方案）
   useTestData(type) {
-    console.log(`使用测试数据显示${type}商品`);
+    console.log(`所有获取数据的方法都失败，使用测试数据显示${type}商品`);
+    
+    wx.showToast({
+      title: '使用测试数据',
+      icon: 'none',
+      duration: 2000
+    });
     
     // 简单的测试数据
     const testData = [
@@ -290,7 +384,7 @@ Page({
         _id: 'test1',
         name: '提拉米苏',
         image: '/assets/images/products/product-tiramisu.jpg',
-        price: 158,
+        price: 68,  // 修改为与数据库中一致的价格
         category: '蛋糕',
         rating: 4.9,
         reviews: 324

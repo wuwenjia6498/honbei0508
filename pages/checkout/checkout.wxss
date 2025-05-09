@@ -322,6 +322,8 @@ page {
   background: #fff;
   padding: 20rpx 30rpx;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  z-index: 100;
 }
 
 .pay-btn {
@@ -329,13 +331,25 @@ page {
   color: #fff;
   font-size: 32rpx;
   border-radius: 8rpx;
-  height: 80rpx;
-  line-height: 80rpx;
+  height: 90rpx;
+  line-height: 90rpx;
   text-align: center;
   font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0 30rpx;
+  position: relative;
+}
+
+.pay-btn text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 /* 加载中样式 */
@@ -927,4 +941,17 @@ page {
 
 .quick-remark:active {
   /* 删除这个样式，已被 hover-class 替代 */
+}
+
+/* 兼容不同屏幕尺寸设备 */
+@media screen and (max-width: 375px) {
+  .pay-btn {
+    font-size: 28rpx;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .pay-btn {
+    font-size: 26rpx;
+  }
 } 

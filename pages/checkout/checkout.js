@@ -504,9 +504,6 @@ Page({
     }
     
     console.log('开始创建订单...');
-    console.log('订单商品:', this.data.orderItems);
-    console.log('配送地址:', this.data.address);
-    console.log('配送时间:', this.data.deliveryTimeData || { display: this.data.deliveryTime });
     
     // 显示加载提示
     wx.showLoading({
@@ -554,57 +551,53 @@ Page({
           // 清除结算缓存数据
           wx.removeStorageSync('checkoutData');
           
-          // 支付成功处理
-          const orderId = res.result.data._id;
+          // 更新订单状态为已支付
+          try {
+            wx.cloud.callFunction({
+              name: 'orderStatusUpdate',
+              data: {
+                orderId: res.result.data._id,
+                status: 'paid'
+              }
+            });
+          } catch (err) {
+            console.error('更新订单状态失败，但继续执行:', err);
+          }
+          
+          // 显示成功提示
           wx.showToast({
             title: '订单创建成功',
             icon: 'success',
-            duration: 2000,
-            success: () => {
-              // 更新订单状态为已支付
-              wx.cloud.callFunction({
-                name: 'orderStatusUpdate',
-                data: {
-                  orderId: orderId,
-                  status: 'paid' // 已支付状态
-                },
-                success: result => {
-                  console.log('更新订单状态成功:', result);
-                  
-                  // 跳转到订单列表页
-                  setTimeout(() => {
-                    wx.redirectTo({
-                      url: '/pages/orders/orders'
+            duration: 1500,
+            success: function() {
+              // 成功后显示一个确认提示，解释正在跳转
+              setTimeout(() => {
+                wx.showModal({
+                  title: '支付成功',
+                  content: '订单已创建成功，即将跳转到个人中心页查看订单',
+                  showCancel: false,
+                  success: function() {
+                    // 关闭对话框后直接跳转
+                    wx.switchTab({
+                      url: '/pages/profile/profile',
+                      success: function() {
+                        console.log('成功跳转到我的页面');
+                        // 跳转成功后，设置标志告诉用户中心页面去订单列表
+                        wx.setStorageSync('goToOrderList', true);
+                      }
                     });
-                  }, 2000);
-                },
-                fail: err => {
-                  console.error('调用更新订单状态云函数失败', err);
-                  // 无论成功失败，都跳转到订单列表页
-                  setTimeout(() => {
-                    wx.redirectTo({
-                      url: '/pages/orders/orders'
-                    });
-                  }, 2000);
-                }
-              });
+                  }
+                });
+              }, 500);
             }
           });
         } else {
+          // 订单创建失败处理
           console.error('创建订单失败', res);
-          let errorMsg = '创建订单失败';
-          
-          // 尝试获取更具体的错误信息
-          if (res.result && res.result.message) {
-            errorMsg = res.result.message;
-          } else if (res.errMsg) {
-            errorMsg = res.errMsg;
-          }
-          
           wx.showToast({
-            title: errorMsg,
+            title: '创建订单失败',
             icon: 'none',
-            duration: 3000
+            duration: 2000
           });
         }
       },
@@ -612,16 +605,10 @@ Page({
         wx.hideLoading();
         console.error('调用创建订单云函数失败', err);
         
-        // 显示详细错误信息
-        let errorMsg = '创建订单失败，请稍后重试';
-        if (err.errMsg) {
-          errorMsg = err.errMsg;
-        }
-        
         wx.showToast({
-          title: errorMsg,
+          title: '创建订单失败，请稍后重试',
           icon: 'none',
-          duration: 3000
+          duration: 2000
         });
       }
     });

@@ -200,9 +200,10 @@ Page({
           console.log(`分类 "${category.name}" 使用默认图标:`, category.icon);
         }
         
-        // 确保每个分类有产品数量
-        if (!category.productCount) {
-          category.productCount = Math.floor(Math.random() * 20) + 5; // 随机5-25
+        // 确保productCount为数字类型，不再使用随机值
+        if (category.productCount === undefined || category.productCount === null) {
+          category.productCount = 0;
+          console.log(`分类 "${category.name}" 设置商品数量为0`);
         }
         
         uniqueCategories.set(category.name, category);
@@ -254,10 +255,10 @@ Page({
    */
   getDefaultCategories() {
     return [
-      { name: '蛋糕', icon: '/assets/images/categories/cake.jpg', productCount: 10 },
-      { name: '面包', icon: '/assets/images/categories/bread.jpg', productCount: 8 },
-      { name: '甜点', icon: '/assets/images/categories/dessert.jpg', productCount: 12 },
-      { name: '饼干', icon: '/assets/images/categories/cookies.jpg', productCount: 6 }
+      { name: '蛋糕', icon: '/assets/images/categories/cake.jpg', productCount: 0 },
+      { name: '面包', icon: '/assets/images/categories/bread.jpg', productCount: 0 },
+      { name: '甜点', icon: '/assets/images/categories/dessert.jpg', productCount: 0 },
+      { name: '饼干', icon: '/assets/images/categories/cookies.jpg', productCount: 0 }
     ];
   },
   
@@ -435,44 +436,7 @@ Page({
    * 获取测试商品数据
    */
   getTestProducts() {
-    return [
-      {
-        _id: 'test1',
-        name: '法式可颂',
-        image: '/assets/images/products/product-croissant.jpg',
-        price: 32,
-        category: '面包',
-        rating: 4.5,
-        reviews: 156
-      },
-      {
-        _id: 'test2',
-        name: '巧克力曲奇',
-        image: '/assets/images/products/product-chocolate.jpg',
-        price: 28,
-        category: '饼干',
-        rating: 4.7,
-        reviews: 198
-      },
-      {
-        _id: 'test3',
-        name: '提拉米苏',
-        image: '/assets/images/products/product-tiramisu.jpg',
-        price: 68,
-        category: '蛋糕',
-        rating: 4.9,
-        reviews: 324
-      },
-      {
-        _id: 'test4',
-        name: '肉桂卷',
-        image: '/assets/images/products/product-cinnamon.jpg',
-        price: 45,
-        category: '面包',
-        rating: 4.6,
-        reviews: 135
-      }
-    ];
+    return [];
   },
 
   /**

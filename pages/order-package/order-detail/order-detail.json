@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "订单详情",
+  "usingComponents": {
+    "van-icon": "@vant/weapp/icon/index"
+  },
+  "backgroundColor": "#f8f8f8",
+  "navigationStyle": "custom"
+} 

@@ -2,7 +2,36 @@
   "compileType": "miniprogram",
   "libVersion": "trial",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "value": ".git",
+        "type": "folder"
+      },
+      {
+        "value": "zzztest",
+        "type": "folder"
+      },
+      {
+        "value": ".md",
+        "type": "suffix"
+      },
+      {
+        "value": "README.md",
+        "type": "file"
+      },
+      {
+        "value": "build-npm-guide.md",
+        "type": "file"
+      },
+      {
+        "value": ".cursorrules",
+        "type": "file"
+      },
+      {
+        "value": "^cloudfunctions/.*?/node_modules/",
+        "type": "regexp"
+      }
+    ],
     "include": []
   },
   "setting": {

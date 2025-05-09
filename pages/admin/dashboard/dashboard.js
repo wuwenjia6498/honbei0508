@@ -343,11 +343,21 @@ Page({
   },
 
   /**
-   * 导航到数据初始化工具页面
+   * 导航到数据初始化页面
    */
   navigateToDataInit: function() {
     wx.navigateTo({
       url: '/pages/admin/dataInit/dataInit',
+      success: () => {
+        console.log('成功导航到数据初始化页面');
+      },
+      fail: (err) => {
+        console.error('导航到数据初始化页面失败:', err);
+        wx.showToast({
+          title: '页面跳转失败',
+          icon: 'none'
+        });
+      }
     });
   },
 

@@ -121,7 +121,7 @@
 
     <!-- 支付按钮 -->
     <view class="pay-btn-container">
-      <button class="pay-btn" bindtap="confirmPayment">确认支付 ¥{{orderAmount.total}}</button>
+      <button class="pay-btn" bindtap="confirmPayment"><text>确认支付</text><text> ¥{{orderAmount.total}}</text></button>
     </view>
   </block>
   

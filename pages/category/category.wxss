@@ -197,8 +197,11 @@ page {
 .product-list {
   padding: 20rpx;
   background-color: #f8f8f8;
-  overflow: hidden; /* 确保不会因为浮动元素溢出 */
   min-height: 400rpx; /* 确保即使没有商品也有足够的空间 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .product-item {
@@ -206,16 +209,23 @@ page {
   border-radius: 12rpx;
   overflow: hidden;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  width: calc(50% - 10rpx); /* 一行两个，考虑间距 */
-  display: inline-block;
+  width: 48%; /* 确保每行显示两个，且有适当的间距 */
   margin-bottom: 20rpx;
   box-sizing: border-box;
-  vertical-align: top; /* 确保顶部对齐 */
   position: relative; /* 确保定位正确 */
+  flex-shrink: 0; /* 防止项目被压缩 */
+  flex-grow: 0; /* 防止项目被拉伸 */
+}
+
+/* 为了避免最后一行只有一个产品时的不对齐问题 */
+.product-list::after {
+  content: "";
+  width: 48%;
+  height: 0;
 }
 
 .product-item:nth-child(odd) {
-  margin-right: 20rpx; /* 左边的产品右边距 */
+  margin-right: 0;
 }
 
 .product-image {

@@ -3,7 +3,7 @@
   <!-- 顶部标题和图标 -->
   <view class="header">
     <view class="title">
-      <text class="store-name">梧桐小姐烘焙</text>
+      <text class="store-name">梧桐小姐烘焙屋</text>
       <text class="subtitle">跟着茂哥吃早餐</text>
     </view>
     <view class="icons">

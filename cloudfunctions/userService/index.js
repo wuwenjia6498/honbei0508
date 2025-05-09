@@ -1,157 +1,156 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
 
+// 初始化云环境
 cloud.init({
-  env: 'cloud1-3g9nsaj9f3a1b0ed'  // 使用固定的环境ID
+  env: cloud.DYNAMIC_CURRENT_ENV
 })
 
+// 声明数据库和指令变量
 const db = cloud.database()
 const _ = db.command
 const $ = db.command.aggregate
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  console.log('userService函数被调用，参数：', event)
+  
+  // 获取OpenID
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
+  console.log('当前用户OpenID:', openid)
   
-  // 详细记录接收到的所有参数
-  console.log('userService 被调用，完整参数：', JSON.stringify(event));
-  console.log('用户openid:', openid);
+  // 解构请求参数
+  const { action, userInfo, limit = 5, isTestMode = false } = event
   
-  const { action, userData, limit, isTestMode } = event
-  
-  // 检查action是否为空
+  // 检查必需参数
   if (!action) {
-    console.error('缺少action参数或为空');
     return {
       success: false,
-      message: '缺少action参数或为空'
+      message: '缺少action参数'
     }
   }
   
-  console.log(`准备执行操作: ${action}, 额外参数:`, {
-    hasUserData: !!userData,
-    limit: limit || 'undefined',
-    isTestMode: isTestMode || false
-  });
-  
+  // 根据不同action执行不同操作
   try {
     switch (action) {
       case 'login':
-        console.log('执行login操作');
-        return await login(openid, userData)
+        return await login(openid, userInfo)
+      
       case 'getUserInfo':
-        console.log('执行getUserInfo操作');
         return await getUserInfo(openid)
+      
       case 'updateUserInfo':
-        console.log('执行updateUserInfo操作');
-        return await updateUserInfo(openid, userData)
-      case 'isAdmin':
-        console.log('执行isAdmin操作');
-        return await isAdmin(openid)
-      case 'setAsAdmin':
-        console.log('执行setAsAdmin操作');
-        return await setAsAdmin(openid)
+        return await updateUserInfo(openid, userInfo)
+      
       case 'getOpenid':
-        console.log('执行getOpenid操作');
         return await getOpenid(openid)
+      
+      case 'isAdmin':
+        return await isAdmin(openid)
+        
+      case 'setAsAdmin':
+        return await setAsAdmin(openid)
+      
       case 'getDashboardStats':
-        console.log('执行getDashboardStats操作');
-        // 在测试模式下跳过管理员权限检查
+        // 检查管理员权限
         if (isTestMode) {
-          console.log('测试模式：跳过管理员权限检查');
-          return await getDashboardStats();
+          return await getDashboardStats()
         } else {
-          // 检查是否是管理员
           const adminCheck = await isAdmin(openid)
-          console.log('管理员检查结果:', adminCheck);
           if (adminCheck.success && adminCheck.data.isAdmin) {
             return await getDashboardStats()
           } else {
-            return {
-              success: false,
-              message: '权限不足'
-            }
+            return { success: false, message: '权限不足' }
           }
         }
+      
       case 'getRecentOrders':
-        console.log('执行getRecentOrders操作');
-        // 在测试模式下跳过管理员权限检查
+        // 检查管理员权限
         if (isTestMode) {
-          console.log('测试模式：跳过管理员权限检查');
-          return await getRecentOrders(limit || 5);
+          return await getRecentOrders(limit)
         } else {
-          // 检查是否是管理员
-          const adminCheck2 = await isAdmin(openid)
-          console.log('管理员检查结果:', adminCheck2);
-          if (adminCheck2.success && adminCheck2.data.isAdmin) {
-            return await getRecentOrders(limit || 5)
+          const adminCheck = await isAdmin(openid)
+          if (adminCheck.success && adminCheck.data.isAdmin) {
+            return await getRecentOrders(limit)
           } else {
-            return {
-              success: false,
-              message: '权限不足'
-            }
+            return { success: false, message: '权限不足' }
           }
         }
+      
       default:
-        console.error(`未知操作: ${action}`);
         return {
           success: false,
-          message: '未知操作',
-          requestedAction: action
+          message: `未知操作: ${action}`
         }
     }
   } catch (error) {
-    console.error('用户操作失败', error)
+    console.error(`执行${action}操作失败:`, error)
     return {
       success: false,
-      message: '用户操作失败: ' + (error.message || '未知错误'),
-      error: error.message || '未知错误'
+      message: error.message || '操作执行失败',
+      error: error.toString()
     }
   }
 }
 
-// 获取用户openid
+/**
+ * 获取用户OpenID
+ */
 async function getOpenid(openid) {
   return {
     success: true,
-    data: {
-      openid: openid
-    }
+    data: { openid }
   }
 }
 
-// 用户登录
-async function login(openid, userData) {
+/**
+ * 用户登录
+ */
+async function login(openid, userInfo) {
   try {
-    // 查询用户是否已存在
-    const user = await db.collection('users')
-      .where({
-        openid
-      })
-      .get()
+    // 验证参数
+    if (!openid) {
+      return { success: false, message: '无法获取用户OpenID' }
+    }
     
-    if (user.data.length > 0) {
-      // 用户已存在，更新登录时间
-      await db.collection('users')
-        .doc(user.data[0]._id)
-        .update({
-          data: {
-            lastLoginTime: db.serverDate()
-          }
-        })
+    if (!userInfo) {
+      return { success: false, message: '用户信息不能为空' }
+    }
+    
+    console.log('正在处理登录请求，用户数据:', userInfo)
+    
+    // 查询用户是否已存在
+    const userQuery = await db.collection('users').where({ openid }).get()
+    
+    if (userQuery.data.length > 0) {
+      // 用户已存在，更新信息
+      const existingUser = userQuery.data[0]
+      
+      await db.collection('users').doc(existingUser._id).update({
+        data: {
+          lastLoginTime: db.serverDate(),
+          nickname: userInfo.nickName || existingUser.nickname,
+          avatar: userInfo.avatarUrl || existingUser.avatar
+        }
+      })
+      
+      // 获取更新后的数据
+      const updatedUser = await db.collection('users').doc(existingUser._id).get()
       
       return {
         success: true,
-        data: user.data[0],
+        data: updatedUser.data,
         isNewUser: false
       }
     } else {
-      // 用户不存在，创建新用户
+      // 创建新用户
+      const defaultAvatar = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+      
       const newUser = {
         openid,
-        nickname: userData.nickName || '微信用户',
-        avatar: userData.avatarUrl || 'cloud://cloud1-6g4mb3x4506ab74c.636c-cloud1-6g4mb3x4506ab74c-1314395232/users/default-avatar.png',
+        nickname: userInfo.nickName || '微信用户',
+        avatar: userInfo.avatarUrl || defaultAvatar,
         phone: '',
         level: 'normal',
         status: 'active',
@@ -160,67 +159,75 @@ async function login(openid, userData) {
         lastLoginTime: db.serverDate()
       }
       
-      const result = await db.collection('users').add({
-        data: newUser
-      })
-      
-      // 获取新创建的用户数据
-      const newUserData = await db.collection('users').doc(result._id).get()
+      const result = await db.collection('users').add({ data: newUser })
+      const createdUser = await db.collection('users').doc(result._id).get()
       
       return {
         success: true,
-        data: newUserData.data,
+        data: createdUser.data,
         isNewUser: true
       }
     }
   } catch (error) {
-    console.error('用户登录失败', error)
-    throw error
+    console.error('登录操作失败:', error)
+    return {
+      success: false,
+      message: '登录失败: ' + error.message,
+      error: error.toString()
+    }
   }
 }
 
-// 获取用户信息
+/**
+ * 获取用户信息
+ */
 async function getUserInfo(openid) {
   try {
-    const user = await db.collection('users')
-      .where({
-        openid
-      })
-      .get()
+    if (!openid) {
+      return { success: false, message: '无法获取用户OpenID' }
+    }
     
-    if (user.data.length === 0) {
-      return {
-        success: false,
-        message: '用户不存在'
-      }
+    const userQuery = await db.collection('users').where({ openid }).get()
+    
+    if (userQuery.data.length === 0) {
+      return { success: false, message: '用户不存在' }
     }
     
     return {
       success: true,
-      data: user.data[0]
+      data: userQuery.data[0]
     }
   } catch (error) {
-    console.error('获取用户信息失败', error)
-    throw error
+    console.error('获取用户信息失败:', error)
+    return {
+      success: false,
+      message: '获取用户信息失败: ' + error.message,
+      error: error.toString()
+    }
   }
 }
 
-// 更新用户信息
-async function updateUserInfo(openid, userData) {
+/**
+ * 更新用户信息
+ */
+async function updateUserInfo(openid, userInfo) {
   try {
-    // 查询用户是否存在
-    const user = await db.collection('users')
-      .where({
-        openid
-      })
-      .get()
-    
-    if (user.data.length === 0) {
-      return {
-        success: false,
-        message: '用户不存在'
-      }
+    if (!openid) {
+      return { success: false, message: '无法获取用户OpenID' }
     }
+    
+    if (!userInfo) {
+      return { success: false, message: '更新信息不能为空' }
+    }
+    
+    // 查询用户是否存在
+    const userQuery = await db.collection('users').where({ openid }).get()
+    
+    if (userQuery.data.length === 0) {
+      return { success: false, message: '用户不存在' }
+    }
+    
+    const existingUser = userQuery.data[0]
     
     // 允许更新的字段
     const allowedFields = ['nickname', 'avatar', 'phone']
@@ -228,151 +235,304 @@ async function updateUserInfo(openid, userData) {
     
     // 筛选有效的更新字段
     for (const field of allowedFields) {
-      if (userData[field] !== undefined) {
-        updateData[field] = userData[field]
+      if (userInfo[field] !== undefined) {
+        updateData[field] = userInfo[field]
+      }
+    }
+    
+    // 如果没有有效字段要更新，直接返回成功
+    if (Object.keys(updateData).length === 0) {
+      return {
+        success: true,
+        data: existingUser,
+        message: '没有字段需要更新'
       }
     }
     
     // 更新用户信息
-    await db.collection('users')
-      .doc(user.data[0]._id)
-      .update({
-        data: updateData
-      })
+    await db.collection('users').doc(existingUser._id).update({
+      data: updateData
+    })
     
-    // 获取更新后的用户信息
-    const updatedUser = await db.collection('users')
-      .doc(user.data[0]._id)
-      .get()
+    // 获取更新后的信息
+    const updatedUser = await db.collection('users').doc(existingUser._id).get()
     
     return {
       success: true,
       data: updatedUser.data
     }
   } catch (error) {
-    console.error('更新用户信息失败', error)
-    throw error
+    console.error('更新用户信息失败:', error)
+    return {
+      success: false,
+      message: '更新用户信息失败: ' + error.message,
+      error: error.toString()
+    }
   }
 }
 
-// 检查用户是否是管理员
+/**
+ * 检查用户是否是管理员
+ */
 async function isAdmin(openid) {
   try {
-    // 如果没有openid，返回非管理员状态
     if (!openid) {
-      console.log('无法获取openid，用户未登录或在云函数测试环境运行');
+      return {
+        success: true,
+        data: { isAdmin: false },
+        message: '无法获取用户OpenID'
+      }
+    }
+    
+    // 尝试查询管理员配置
+    try {
+      const configQuery = await db.collection('config').doc('adminConfig').get()
+      const adminOpenids = configQuery.data.adminOpenids || []
+      
       return {
         success: true,
         data: {
-          isAdmin: false
+          isAdmin: adminOpenids.includes(openid)
         }
       }
-    }
-    
-    // 查询管理员配置
-    let adminConfig = await db.collection('config')
-      .doc('adminConfig')
-      .get()
-      .catch(async (err) => {
-        console.log('adminConfig不存在，准备创建:', err);
-        
-        // 检查config集合是否存在
-        const collections = await db.listCollections().then(res => res.map(item => item.name));
-        if (!collections.includes('config')) {
-          console.log('config集合不存在，创建集合');
-          try {
-            await db.createCollection('config');
-          } catch (error) {
-            console.error('创建config集合失败', error);
-          }
-        }
-        
-        // 创建管理员配置文档
+    } catch (error) {
+      // 配置可能不存在，尝试创建
+      if (error.errCode === -1 || error.message.includes('not exist')) {
         try {
+          // 创建管理员配置，将当前用户设为管理员
           await db.collection('config').add({
             data: {
               _id: 'adminConfig',
-              adminOpenids: [openid], // 将当前用户设为管理员
+              adminOpenids: [openid],
               createdAt: db.serverDate()
             }
-          });
+          })
           
-          console.log(`已创建adminConfig并将用户 ${openid} 设为管理员`);
-          
-          // 返回新创建的配置
-          return { 
-            data: { 
-              adminOpenids: [openid]
-            } 
-          };
-        } catch (error) {
-          console.error('创建adminConfig文档失败', error);
-          return { data: { adminOpenids: [] } };
+          return {
+            success: true,
+            data: { isAdmin: true },
+            message: '已创建管理员配置并设置您为管理员'
+          }
+        } catch (createError) {
+          console.error('创建管理员配置失败:', createError)
+          // 可能是集合不存在，尝试创建集合
+          try {
+            await db.createCollection('config')
+            await db.collection('config').add({
+              data: {
+                _id: 'adminConfig',
+                adminOpenids: [openid],
+                createdAt: db.serverDate()
+              }
+            })
+            
+            return {
+              success: true,
+              data: { isAdmin: true },
+              message: '已创建config集合和管理员配置'
+            }
+          } catch (finalError) {
+            console.error('创建集合失败:', finalError)
+            return {
+              success: true,
+              data: { isAdmin: false },
+              message: '无法创建管理员配置'
+            }
+          }
         }
-      });
-    
-    const isAdminUser = adminConfig.data.adminOpenids.includes(openid);
-    console.log(`用户 ${openid} 是否为管理员: ${isAdminUser}`);
-    
-    return {
-      success: true,
-      data: {
-        isAdmin: isAdminUser
+      } else {
+        throw error
       }
     }
   } catch (error) {
-    console.error('检查管理员权限失败', error);
+    console.error('检查管理员状态失败:', error)
     return {
-      success: false,
-      message: '检查管理员权限失败',
-      error: error.message
+      success: true, // 返回成功但非管理员状态
+      data: { isAdmin: false },
+      error: error.toString()
     }
   }
 }
 
-// 获取控制台概览统计数据
+/**
+ * 将用户设置为管理员
+ */
+async function setAsAdmin(openid) {
+  try {
+    if (!openid) {
+      return { success: false, message: '无法获取用户OpenID' }
+    }
+    
+    // 检查config集合是否存在
+    try {
+      // 检查adminConfig文档是否存在
+      const configExists = await db.collection('config').doc('adminConfig').get()
+        .then(() => true)
+        .catch(() => false)
+      
+      if (configExists) {
+        // 更新管理员列表
+        await db.collection('config').doc('adminConfig').update({
+          data: {
+            adminOpenids: _.addToSet(openid),
+            updatedAt: db.serverDate()
+          }
+        })
+        
+        return {
+          success: true,
+          message: '已将您设置为管理员'
+        }
+      } else {
+        // 创建新的管理员配置
+        await db.collection('config').add({
+          data: {
+            _id: 'adminConfig',
+            adminOpenids: [openid],
+            createdAt: db.serverDate()
+          }
+        })
+        
+        return {
+          success: true,
+          message: '已创建管理员配置并设置您为管理员'
+        }
+      }
+    } catch (error) {
+      // 可能是集合不存在，尝试创建集合
+      try {
+        await db.createCollection('config')
+        await db.collection('config').add({
+          data: {
+            _id: 'adminConfig',
+            adminOpenids: [openid],
+            createdAt: db.serverDate()
+          }
+        })
+        
+        return {
+          success: true,
+          message: '已创建config集合并设置您为管理员'
+        }
+      } catch (finalError) {
+        console.error('所有尝试均失败:', finalError)
+        return {
+          success: false,
+          message: '设置管理员失败: ' + finalError.message,
+          error: finalError.toString()
+        }
+      }
+    }
+  } catch (error) {
+    console.error('设置管理员失败:', error)
+    return {
+      success: false,
+      message: '设置管理员失败: ' + error.message,
+      error: error.toString()
+    }
+  }
+}
+
+/**
+ * 获取控制台概览统计数据
+ */
 async function getDashboardStats() {
   try {
     // 获取当前日期和时间
     const now = new Date()
+    console.log('开始获取控制台统计数据, 当前时间:', now)
     
     // 计算本月开始时间
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    console.log('本月开始时间:', monthStart)
     
     // 计算本周开始时间（周一为每周第一天）
     const dayOfWeek = now.getDay() || 7 // 如果是周日，则转为 7
     const weekStart = new Date(now)
     weekStart.setDate(now.getDate() - dayOfWeek + 1) // 设置为本周一
     weekStart.setHours(0, 0, 0, 0)
+    console.log('本周开始时间:', weekStart)
     
     // 1. 本月营收统计
-    const monthlyRevenue = await db.collection('orders')
-      .where({
-        createdAt: _.gte(monthStart),
+    let monthlyRevenue = 0
+    try {
+      // 注意：订单中使用的是 createTime 而不是 createdAt
+      const monthlyOrdersQuery = {
+        createTime: _.gte(monthStart),
         status: _.neq('canceled') // 排除已取消的订单
-      })
-      .get()
-      .then(res => {
-        return res.data.reduce((total, order) => total + (order.totalAmount || 0), 0)
-      })
-      .catch(() => 0) // 如果出错或无数据，返回0
+      }
+      console.log('本月营收查询条件:', JSON.stringify(monthlyOrdersQuery))
+      
+      const monthlyOrders = await db.collection('orders')
+        .where(monthlyOrdersQuery)
+        .get()
+      
+      console.log('本月订单查询结果数量:', monthlyOrders.data ? monthlyOrders.data.length : 0)
+      
+      if (monthlyOrders.data && monthlyOrders.data.length > 0) {
+        // 不打印全部数据避免日志过大
+        console.log('本月订单数量:', monthlyOrders.data.length)
+        
+        // 显示订单创建时间格式，排查日期比较问题
+        monthlyOrders.data.forEach(order => {
+          console.log(`订单 ${order.orderNumber}: createTime类型=${typeof order.createTime}, 值=${JSON.stringify(order.createTime)}, totalAmount=${order.totalAmount}`)
+        })
+        
+        monthlyRevenue = monthlyOrders.data.reduce((total, order) => {
+          const orderAmount = parseFloat(order.totalAmount) || 0
+          console.log(`订单 ${order.orderNumber} 金额: ${orderAmount}`)
+          return total + orderAmount
+        }, 0)
+      } else {
+        console.log('本月没有找到订单数据')
+      }
+    } catch (err) {
+      console.error('获取本月营收失败:', err)
+      monthlyRevenue = 0
+    }
     
     // 2. 本周营收统计
-    const weeklyRevenue = await db.collection('orders')
-      .where({
-        createdAt: _.gte(weekStart),
+    let weeklyRevenue = 0
+    try {
+      // 注意：订单中使用的是 createTime 而不是 createdAt
+      const weeklyOrdersQuery = {
+        createTime: _.gte(weekStart),
         status: _.neq('canceled') // 排除已取消的订单
-      })
-      .get()
-      .then(res => {
-        return res.data.reduce((total, order) => total + (order.totalAmount || 0), 0)
-      })
-      .catch(() => 0) // 如果出错或无数据，返回0
+      }
+      console.log('本周营收查询条件:', JSON.stringify(weeklyOrdersQuery))
+      
+      const weeklyOrders = await db.collection('orders')
+        .where(weeklyOrdersQuery)
+        .get()
+      
+      console.log('本周订单查询结果数量:', weeklyOrders.data ? weeklyOrders.data.length : 0)
+      
+      if (weeklyOrders.data && weeklyOrders.data.length > 0) {
+        // 不打印全部数据避免日志过大
+        console.log('本周订单数量:', weeklyOrders.data.length)
+        
+        // 显示订单创建时间格式，排查日期比较问题
+        weeklyOrders.data.forEach(order => {
+          console.log(`订单 ${order.orderNumber}: createTime类型=${typeof order.createTime}, 值=${JSON.stringify(order.createTime)}, totalAmount=${order.totalAmount}`)
+        })
+        
+        weeklyRevenue = weeklyOrders.data.reduce((total, order) => {
+          const orderAmount = parseFloat(order.totalAmount) || 0
+          console.log(`订单 ${order.orderNumber} 金额: ${orderAmount}`)
+          return total + orderAmount
+        }, 0)
+      } else {
+        console.log('本周没有找到订单数据')
+      }
+    } catch (err) {
+      console.error('获取本周营收失败:', err)
+      weeklyRevenue = 0
+    }
     
     // 3. 本月销售量（已完成订单数量）
     const monthlySales = await db.collection('orders')
       .where({
-        createdAt: _.gte(monthStart),
+        createTime: _.gte(monthStart), // 使用createTime而不是createdAt
         status: 'completed' // 只计算已完成的订单
       })
       .count()
@@ -389,7 +549,7 @@ async function getDashboardStats() {
       .catch(() => 0) // 如果出错或无数据，返回0
     
     // 返回统计结果
-    return {
+    const result = {
       success: true,
       data: {
         monthlyRevenue: parseFloat((monthlyRevenue || 0).toFixed(2)),
@@ -398,17 +558,22 @@ async function getDashboardStats() {
         inventory: inventory || 0
       }
     }
+    
+    console.log('统计结果:', result)
+    return result
   } catch (error) {
-    console.error('获取控制台统计数据失败', error)
+    console.error('获取控制台统计数据失败:', error)
     return {
       success: false,
-      message: '获取控制台统计数据失败: ' + (error.message || '未知错误'),
-      error: error.message || '未知错误'
+      message: '获取控制台统计数据失败: ' + error.message,
+      error: error.toString()
     }
   }
 }
 
-// 获取最近订单
+/**
+ * 获取最近订单
+ */
 async function getRecentOrders(limit = 5) {
   try {
     const orders = await db.collection('orders')
@@ -430,16 +595,18 @@ async function getRecentOrders(limit = 5) {
       data: orders
     }
   } catch (error) {
-    console.error('获取最近订单失败', error)
+    console.error('获取最近订单失败:', error)
     return {
       success: false,
-      message: '获取最近订单失败: ' + (error.message || '未知错误'),
-      error: error.message || '未知错误'
+      message: '获取最近订单失败: ' + error.message,
+      error: error.toString()
     }
   }
 }
 
-// 获取订单状态文本
+/**
+ * 获取订单状态文本
+ */
 function getOrderStatusText(status) {
   const statusMap = {
     'pending': '待付款',
@@ -447,107 +614,33 @@ function getOrderStatusText(status) {
     'shipping': '配送中',
     'completed': '已完成',
     'canceled': '已取消'
-  };
+  }
   
-  return statusMap[status] || status;
+  return statusMap[status] || status
 }
 
-// 格式化时间
+/**
+ * 格式化时间
+ */
 function formatTime(date) {
-  if (!date) return '';
+  if (!date) return ''
   
   if (typeof date === 'string') {
-    date = new Date(date);
+    date = new Date(date)
   }
   
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hour = date.getHours();
-  const minute = date.getMinutes();
+  const year = date.getFullYear()
+  const month = padZero(date.getMonth() + 1)
+  const day = padZero(date.getDate())
+  const hour = padZero(date.getHours())
+  const minute = padZero(date.getMinutes())
   
-  return `${year}-${padZero(month)}-${padZero(day)} ${padZero(hour)}:${padZero(minute)}`;
+  return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-// 数字补零
+/**
+ * 数字补零
+ */
 function padZero(num) {
-  return num < 10 ? '0' + num : num;
-}
-
-// 将用户设置为管理员
-async function setAsAdmin(openid) {
-  try {
-    // 如果没有openid，返回错误
-    if (!openid) {
-      console.error('无法获取openid，用户未登录');
-      return {
-        success: false,
-        message: '用户未登录，无法设置管理员权限'
-      }
-    }
-    
-    // 检查config集合是否存在
-    const collections = await db.listCollections().then(res => res.map(item => item.name));
-    if (!collections.includes('config')) {
-      console.log('config集合不存在，创建集合');
-      try {
-        await db.createCollection('config');
-      } catch (error) {
-        console.error('创建config集合失败', error);
-        return {
-          success: false,
-          message: '创建配置集合失败'
-        };
-      }
-    }
-    
-    // 查询是否已有adminConfig文档
-    const adminConfigExists = await db.collection('config')
-      .doc('adminConfig')
-      .get()
-      .then(() => true)
-      .catch(() => false);
-    
-    if (adminConfigExists) {
-      // 已有adminConfig，更新管理员列表
-      const result = await db.collection('config')
-        .doc('adminConfig')
-        .update({
-          data: {
-            adminOpenids: db.command.addToSet(openid),
-            updatedAt: db.serverDate()
-          }
-        });
-      
-      console.log(`已将用户 ${openid} 添加到管理员列表`);
-      
-      return {
-        success: true,
-        message: '已将您添加到管理员列表'
-      };
-    } else {
-      // 没有adminConfig，创建新文档
-      const result = await db.collection('config').add({
-        data: {
-          _id: 'adminConfig',
-          adminOpenids: [openid],
-          createdAt: db.serverDate()
-        }
-      });
-      
-      console.log(`已创建adminConfig并将用户 ${openid} 设为管理员`);
-      
-      return {
-        success: true,
-        message: '已将您设置为管理员'
-      };
-    }
-  } catch (error) {
-    console.error('设置管理员失败', error);
-    return {
-      success: false,
-      message: '设置管理员失败: ' + (error.message || '未知错误'),
-      error: error.message || '未知错误'
-    }
-  }
+  return num < 10 ? '0' + num : num
 } 

@@ -41,6 +41,25 @@ Page({
     this.checkLoginStatus();
     if (app.globalData.isLogin) {
       this.getOrderList();
+      
+      // 检查是否需要跳转到订单列表
+      try {
+        const goToOrderList = wx.getStorageSync('goToOrderList');
+        if (goToOrderList) {
+          // 清除标记
+          wx.removeStorageSync('goToOrderList');
+          
+          // 跳转到订单列表页
+          console.log('检测到下单成功标记，自动跳转到订单列表');
+          setTimeout(() => {
+            wx.navigateTo({
+              url: '/pages/order-package/orders'
+            });
+          }, 100);
+        }
+      } catch (e) {
+        console.error('检查跳转标记失败', e);
+      }
     }
   },
 
@@ -222,12 +241,17 @@ Page({
   },
 
   /**
-   * 跳转到订单页面
+   * 跳转到订单
    */
   goToOrders: function(e) {
+    if(!getApp().globalData.isLogin) {
+      this.showLoginDialog();
+      return;
+    }
+    
     const status = e.currentTarget.dataset.status || '';
     wx.navigateTo({
-      url: '/pages/orders/orders?status=' + status
+      url: '/pages/order-package/orders?status=' + status
     });
   },
 
@@ -241,12 +265,37 @@ Page({
   },
 
   /**
-   * 跳转到订单详情页面
+   * 查看订单详情
    */
   goToOrderDetail: function(e) {
-    const orderId = e.currentTarget.dataset.id;
+    if(!getApp().globalData.isLogin) {
+      this.showLoginDialog();
+      return;
+    }
+    
+    const id = e.currentTarget.dataset.id;
+    if(!id) {
+      console.error('缺少订单ID');
+      return;
+    }
+    
+    console.log('跳转到订单详情:', id);
     wx.navigateTo({
-      url: '/pages/order-detail/order-detail?id=' + orderId
+      url: '/pages/order-package/order-detail?id=' + id
+    });
+  },
+
+  /**
+   * 查看全部订单
+   */
+  goToOrdersList: function() {
+    if(!getApp().globalData.isLogin) {
+      this.showLoginDialog();
+      return;
+    }
+    
+    wx.navigateTo({
+      url: '/pages/order-package/orders'
     });
   },
 
@@ -299,8 +348,9 @@ Page({
    */
   onShareAppMessage: function () {
     return {
-      title: '梧桐小姐烘焙 - 甜蜜生活的小确幸',
-      path: '/pages/index/index'
-    };
+      title: '梧桐小姐烘焙屋 - 甜蜜生活的小确幸',
+      path: '/pages/index/index',
+      imageUrl: '/assets/images/share/profile-share.jpg'
+    }
   }
 }) 

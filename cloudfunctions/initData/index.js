@@ -41,91 +41,8 @@ try {
 
 // 烘焙产品分类和商品数据
 const bakeryData = {
-  categories: [
-    {
-      name: '蛋糕',
-      icon: '/assets/images/products/product-tiramisu.jpg',
-      order: 1,
-      isActive: true,
-      productCount: 2
-    },
-    {
-      name: '面包',
-      icon: '/assets/images/products/product-croissant.jpg',
-      order: 2,
-      isActive: true,
-      productCount: 2
-    },
-    {
-      name: '饼干',
-      icon: '/assets/images/products/product-brownie.jpg',
-      order: 3,
-      isActive: true,
-      productCount: 1
-    }
-  ],
-  products: [
-    {
-      name: '提拉米苏',
-      image: '/assets/images/products/product-tiramisu.jpg',
-      price: 158,
-      category: '蛋糕',
-      isActive: true,
-      isNew: true,
-      isFeatured: true,
-      rating: 4.9,
-      reviews: 324,
-      description: '意大利经典甜点，浓郁咖啡香与马斯卡彭奶酪的完美融合'
-    },
-    {
-      name: '巧克力曲奇',
-      image: '/assets/images/products/product-brownie.jpg',
-      price: 28,
-      category: '饼干',
-      isActive: true,
-      isNew: true,
-      isFeatured: false,
-      rating: 4.7,
-      reviews: 198,
-      description: '浓郁巧克力风味，香脆可口，下午茶必备'
-    },
-    {
-      name: '法式可颂',
-      image: '/assets/images/products/product-croissant.jpg',
-      price: 32,
-      category: '面包',
-      isActive: true,
-      isNew: false,
-      isFeatured: true,
-      rating: 4.5,
-      reviews: 156,
-      description: '层次分明，酥脆香软，黄油香气四溢'
-    },
-    {
-      name: '芒果千层',
-      image: '/assets/images/products/product-mango-layer.jpg',
-      price: 148,
-      category: '蛋糕',
-      isActive: true,
-      isNew: true,
-      isFeatured: true,
-      rating: 4.8,
-      reviews: 256,
-      description: '新鲜芒果与轻盈奶油，层层叠叠的美味享受'
-    },
-    {
-      name: '抹茶蛋糕',
-      image: '/assets/images/products/product-matcha-cake.jpg',
-      price: 128,
-      category: '蛋糕',
-      isActive: true,
-      isNew: false,
-      isFeatured: true,
-      rating: 4.6,
-      reviews: 178,
-      description: '优质抹茶粉制作，苦甜适中，茶香浓郁'
-    }
-  ]
+  categories: [],
+  products: []
 };
 
 // 云函数入口函数
@@ -158,6 +75,9 @@ exports.main = async (event, context) => {
     } else if (event.action === 'clearAll') {
       // 清空所有数据
       return await clearAllCollections();
+    } else if (event.action === 'unifyInit') {
+      // 使用统一的初始化方法（基于cleanDatabase云函数）
+      return await unifyDatabaseInitialization();
     } else if (event.action === 'initAll') {
       // 初始化所有数据
       try {
@@ -360,160 +280,19 @@ async function initOrderCollection() {
       };
     }
     
-    // 清空现有订单数据 - 使用更强大的删除方法
-    console.log('尝试清空现有订单数据...');
-    try {
-      // 方式1：常规删除
-      const deleteResult = await db.collection('orders').where({}).remove();
-      console.log('删除结果:', deleteResult);
-      
-      // 双重检查 - 确认是否有剩余订单
-      const remainingCheck = await db.collection('orders').count();
-      if (remainingCheck.total > 0) {
-        console.log(`删除后仍有 ${remainingCheck.total} 个订单，尝试批量删除`);
-        
-        // 获取所有订单ID并批量删除
-        const allOrders = await db.collection('orders').limit(100).get();
-        const deletePromises = allOrders.data.map(order => 
-          db.collection('orders').doc(order._id).remove()
-        );
-        await Promise.all(deletePromises);
-        
-        // 再次检查
-        const finalCheck = await db.collection('orders').count();
-        console.log(`批量删除后剩余订单数: ${finalCheck.total}`);
-      }
-    } catch (clearErr) {
-      console.error('清空订单数据失败:', clearErr);
-      // 继续尝试添加新订单，但记录错误信息
-    }
+    // 清空现有订单数据
+    console.log('清空现有订单数据...');
+    await clearCollection('orders');
     
-    // 再次检查订单总数
-    const countCheck = await db.collection('orders').count();
-    console.log(`清空操作后，当前订单总数: ${countCheck.total}`);
-    
-    // 如果仍然有订单，并且超过5个，返回错误避免过度添加
-    if (countCheck.total > 5) {
-      return {
-        success: false,
-        message: '订单集合中已有大量数据，为避免重复添加，请先手动清空',
-        currentCount: countCheck.total
-      };
-    }
-    
-    // 获取当前时间
-    const now = new Date();
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    // 生成唯一的测试用户ID和订单号前缀
-    const timestamp = Date.now();
-    const testOpenid = 'test_user_' + timestamp;
-    const orderPrefix = 'TEST-A-' + timestamp;
-    
-    // 简单的测试订单数据 - 只包含必要字段
-    const testOrders = [
-      // 待发货订单
-      {
-        openid: testOpenid,
-        orderNumber: orderPrefix + '1',
-        status: 'pending',
-        statusText: '待发货',
-        normalizedStatus: 'pending',
-        createTime: now,
-        updateTime: now,
-        totalAmount: 99,
-        products: [{
-          name: '牛角面包',
-          price: 33,
-          quantity: 3,
-          image: '/assets/images/products/product-croissant.jpg'
-        }],
-        address: {
-          name: '张三',
-          phone: '13800138000',
-          fullAddress: '北京市朝阳区测试地址1号'
-        }
-      },
-      
-      // 配送中订单
-      {
-        openid: testOpenid,
-        orderNumber: orderPrefix + '2',
-        status: 'shipping',
-        statusText: '配送中',
-        normalizedStatus: 'shipping',
-        createTime: yesterday,
-        updateTime: now,
-        totalAmount: 158,
-        products: [{
-          name: '提拉米苏',
-          price: 158,
-          quantity: 1,
-          image: '/assets/images/products/product-tiramisu.jpg'
-        }],
-        address: {
-          name: '李四',
-          phone: '13900139000',
-          fullAddress: '上海市浦东新区测试地址2号'
-        }
-      },
-      
-      // 已完成订单
-      {
-        openid: testOpenid,
-        orderNumber: orderPrefix + '3',
-        status: 'completed',
-        statusText: '已完成',
-        normalizedStatus: 'completed',
-        createTime: yesterday,
-        updateTime: now,
-        totalAmount: 58,
-        products: [{
-          name: '巧克力曲奇',
-          price: 29,
-          quantity: 2,
-          image: '/assets/images/products/product-brownie.jpg'
-        }],
-        address: {
-          name: '王五',
-          phone: '13700137000',
-          fullAddress: '广州市天河区测试地址3号'
-        }
-      }
-    ];
-    
-    console.log(`准备添加 ${testOrders.length} 个测试订单，订单号前缀: ${orderPrefix}`);
-    
-    // 添加测试订单
-    const results = [];
-    for (let i = 0; i < testOrders.length; i++) {
-      try {
-        console.log(`添加第 ${i+1} 个测试订单，订单号: ${testOrders[i].orderNumber}`);
-        const result = await db.collection('orders').add({
-          data: testOrders[i]
-        });
-        console.log(`添加成功，订单ID: ${result._id}`);
-        results.push(result._id);
-      } catch (addErr) {
-        console.error(`添加第 ${i+1} 个订单失败:`, addErr);
-      }
-    }
+    console.log('订单数据已清空，不再添加测试订单');
     
     // 返回结果
-    if (results.length > 0) {
-      return {
-        success: true,
-        message: `成功添加 ${results.length} 个测试订单`,
-        orderIds: results,
-        orderPrefix: orderPrefix
-      };
-    } else {
-      return {
-        success: false,
-        message: '未能成功添加任何测试订单'
-      };
-    }
+    return {
+      success: true,
+      message: '订单数据已清空，不再添加测试订单',
+      orderIds: [],
+      orderPrefix: ''
+    };
   } catch (error) {
     console.error('初始化订单集合失败:', error);
     return {
@@ -762,5 +541,35 @@ async function testDatabaseConnection() {
       dbStatus: 'error',
       error: error
     };
+  }
+}
+
+// 统一数据库初始化函数 - 使用cleanDatabase进行一致性初始化
+async function unifyDatabaseInitialization() {
+  try {
+    console.log('开始执行统一数据库初始化');
+    
+    // 调用cleanDatabase云函数进行初始化
+    const cleanResult = await cloud.callFunction({
+      name: 'cleanDatabase',
+      data: {
+        action: 'init'  // 使用cleanDatabase中的init行为
+      }
+    });
+    
+    console.log('统一数据库初始化结果:', cleanResult);
+    
+    if (cleanResult.result && cleanResult.result.success) {
+      return {
+        success: true,
+        message: '数据统一初始化成功',
+        details: cleanResult.result
+      };
+    } else {
+      throw new Error('cleanDatabase云函数调用失败: ' + (cleanResult.result ? cleanResult.result.message : '未知错误'));
+    }
+  } catch (error) {
+    console.error('统一数据库初始化失败:', error);
+    throw error;
   }
 } 

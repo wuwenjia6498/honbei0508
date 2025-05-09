@@ -31,7 +31,7 @@
         <image src="{{item.icon}}" mode="aspectFill"></image>
         <view class="category-info">
           <view class="category-name">{{item.name}}</view>
-          <view class="category-count">{{item.productCount}}+ 种类</view>
+          <view class="category-count">{{item.productCount > 0 ? item.productCount + '+ 种类' : '0 种类'}}</view>
         </view>
       </view>
     </view>

@@ -1255,8 +1255,57 @@ Page({
       confirmColor: '#42a5f5',
       success: (res) => {
         if (res.confirm) {
+          // 使用统一初始化方法
+          this.callUnifiedInitFunction();
+        }
+      }
+    });
+  },
+  
+  /**
+   * 调用统一初始化函数
+   */
+  callUnifiedInitFunction: function() {
+    // 设置加载状态
+    this.setData({
+      dbActionLoading: true,
+      dbActionMessage: '正在统一初始化数据，请稍候...'
+    });
+    
+    // 调用云函数
+    wx.cloud.callFunction({
+      name: 'initData',
+      data: { action: 'unifyInit' },
+      success: res => {
+        console.log('统一初始化数据结果: ', res);
+        
+        if (res.result && res.result.success) {
+          this.setData({
+            dbActionLoading: false,
+            dbActionMessage: '初始化成功',
+            dbActionSuccess: true
+          });
+          
+          wx.showToast({
+            title: '数据初始化成功',
+            icon: 'success',
+            duration: 2000
+          });
+          
+          // 刷新产品列表
+          setTimeout(() => {
+            this.getProductList();
+          }, 1000);
+        } else {
+          console.error('统一初始化失败，尝试使用cleanDatabase');
+          // 回退到原有方法
           this.callCleanDatabaseFunction('init');
         }
+      },
+      fail: err => {
+        console.error('调用云函数失败: ', err);
+        // 回退到原有方法
+        this.callCleanDatabaseFunction('init');
       }
     });
   },

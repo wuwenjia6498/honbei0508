@@ -1,21 +1,11 @@
 {
   "pages": [
-    "pages/admin/dashboard/dashboard",
-    "pages/admin/products/products",
-    "pages/admin/orders/orders",
-    "pages/admin/categories/categories",
-    "pages/admin/users/users",
-    "pages/admin/editUser/editUser",
-    "pages/admin/login/login",
-    "pages/admin/dataInit/dataInit",
     "pages/index/index",
     "pages/product/product",
     "pages/category/category",
     "pages/cart/cart",
     "pages/profile/profile",
     "pages/checkout/checkout",
-    "pages/order-detail/order-detail",
-    "pages/orders/orders",
     "pages/about/about",
     "pages/fresh-all/fresh-all",
     "pages/popular-all/popular-all",
@@ -23,10 +13,34 @@
     "pages/address/address-list",
     "pages/address/address-edit"
   ],
+  "subpackages": [
+    {
+      "root": "pages/admin",
+      "name": "admin",
+      "pages": [
+        "dashboard/dashboard",
+        "products/products",
+        "orders/orders",
+        "categories/categories",
+        "users/users",
+        "editUser/editUser",
+        "login/login",
+        "dataInit/dataInit"
+      ]
+    },
+    {
+      "root": "pages/order-package",
+      "name": "order",
+      "pages": [
+        "order-detail",
+        "orders"
+      ]
+    }
+  ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#a68a7b",
-    "navigationBarTitleText": "梧桐小姐烘焙",
+    "navigationBarTitleText": "梧桐小姐烘焙屋",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {

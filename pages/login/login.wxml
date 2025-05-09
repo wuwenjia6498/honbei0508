@@ -13,12 +13,18 @@
     <block wx:if="{{!userInfo}}">
       <view class="login-banner">
         <image class="login-image" src="/assets/images/icons/user-active.png" mode="aspectFit"></image>
-        <view class="login-title">欢迎来到梧桐小姐烘焙</view>
+        <view class="login-title">欢迎来到梧桐小姐烘焙屋</view>
         <view class="login-subtitle">{{tipMessage}}</view>
+        
+        <!-- 错误信息展示 -->
+        <view class="error-info" wx:if="{{errorInfo}}">
+          <view class="error-message">{{errorInfo}}</view>
+          <view class="retry-btn" bindtap="retryLogin">重试</view>
+        </view>
       </view>
       
       <button 
-        class="login-btn {{loading ? 'loading' : ''}}" 
+        class="login-btn {{loading ? 'loading' : ''}} {{errorInfo ? 'error' : ''}}" 
         bindtap="getUserProfile" 
         disabled="{{loading}}"
         hover-class="none"

@@ -1,0 +1,95 @@
+<!--pages/order-package/orders.wxml-->
+<view class="container" style="padding-top: {{navHeight}}px">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav-bar" style="padding-top: {{statusBarHeight}}px">
+    <view class="nav-back" bindtap="back">
+      <view class="back-icon"></view>
+    </view>
+    <view class="nav-title">我的订单</view>
+    <view class="nav-placeholder"></view>
+  </view>
+  
+  <!-- 导航栏占位，防止内容被导航栏遮挡 -->
+  <view style="height: {{navHeight}}px"></view>
+
+  <!-- 订单标签页 -->
+  <scroll-view class="tab-bar" scroll-x>
+    <block wx:for="{{tabList}}" wx:key="index">
+      <view class="tab-item {{currentTab === index ? 'active' : ''}}" bindtap="switchTab" data-index="{{index}}">
+        <text>{{item}}</text>
+        <view class="tab-line" wx:if="{{currentTab === index}}"></view>
+      </view>
+    </block>
+  </scroll-view>
+  
+  <!-- 加载中状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading"></view>
+    <view class="loading-text">加载中...</view>
+  </view>
+
+  <!-- 空列表状态 -->
+  <view class="empty-container" wx:elif="{{isEmpty}}">
+    <view class="empty-icon">📋</view>
+    <view class="empty-text">暂无订单</view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list" wx:else>
+    <view 
+      class="order-item" 
+      wx:for="{{orderList}}" 
+      wx:key="id" 
+      wx:for-index="orderIndex">
+      <view class="order-header">
+        <view class="order-number">订单号: {{item.orderNumber}}</view>
+        <view class="order-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+      
+      <view class="order-products" bindtap="goToOrderDetail" data-id="{{item.id}}">
+        <view 
+          class="product-item" 
+          wx:for="{{item.products}}" 
+          wx:key="id" 
+          wx:for-item="product"
+          wx:for-index="productIndex">
+          <image 
+            class="product-image" 
+            src="{{product.image}}" 
+            mode="aspectFill"
+            binderror="handleImageError"
+            data-order-index="{{orderIndex}}"
+            data-index="{{productIndex}}"
+            data-product-id="{{product.id}}"
+            lazy-load="true"/>
+          <view class="product-count" wx:if="{{product.count > 1}}">x{{product.count}}</view>
+        </view>
+      </view>
+      
+      <view class="order-footer" bindtap="goToOrderDetail" data-id="{{item.id}}">
+        <view class="order-time">{{item.createTime}}</view>
+        <view class="order-total">
+          <text class="total-count">共{{item.totalCount}}件商品</text>
+          <text class="total-amount">¥{{item.totalAmount}}</text>
+        </view>
+      </view>
+      
+      <view class="order-actions">
+        <view 
+          class="action-btn cancel-btn" 
+          wx:if="{{item.status === 'pending'}}" 
+          catchtap="cancelOrder" 
+          data-id="{{item.id}}">取消订单</view>
+        <view 
+          class="action-btn pay-btn" 
+          wx:if="{{item.status === 'pending'}}" 
+          catchtap="goToPay" 
+          data-id="{{item.id}}">继续支付</view>
+        <view 
+          class="action-btn detail-btn" 
+          catchtap="goToOrderDetail" 
+          data-id="{{item.id}}">查看详情</view>
+      </view>
+    </view>
+  </view>
+</view>

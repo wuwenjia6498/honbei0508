@@ -61,8 +61,9 @@ Page({
    */
   onShareAppMessage: function () {
     return {
-      title: '梧桐小姐烘焙 - 关于我们',
-      path: '/pages/about/about'
-    };
+      title: '梧桐小姐烘焙屋 - 关于我们',
+      path: '/pages/about/about',
+      imageUrl: '/assets/images/share/about-share.jpg'
+    }
   }
 }) 

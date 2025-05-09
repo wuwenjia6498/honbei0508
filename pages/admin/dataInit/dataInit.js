@@ -82,42 +82,39 @@ Page({
   async initAllData() {
     try {
       this.setData({ loading: true });
-      this.addLog('开始初始化所有数据...');
+      this.addLog('开始统一初始化所有数据...');
       
-      // 直接调用云函数
+      // 调用统一初始化函数
       wx.cloud.callFunction({
         name: 'initData',
+        data: { action: 'unifyInit' },
         config: {
           env: 'cloud1-3g9nsaj9f3a1b0ed'
         }
       }).then(res => {
-        console.log('云函数调用成功:', res);
+        console.log('统一初始化数据结果:', res);
         this.addLog('云函数返回:' + JSON.stringify(res.result || {}));
         
         if (res.result && res.result.success) {
-          this.addLog('数据初始化成功');
+          this.addLog('统一数据初始化成功');
           wx.showToast({
             title: '初始化成功',
             icon: 'success'
           });
+          this.setData({ loading: false });
         } else {
           const errorMsg = res.result ? (res.result.message || '未知错误') : '未知错误';
-          this.addLog('数据初始化失败: ' + errorMsg);
-          wx.showToast({
-            title: '初始化失败',
-            icon: 'error'
-          });
+          this.addLog('统一初始化失败: ' + errorMsg + '，尝试回退方案...');
+          
+          // 如果统一初始化失败，尝试使用cleanDatabase回退方案
+          return this.fallbackToCleanDatabase();
         }
-        
-        this.setData({ loading: false });
       }).catch(err => {
-        console.error('云函数调用失败:', err);
-        this.addLog('云函数调用失败:' + JSON.stringify(err));
-        wx.showToast({
-          title: '调用失败',
-          icon: 'error'
-        });
-        this.setData({ loading: false });
+        console.error('统一初始化调用失败:', err);
+        this.addLog('统一初始化调用失败:' + JSON.stringify(err) + '，尝试回退方案...');
+        
+        // 调用失败，尝试使用cleanDatabase回退方案
+        return this.fallbackToCleanDatabase();
       });
     } catch (error) {
       console.error('初始化操作出错:', error);
@@ -126,6 +123,45 @@ Page({
         title: '操作出错',
         icon: 'error'
       });
+      this.setData({ loading: false });
+    }
+  },
+  
+  // 使用cleanDatabase回退方案
+  async fallbackToCleanDatabase() {
+    this.addLog('正在使用回退方案: cleanDatabase...');
+    
+    try {
+      const cleanRes = await wx.cloud.callFunction({
+        name: 'cleanDatabase',
+        data: { action: 'init' }
+      });
+      
+      console.log('回退方案结果:', cleanRes);
+      this.addLog('回退方案返回: ' + JSON.stringify(cleanRes.result || {}));
+      
+      if (cleanRes.result && cleanRes.result.success) {
+        this.addLog('回退方案初始化成功');
+        wx.showToast({
+          title: '初始化成功(回退)',
+          icon: 'success'
+        });
+      } else {
+        const errorMsg = cleanRes.result ? (cleanRes.result.message || '未知错误') : '未知错误';
+        this.addLog('回退方案也失败: ' + errorMsg);
+        wx.showToast({
+          title: '初始化失败',
+          icon: 'error'
+        });
+      }
+    } catch (fallbackErr) {
+      console.error('回退方案调用失败:', fallbackErr);
+      this.addLog('回退方案调用失败: ' + JSON.stringify(fallbackErr));
+      wx.showToast({
+        title: '初始化失败',
+        icon: 'error'
+      });
+    } finally {
       this.setData({ loading: false });
     }
   },
@@ -196,62 +232,117 @@ Page({
 
   // 初始化产品数据
   async initProducts() {
-    await this.initCollection('products');
+    this.addLog('开始初始化商品数据...');
+    this.setData({ loading: true });
+    
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'cleanDatabase',
+        data: { action: 'init' }
+      });
+      
+      console.log('初始化商品结果:', res);
+      this.addLog('初始化商品结果: ' + JSON.stringify(res.result || {}));
+      
+      if (res.result && res.result.success) {
+        this.addLog('商品数据初始化成功');
+        wx.showToast({
+          title: '初始化成功',
+          icon: 'success'
+        });
+      } else {
+        const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
+        this.addLog('商品数据初始化失败: ' + errorMsg);
+        wx.showToast({
+          title: '初始化失败',
+          icon: 'error'
+        });
+      }
+    } catch (err) {
+      console.error('初始化商品数据失败:', err);
+      this.addLog('初始化商品数据失败: ' + JSON.stringify(err));
+      wx.showToast({
+        title: '初始化失败',
+        icon: 'error'
+      });
+    } finally {
+      this.setData({ loading: false });
+    }
   },
 
   // 初始化分类数据
   async initCategories() {
-    await this.initCollection('categories');
+    this.addLog('开始初始化分类数据...');
+    this.setData({ loading: true });
+    
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'cleanDatabase',
+        data: { action: 'init' }
+      });
+      
+      console.log('初始化分类结果:', res);
+      this.addLog('初始化分类结果: ' + JSON.stringify(res.result || {}));
+      
+      if (res.result && res.result.success) {
+        this.addLog('分类数据初始化成功');
+        wx.showToast({
+          title: '初始化成功',
+          icon: 'success'
+        });
+      } else {
+        const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
+        this.addLog('分类数据初始化失败: ' + errorMsg);
+        wx.showToast({
+          title: '初始化失败',
+          icon: 'error'
+        });
+      }
+    } catch (err) {
+      console.error('初始化分类数据失败:', err);
+      this.addLog('初始化分类数据失败: ' + JSON.stringify(err));
+      wx.showToast({
+        title: '初始化失败',
+        icon: 'error'
+      });
+    } finally {
+      this.setData({ loading: false });
+    }
   },
 
   // 初始化用户数据
   async initUsers() {
-    await this.initCollection('users');
-  },
-
-  // 初始化特定集合
-  async initCollection(collection) {
+    this.addLog('开始初始化用户数据...');
+    this.setData({ loading: true });
+    
     try {
-      this.setData({ loading: true });
-      this.addLog(`开始初始化${collection}数据...`);
-      
-      try {
-        const res = await wx.cloud.callFunction({
-          name: 'initData',
-          data: {
-            action: 'init',
-            collection
-          }
-        });
-        
-        console.log(`初始化${collection}结果:`, res);
-        this.addLog('云函数返回: ' + JSON.stringify(res.result || {}));
-        
-        if (res.result && res.result.success) {
-          this.addLog(`${collection}数据初始化成功: ${res.result.message || ''}`);
-          wx.showToast({
-            title: '初始化成功',
-            icon: 'success'
-          });
-        } else {
-          const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
-          this.addLog(`${collection}数据初始化失败: ${errorMsg}`);
-          wx.showToast({
-            title: '初始化失败',
-            icon: 'error'
-          });
+      const res = await wx.cloud.callFunction({
+        name: 'initData',
+        data: {
+          action: 'initUsers'
         }
-      } catch (cloudErr) {
-        console.error('调用云函数出错:', cloudErr);
-        this.addLog('调用云函数出错: ' + JSON.stringify(cloudErr));
+      });
+      
+      console.log('初始化用户结果:', res);
+      this.addLog('初始化用户结果: ' + JSON.stringify(res.result || {}));
+      
+      if (res.result && res.result.success) {
+        this.addLog('用户数据初始化成功');
         wx.showToast({
-          title: '调用云函数失败',
+          title: '初始化成功',
+          icon: 'success'
+        });
+      } else {
+        const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
+        this.addLog('用户数据初始化失败: ' + errorMsg);
+        wx.showToast({
+          title: '初始化失败',
           icon: 'error'
         });
       }
-    } catch (error) {
-      console.error(`初始化${collection}数据失败`, error);
-      this.addLog(`初始化${collection}数据出错: ${error.message}`);
+    } catch (err) {
+      console.error('初始化用户数据失败:', err);
+      this.addLog('初始化用户数据失败: ' + JSON.stringify(err));
       wx.showToast({
         title: '初始化失败',
         icon: 'error'

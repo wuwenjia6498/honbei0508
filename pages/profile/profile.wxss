@@ -226,15 +226,19 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin-top: 15rpx; /* 增加与订单标题的间距 */
 }
 
 .product-images {
   display: flex;
+  flex: 1; /* 允许图片区域占据剩余空间 */
+  overflow: hidden; /* 防止溢出 */
 }
 
 .product-image-container {
   position: relative;
   margin-right: 20rpx;
+  flex-shrink: 0; /* 防止图片被压缩 */
 }
 
 .product-image-container image {
@@ -265,13 +269,17 @@ page {
   align-items: flex-end;
   font-size: 24rpx;
   color: #666;
+  min-width: 180rpx; /* 确保有足够宽度显示价格 */
+  margin-left: 20rpx; /* 增加与商品图片的左侧间距 */
+  padding-left: 10rpx; /* 增加左内边距 */
 }
 
 .price {
-  font-size: 32rpx;
-  color: #333;
+  font-size: 34rpx; /* 稍微增大价格字体 */
+  color: #ff5000; /* 使用突出的颜色 */
   font-weight: 500;
   margin-top: 10rpx;
+  line-height: 1.2; /* 确保行高合适 */
 }
 
 /* 用户服务菜单 */
