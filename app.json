@@ -67,7 +67,6 @@
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
     "admin-tab-bar": "/components/admin-tab-bar/admin-tab-bar"
   },
   "requiredPrivateInfos": [

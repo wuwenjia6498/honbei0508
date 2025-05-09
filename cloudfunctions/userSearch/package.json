@@ -1,11 +1,9 @@
 {
   "name": "userSearch",
   "version": "1.0.0",
-  "description": "占位云函数，解决编译错误",
+  "description": "占位云函数，提示用户使用新API",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "latest"
-  },
-  "author": "",
-  "license": "ISC"
+    "wx-server-sdk": "~2.6.3"
+  }
 } 
