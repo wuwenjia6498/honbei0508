@@ -56,14 +56,9 @@ Page({
           const products = more ? 
             [...this.data.freshProducts, ...res.result.data] : 
             res.result.data
-            
-          this.setData({
-            freshProducts: products,
-            loading: false,
-            isLoadingMore: false,
-            totalPages: res.result.pagination ? res.result.pagination.pages : 1,
-            noMoreData: this.data.pageNum >= (res.result.pagination ? res.result.pagination.pages : 1)
-          })
+          
+          // 处理图片URL  
+          this.processProductImages(products)
           
           // 检查是否没有数据，如果没有数据，尝试初始化数据库
           if (!more && (!products || products.length === 0)) {
@@ -80,6 +75,79 @@ Page({
         })
       }
     })
+  },
+  
+  // 处理商品图片URL
+  processProductImages(products) {
+    console.log('处理商品图片URL');
+    
+    // 收集需要获取临时URL的云存储图片
+    const cloudFileIDs = [];
+    products.forEach(product => {
+      if (product.image && product.image.startsWith('cloud://')) {
+        cloudFileIDs.push(product.image);
+      }
+    });
+    
+    if (cloudFileIDs.length > 0) {
+      // 有云存储图片，获取临时URL
+      wx.cloud.getTempFileURL({
+        fileList: cloudFileIDs,
+        success: res => {
+          console.log('获取临时文件URL成功:', res);
+          
+          // 创建ID到URL的映射
+          const urlMap = {};
+          if (res.fileList) {
+            res.fileList.forEach(item => {
+              if (item.fileID && item.tempFileURL) {
+                urlMap[item.fileID] = item.tempFileURL;
+              }
+            });
+          }
+          
+          // 更新商品图片URL
+          const processedProducts = products.map(product => {
+            if (product.image && product.image.startsWith('cloud://')) {
+              if (urlMap[product.image]) {
+                // 有临时URL，使用临时URL
+                return { ...product, image: urlMap[product.image] };
+              }
+            }
+            return product;
+          });
+          
+          // 更新数据
+          this.setData({
+            freshProducts: processedProducts,
+            loading: false,
+            isLoadingMore: false,
+            totalPages: this.data.totalPages,
+            noMoreData: this.data.pageNum >= this.data.totalPages
+          });
+        },
+        fail: err => {
+          console.error('获取临时文件URL失败:', err);
+          // 即使失败也更新数据
+          this.setData({
+            freshProducts: products,
+            loading: false,
+            isLoadingMore: false,
+            totalPages: this.data.totalPages,
+            noMoreData: this.data.pageNum >= this.data.totalPages
+          });
+        }
+      });
+    } else {
+      // 没有云存储图片，直接更新数据
+      this.setData({
+        freshProducts: products,
+        loading: false,
+        isLoadingMore: false,
+        totalPages: this.data.totalPages,
+        noMoreData: this.data.pageNum >= this.data.totalPages
+      });
+    }
   },
   
   // 跳转到商品详情

@@ -262,11 +262,12 @@ App({
         action: 'getCart'
       }
     }).then(res => {
-      if (res.result && res.result.code === 0) {
-        const cartList = res.result.data || [];
-        this.globalData.cartList = cartList;
-        this.globalData.cartTotal = cartList.reduce((total, item) => {
-          return total + item.quantity;
+      if (res.result && res.result.success) {
+        const cartData = res.result.data || {};
+        const cartItems = cartData.cartItems || [];
+        this.globalData.cartList = cartItems;
+        this.globalData.cartTotal = cartItems.reduce((total, item) => {
+          return total + (item.quantity || 0);
         }, 0);
         
         this.updateCartBadge();

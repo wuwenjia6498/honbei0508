@@ -51,6 +51,8 @@ Page({
       }
     }).then(res => {
       if (res.result.success) {
+        // 更新购物车数量
+        getApp().updateCart();
         wx.showToast({
           title: '已添加到购物车',
           icon: 'success',

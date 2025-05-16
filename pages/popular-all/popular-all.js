@@ -59,15 +59,13 @@ Page({
           const products = more ? 
             [...this.data.popularProducts, ...res.result.data] : 
             res.result.data
-            
-          this.setData({
-            popularProducts: products,
-            originalProductList: this.data.pageNum === 1 ? products : [...this.data.originalProductList, ...products],
-            loading: false,
-            isLoadingMore: false,
-            totalPages: res.result.pagination ? res.result.pagination.pages : 1,
-            noMoreData: this.data.pageNum >= (res.result.pagination ? res.result.pagination.pages : 1)
-          })
+          
+          const originalList = this.data.pageNum === 1 ? 
+            products : 
+            [...this.data.originalProductList, ...res.result.data]
+          
+          // 处理图片URL
+          this.processProductImages(products, originalList);
         }
       },
       fail: err => {
@@ -78,6 +76,92 @@ Page({
         })
       }
     })
+  },
+  
+  // 处理商品图片URL
+  processProductImages(products, originalList) {
+    console.log('处理商品图片URL');
+    
+    // 收集需要获取临时URL的云存储图片
+    const cloudFileIDs = [];
+    products.forEach(product => {
+      if (product.image && product.image.startsWith('cloud://')) {
+        cloudFileIDs.push(product.image);
+      }
+    });
+    
+    if (cloudFileIDs.length > 0) {
+      // 有云存储图片，获取临时URL
+      wx.cloud.getTempFileURL({
+        fileList: cloudFileIDs,
+        success: res => {
+          console.log('获取临时文件URL成功:', res);
+          
+          // 创建ID到URL的映射
+          const urlMap = {};
+          if (res.fileList) {
+            res.fileList.forEach(item => {
+              if (item.fileID && item.tempFileURL) {
+                urlMap[item.fileID] = item.tempFileURL;
+              }
+            });
+          }
+          
+          // 更新商品图片URL
+          const processedProducts = products.map(product => {
+            if (product.image && product.image.startsWith('cloud://')) {
+              if (urlMap[product.image]) {
+                // 有临时URL，使用临时URL
+                return { ...product, image: urlMap[product.image] };
+              }
+            }
+            return product;
+          });
+          
+          // 同样处理原始商品列表
+          const processedOriginalList = originalList.map(product => {
+            if (product.image && product.image.startsWith('cloud://')) {
+              if (urlMap[product.image]) {
+                return { ...product, image: urlMap[product.image] };
+              }
+            }
+            return product;
+          });
+          
+          // 更新数据
+          this.setData({
+            popularProducts: processedProducts,
+            originalProductList: processedOriginalList,
+            loading: false,
+            isLoadingMore: false,
+            totalPages: this.data.totalPages,
+            noMoreData: this.data.pageNum >= this.data.totalPages
+          });
+        },
+        fail: err => {
+          console.error('获取临时文件URL失败:', err);
+          // 即使失败也更新数据
+          this.setData({
+            popularProducts: products,
+            originalProductList: originalList,
+            loading: false,
+            isLoadingMore: false,
+            totalPages: this.data.totalPages,
+            noMoreData: this.data.pageNum >= this.data.totalPages
+          });
+        }
+      });
+    } else {
+      // 没有云存储图片，直接更新数据
+      this.setData({
+        popularProducts: products,
+        originalProductList: originalList,
+        loading: false,
+        isLoadingMore: false,
+        totalPages: this.data.totalPages,
+        noMoreData: this.data.pageNum >= this.data.totalPages
+      });
+    }
   },
   
   // 改变排序方式

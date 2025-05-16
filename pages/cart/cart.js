@@ -222,7 +222,10 @@ Page({
       console.log('购物车商品数量更新成功', res);
       
       // 检查返回的结果
-      if (res.result && !res.result.success) {
+      if (res.result && res.result.success) {
+        // 更新购物车数量
+        getApp().updateCart();
+      } else {
         // 更新失败，恢复原始数量
         const cartItems = this.data.cartItems;
         const itemIndex = cartItems.findIndex(i => i._id === item._id);
@@ -297,6 +300,8 @@ Page({
           Promise.all(deletePromises)
             .then(() => {
               wx.hideLoading();
+              // 更新购物车数量
+              getApp().updateCart();
               wx.showToast({
                 title: '删除成功',
                 icon: 'success',
@@ -343,6 +348,8 @@ Page({
             wx.hideLoading();
             
             if (res.result && res.result.success) {
+              // 更新购物车数量
+              getApp().updateCart();
               wx.showToast({
                 title: '删除成功',
                 icon: 'success',

@@ -236,27 +236,52 @@ Page({
     this.setData({ loading: true });
     
     try {
-      const res = await wx.cloud.callFunction({
-        name: 'cleanDatabase',
-        data: { action: 'init' }
+      // 使用bakeryData的数据直接初始化
+      const result = await wx.cloud.callFunction({
+        name: 'initData',
+        data: { action: 'initProducts' }
       });
       
-      console.log('初始化商品结果:', res);
-      this.addLog('初始化商品结果: ' + JSON.stringify(res.result || {}));
+      console.log('初始化商品结果:', result);
+      this.addLog('初始化商品结果: ' + JSON.stringify(result.result || {}));
       
-      if (res.result && res.result.success) {
+      if (result.result && result.result.success) {
         this.addLog('商品数据初始化成功');
         wx.showToast({
           title: '初始化成功',
           icon: 'success'
         });
+        
+        // 重新加载首页数据
+        const pages = getCurrentPages();
+        const indexPage = pages.find(p => p.route === 'pages/index/index');
+        if (indexPage) {
+          this.addLog('刷新首页数据');
+          indexPage.getFreshProducts();
+          indexPage.getPopularProducts();
+        }
       } else {
-        const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
-        this.addLog('商品数据初始化失败: ' + errorMsg);
-        wx.showToast({
-          title: '初始化失败',
-          icon: 'error'
+        // 如果初始化失败，尝试使用cleanDatabase方法
+        this.addLog('initData方法失败，尝试使用cleanDatabase方法...');
+        const res = await wx.cloud.callFunction({
+          name: 'cleanDatabase',
+          data: { action: 'init' }
         });
+        
+        if (res.result && res.result.success) {
+          this.addLog('使用cleanDatabase初始化商品成功');
+          wx.showToast({
+            title: '初始化成功',
+            icon: 'success'
+          });
+        } else {
+          const errorMsg = res.result ? res.result.message || '未知错误' : '未知错误';
+          this.addLog('商品数据初始化失败: ' + errorMsg);
+          wx.showToast({
+            title: '初始化失败',
+            icon: 'error'
+          });
+        }
       }
     } catch (err) {
       console.error('初始化商品数据失败:', err);

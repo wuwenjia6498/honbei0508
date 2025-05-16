@@ -1,5 +1,6 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk')
+const bakeryData = require('./bakeryData')
 
 // 优化云环境初始化方法
 try {
@@ -39,12 +40,6 @@ try {
   console.error('获取数据库引用失败:', dbErr);
 }
 
-// 烘焙产品分类和商品数据
-const bakeryData = {
-  categories: [],
-  products: []
-};
-
 // 云函数入口函数
 exports.main = async (event, context) => {
   console.log('云函数initData被调用，参数:', event);
@@ -78,6 +73,23 @@ exports.main = async (event, context) => {
     } else if (event.action === 'unifyInit') {
       // 使用统一的初始化方法（基于cleanDatabase云函数）
       return await unifyDatabaseInitialization();
+    } else if (event.action === 'initProducts') {
+      // 只初始化商品数据
+      try {
+        await initProducts();
+        return {
+          success: true,
+          message: '商品数据初始化成功'
+        };
+      } catch (error) {
+        console.error('初始化商品数据失败:', error);
+        return {
+          success: false,
+          message: error.message,
+          stack: error.stack,
+          error: error
+        };
+      }
     } else if (event.action === 'initAll') {
       // 初始化所有数据
       try {
@@ -236,7 +248,7 @@ async function initProducts() {
         ...product,
         isNew: product.isNew === true, // 确保是布尔值
         isFeatured: product.isFeatured === true, // 确保是布尔值
-        isHot: product.isFeatured === true, // 与isFeatured保持一致
+        isHot: product.isHot === true, // 确保是布尔值
         createTime: db.serverDate(),
         updateTime: db.serverDate()
       };
